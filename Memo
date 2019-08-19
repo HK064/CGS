@@ -1,0 +1,11 @@
+
+/ 呼び出し関係
+CGSetupServer ←→ CGServer
+↑ ↓
+CGConnector
+↑ ↓
+CGSetupPlayer ←→ CGServer
+
+※ CGSetupServer / CGSetupPlayer の継承とクラス名の変更を禁止する。
+
+

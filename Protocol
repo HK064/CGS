@@ -1,0 +1,27 @@
+CLIENT > connect
+SERVER > accept
+SERVER > "010"（承認）| "011"（拒否）-> 終了
+CLIENT > send NAME
+SERVER > "020"（承認）| "021"（拒否）-> 終了
+
+SERVER > "031" + (" " + playerName)* （プレイヤーリストの送信（新規プレイヤーの通知を含む））
+SERVER > "032" + (" " + playerName + " " + state)* （各プレイヤーの状態の送信）
+SERVER > "033 " + カウントダウン（ゲーム開始までのカウントダウン）（"-1" はカウント中止）
+SERVER > "037 "（ゲーム開始）
+
+CLIENT > "040"（準備完了）
+CLIENT > "041"（準備完了取消）
+
+
+
+
+
+
+Daifugo
+
+SERVER > "110" + (" " + playerName)* （プレイヤーリストの送信（ターン順））
+SERVER > "111 " + カード識別子（カードを配る）
+SERVER > "112"（カード配布完了）
+
+SERVER > "120 " + playerName（ターンの人）
+
