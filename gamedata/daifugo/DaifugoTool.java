@@ -3,6 +3,7 @@ package gamedata.daifugo;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import source.Card;
 
@@ -105,7 +106,7 @@ class DaifugoTool {
                             return null;
                         }
                     }
-                    if(selectCards.size() < 4){
+                    if (selectCards.size() < 4) {
                         // スート縛りの確認
                         boolean noBind = true;
                         int copyJoker = joker;
@@ -126,10 +127,10 @@ class DaifugoTool {
                         if (noBind && joker == 0) {
                             newBind = true;
                             for (Card card : fieldCards.get(fieldCards.size() - 1)) {
-                                if(card.isJoker()){
+                                if (card.isJoker()) {
                                     newBind = false;
                                     break;
-                            } else {
+                                } else {
                                     if (!suitExist[card.getSuitInt()]) {
                                         newBind = false;
                                         break;
@@ -140,7 +141,7 @@ class DaifugoTool {
                         // 新たな縛りの設定
                         if (newBind) {
                             for (int i = 0; i < 4; i++) {
-                                if(suitExist[i]){
+                                if (suitExist[i]) {
                                     str += FIELD_STATE_BIND[i];
                                 }
                             }
@@ -154,7 +155,7 @@ class DaifugoTool {
             if (number[0] == 11) {
                 str += FIELD_STATE_JBACK;
             }
-            if(selectCards.size() >= 4){
+            if (selectCards.size() >= 4) {
                 str += FIELD_STATE_REVOLUTION;
             }
             return str;
@@ -255,6 +256,44 @@ class DaifugoTool {
             }
         }
         return rankName[2];
+    }
+
+    /**
+     * 指定されたランクのプレイヤーの名前を返す。
+     * 
+     * @param ranks Map<名前, ランク>
+     * @param rank  1:大富豪, 2:富豪, 3:貧民, 4:大貧民
+     * @return 居なければ null を返す。
+     */
+    static String getRankPlayerName(Map<String, Integer> ranks, int rank) {
+        int i = -1;
+        if (ranks.size() <= 1) {
+            return null;
+        }
+        if (ranks.size() <= 3) {
+            if (rank == 1 || rank == 4) {
+                return null;
+            }
+            if(rank == 2){
+                i = 1;
+            } else if (rank == 3) {
+                i = ranks.size();
+            }
+        } else {
+            if(rank == 1 || rank == 1){
+                i = rank;
+            } else if(rank == 3 || rank == 4){
+                i = rank + ranks.size() - 4;
+            }
+        }
+        if(i != -1){
+            for(String name : ranks.keySet()){
+                if(ranks.get(name) == i){
+                    return name;
+                }
+            }
+        }
+        return null;
     }
 
 }

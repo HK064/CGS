@@ -15,12 +15,28 @@ import source.Card;
 public class DaifugoServer extends CGServer {
     private Map<String, List<Card>> playerCards = new HashMap<>();
     private Map<String, Integer> playerRanks = new HashMap<>();
+    private Map<String, Integer> playerFormerRanks = new HashMap<>();
     private List<List<Card>> fieldCards = new ArrayList<>();
     private String fieldState = "";
     private String lastPutPlayer = null;
+    private static final int STATE_READY = 0;
+    private static final int STATE_CARD_CHANGE = 1;
+    private static final int STATE_GAME = 2;
+    private static final int STATE_END = 3;
+    private int state = STATE_READY;
+    private boolean[] cardChanged = { false, false };
 
     @Override
     public void startGame() {
+        // 初期化
+        playerCards.clear();
+        playerFormerRanks = playerRanks;
+        playerRanks = new HashMap<>();
+        fieldCards.clear();
+        fieldState = "";
+        lastPutPlayer = null;
+        state = STATE_READY;
+
         // プレイヤー順番シャッフル
         shufflePlayers();
         String str = "110";
@@ -63,15 +79,78 @@ public class DaifugoServer extends CGServer {
         // 各プレイヤーの残りカード枚数の送信
         sendPlayerCardSizes();
 
-        // ゲーム開始
+        // カード交換
+        if (playerFormerRanks.size() >= 2) {
+            state = STATE_CARD_CHANGE;
+
+            String name[] = { null, null };
+            for (int i = 0; i < 2; i++) {
+                name[i] = DaifugoTool.getRankPlayerName(playerFormerRanks, i + 1);
+                cardChanged[i] = (name[i] == null);
+            }
+            for (String n : name) {
+                if (n != null) {
+                    sendOne(n, "113");
+                }
+            }
+        } else {
+            startGame2();
+        }
+    }
+
+    /**
+     * ゲーム開始を開始する。
+     */
+    private void startGame2() {
+        state = STATE_GAME;
         sendAll("114");
         sendAll("120 " + playerNameForTurn);
     }
 
     @Override
     public void listener(String name, String data) {
-        if (name.equals(playerNameForTurn)) {
-            String[] str = data.split(" ");
+        String[] str = data.split(" ");
+        if (state == STATE_CARD_CHANGE) {
+            if (str[0].equals("115")) {
+                // 枚数確認
+                int num = 0;
+                if(name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 1))){
+                    num = 2;
+                } else if(name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 2))){
+                    num = 1;
+                }
+                List<Card> cards = Card.convertToList(str[1]);
+                if (num != 0 && str[1].length() == 2 * num) {
+                    // カード削除
+                    playerCards.get(name).removeAll(cards);
+
+                    // 相手
+                    String name2 = DaifugoTool.getRankPlayerName(playerFormerRanks, num + 2);
+
+                    // 相手から贈られるカード
+                    DaifugoTool.sort(playerCards.get(name2));
+                    List<Card> cards2 = new LinkedList<>();
+                    for (int i = 1; i <= num; i++) {
+                        cards2.add(playerCards.get(name2).remove(playerCards.get(name2).size()));
+                    }
+
+                    // 相手に贈る
+                    sendOne(name2, "117 " + str[1]);
+                    playerCards.get(name2).addAll(cards);
+
+                    // 相手から贈られる
+                    sendOne(name, "117 " + Card.convertToCodes(cards2));
+                    playerCards.get(name).addAll(cards2);
+
+                    // 交換完了
+                    cardChanged[2 - num] = true;
+
+                    if (cardChanged[0] && cardChanged[1]) {
+                        startGame2();
+                    }
+                }
+            }
+        } else if (state == STATE_GAME && name.equals(playerNameForTurn)) {
             if (str[0].equals("121")) {
                 // カードを出した
 
@@ -81,6 +160,15 @@ public class DaifugoServer extends CGServer {
                 // パス
 
                 takePlayerAction(name, null);
+            }
+        } else if(state == STATE_END){
+            if(str[0].equals("141")){
+                playerFormerRanks.put(name, 0);
+
+                if(playerFormerRanks.size() == playerNames.size()){
+                    sendAll("142");
+                    startGame();
+                }
             }
         }
     }
@@ -138,9 +226,7 @@ public class DaifugoServer extends CGServer {
             fieldCards.add(cards);
 
             // プレイヤーのカード削除
-            for (Card card : cards) {
-                playerCards.get(name).remove(card);
-            }
+            playerCards.get(name).removeAll(cards);
 
             // パスのリセット
             lastPutPlayer = name;
@@ -212,13 +298,11 @@ public class DaifugoServer extends CGServer {
         sendAll("127");
     }
 
-    private void updateFieldState(String addState){
-        boolean reverseRevolution = false;
-        if(fieldState.contains(DaifugoTool.FIELD_STATE_REVOLUTION) && addState.contains(DaifugoTool.FIELD_STATE_REVOLUTION)){
-            reverseRevolution = true;
-        }
+    private void updateFieldState(String addState) {
+        boolean reverseRevolution = fieldState.contains(DaifugoTool.FIELD_STATE_REVOLUTION)
+                && addState.contains(DaifugoTool.FIELD_STATE_REVOLUTION);
         fieldState += addState;
-        if(reverseRevolution){
+        if (reverseRevolution) {
             fieldState = fieldState.replace(DaifugoTool.FIELD_STATE_REVOLUTION, "");
         }
         sendAll("128 " + fieldState);
@@ -243,6 +327,8 @@ public class DaifugoServer extends CGServer {
                 endPlayer(playerName);
             }
         }
+        state = STATE_END;
+        playerFormerRanks.clear();
         sendAll("140");
 
     }

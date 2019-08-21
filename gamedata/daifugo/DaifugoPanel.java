@@ -82,7 +82,7 @@ public class DaifugoPanel extends PlayPanel{
      * @param h
      */
     private void drawMyCards(Graphics g, int x, int y, int w, int h){
-        int state = (player.getState() == DaifugoPlayer.STATE_GAME || player.getState() == DaifugoPlayer.STATE_TURN) ? 1 : 0;
+        int state = (player.getState() == DaifugoPlayer.STATE_GAME || player.getState() == DaifugoPlayer.STATE_TURN || player.getState() == DaifugoPlayer.STATE_CARD_CHANGE) ? 1 : 0;
         Card selectingCard = drawCards(g, x, y, w, h, player.getCards(), player.getSelecteCards(), state);
         if(state == 1 && selectingCard != null && mouseClicked){
             player.select(selectingCard);
@@ -108,6 +108,12 @@ public class DaifugoPanel extends PlayPanel{
             Integer size = player.getPlayerCardSizes().get(name);
             if(size != null && size > 0){
                 drawString(g, x + (int)(0.1 * h), y + (int)(0.1 * h * i + 0.05 * h), "残り" + size + "枚", (int)(0.04 * h));
+            }
+
+            // プレイヤーの前職
+            Integer formerRank = player.getPlayerFormerRanks().get(name);
+            if(formerRank != null){
+                drawString(g, x + (int)(0.1 * h), y + (int)(0.5 * w), DaifugoTool.getRankName(formerRank, player.getPlayerNames().size()), (int)(0.04 * h));
             }
 
             // プレイヤーの順位
@@ -137,21 +143,15 @@ public class DaifugoPanel extends PlayPanel{
      * @param h
      */
     private void drawButtonPanel(Graphics g, int x, int y, int w, int h){
-        boolean b = player.getState() == DaifugoPlayer.STATE_TURN;
-        int state = 1;
-        if(b && player.checkSelectedCards()){
-            state = 0;
-        }
+        boolean b = ((player.getState() == DaifugoPlayer.STATE_TURN || player.getState() == DaifugoPlayer.STATE_CARD_CHANGE) && player.checkSelectedCards());
+        int state = b ? 0 : 1;
         boolean putButton = drawButton(g, x, y, (int)(0.45 * w), h, "出す", state);
-        state = 1;
-        if(b){
-            state = 0;
-        }
-        boolean passButton = drawButton(g, x + (int)(0.5 * w), y, (int)(0.45 * w), h, "パス", state);
-        if(putButton && mouseClicked){
+        if(state == 0 && putButton && mouseClicked){
             player.put();
         }
-        if(passButton && mouseClicked){
+        state = (player.getState() == DaifugoPlayer.STATE_TURN) ? 0 : 1;
+        boolean passButton = drawButton(g, x + (int)(0.5 * w), y, (int)(0.45 * w), h, "パス", state);
+        if(state == 0 && passButton && mouseClicked){
             player.pass();
         }
     }
@@ -165,7 +165,14 @@ public class DaifugoPanel extends PlayPanel{
         // 称号表示
         drawString(g, x + (int)(0.1 * w), y + (int)(0.3 * h), DaifugoTool.getRankName(player.getPlayerRanks().get(player.getName()), player.getPlayerNames().size()), (int)(0.2 * h));
 
+        // 名前表示
         drawString(g, x + (int)(0.1 * w), y + (int)(0.5 * h), player.getName(), (int)(0.2 * h));
+
+        // 続行ボタン表示
+        int state = (player.getState() == DaifugoPlayer.STATE_END_GAME) ? 0 : 1;
+        if(state == 0 && drawButton(g, x + (int)(0.2 * w), y + (int)(0.8 * h), (int)(0.3 * w), (int)(0.1 * h), "続行", state) && mouseClicked){
+            player.continueGame();
+        }
 
         // プレイヤー一覧
         for(int i = 1; i <= player.getPlayerNames().size(); i++){
