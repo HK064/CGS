@@ -122,12 +122,18 @@ class DaifugoTool {
                             }
                         }
                         // 新たな縛りの確認
-                        boolean newBind = true;
-                        if (noBind && joker == 0 && fieldCards.size() >= 2) {
-                            for (Card card : fieldCards.get(fieldCards.size() - 2)) {
-                                if (card.isJoker() || !suitExist[card.getSuitInt()]) {
+                        boolean newBind = false;
+                        if (noBind && joker == 0) {
+                            newBind = true;
+                            for (Card card : fieldCards.get(fieldCards.size() - 1)) {
+                                if(card.isJoker()){
                                     newBind = false;
                                     break;
+                            } else {
+                                    if (!suitExist[card.getSuitInt()]) {
+                                        newBind = false;
+                                        break;
+                                    }
                                 }
                             }
                         }
