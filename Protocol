@@ -31,10 +31,10 @@ CLIENT > "121 " + (カード識別子(ShortString))* （カードを出す）
 CLIENT > "122"（パス）
 SERVER > ONE : "123"（承認）| "124"（拒否）
 
-SERVER > ALL  : "127" （場のリセット）
-SERVER > ALL  : "125" + (カード識別子(ShortString))* （出されたカードの周知）
-SERVER > EACH : "126" + (" " + playerName + " " + カード枚数)*
-
+SERVER > ALL : "125" + (カード識別子(ShortString))* （出されたカードの周知）
+SERVER > ALL : "126" + (" " + playerName + " " + カード枚数)*
+SERVER > ALL : "127" （場のリセット）
+SERVER > ALL : "128 " + FIELD_STATE（場の状態の送信）
 
 SERVER > ALL : "130 " + playerName + " " + 順位（上がりのプレイヤー）
 

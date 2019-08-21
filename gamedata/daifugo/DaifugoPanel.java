@@ -28,6 +28,7 @@ public class DaifugoPanel extends PlayPanel{
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
 
+        drawFieldStatePanel(g, 0, (int)(0.4 * getHeight()), (int)(0.8 * getWidth()), (int)(0.1 * getHeight()));
         drawFieldCards(g, 0, 0, (int)(0.8 * getWidth()), (int)(0.4 * getHeight()));
         drawPlayerListPanel(g, (int)(0.8 * getWidth()), 0, (int)(0.2 * getWidth()), getHeight());
         drawMyCards(g, 0, (int)(0.5 * getHeight()), (int)(0.8 * getWidth()), (int)(0.4 * getHeight()));
@@ -112,7 +113,7 @@ public class DaifugoPanel extends PlayPanel{
             // プレイヤーの順位
             Integer rank = player.getPlayerRanks().get(name);
             if(rank != null){
-                drawString(g, x + (int)(0.1 * h), y + (int)(0.1 * h * i + 0.05 * h), DaifugoTool.getRankName(rank, player.getPlayerNames().size()), (int)(0.04 * h));
+                drawString(g, x, y + (int)(0.1 * h * i + 0.03 * h), DaifugoTool.getRankName(rank, player.getPlayerNames().size()), (int)(0.04 * h));
             }
 
             // ターンのプレイヤー
@@ -120,6 +121,11 @@ public class DaifugoPanel extends PlayPanel{
                 drawString(g, x + (int)(0.02 * h), y + (int)(0.1 * h * i + 0.01 * h), "→", (int)(0.07 * h), Font.BOLD);
             }
         }
+    }
+
+    private void drawFieldStatePanel(Graphics g, int x, int y, int w, int h){
+        g.setColor(Color.BLACK);
+        drawString(g, x, y, DaifugoTool.getFieldStateDescription(player.getFieldState()), h);
     }
 
     /**
@@ -157,9 +163,9 @@ public class DaifugoPanel extends PlayPanel{
         g.setColor(Color.BLACK);
 
         // 称号表示
-        drawString(g, x, y + (int)(0.3 * h), DaifugoTool.getRankName(player.getPlayerRanks().get(player.getName()), player.getPlayerNames().size()), (int)(0.1 * h));
+        drawString(g, x + (int)(0.1 * w), y + (int)(0.3 * h), DaifugoTool.getRankName(player.getPlayerRanks().get(player.getName()), player.getPlayerNames().size()), (int)(0.2 * h));
 
-        drawString(g, x, y + (int)(0.5 * h), player.getName(), (int)(0.1 * h));
+        drawString(g, x + (int)(0.1 * w), y + (int)(0.5 * h), player.getName(), (int)(0.2 * h));
 
         // プレイヤー一覧
         for(int i = 1; i <= player.getPlayerNames().size(); i++){

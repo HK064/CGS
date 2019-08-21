@@ -22,6 +22,7 @@ public class DaifugoPlayer extends CGPlayer {
     static final int STATE_WAIT_REPLY = 4; // 自分のターン（サーバからの返事待ち）
     static final int STATE_END_GAME = 5;
     private int state = STATE_READY;
+    private String fieldState = "";
 
     @Override
     public synchronized void listener(String data) {
@@ -71,7 +72,7 @@ public class DaifugoPlayer extends CGPlayer {
 
             if (state == STATE_WAIT_REPLY) {
 
-                state = STATE_TURN;
+                state = STATE_END_TURN;
             }
         } else if (str[0].equals("125")) {
             // 場にカードが出されました
@@ -87,6 +88,13 @@ public class DaifugoPlayer extends CGPlayer {
             // 場が流れました。
 
             fieldCards.clear();
+        } else if (str[0].equals("128")) {
+            // 場の状態が更新されました。
+
+            fieldState = "";
+            if(str.length >= 2){
+                fieldState = str[1];
+            }
         } else if (str[0].equals("130")) {
             // プレイヤーが上がりました。
 
@@ -114,6 +122,10 @@ public class DaifugoPlayer extends CGPlayer {
 
     public List<List<Card>> getFieldCards() {
         return fieldCards;
+    }
+
+    public String getFieldState(){
+        return fieldState;
     }
 
     public Map<String, Integer> getPlayerCardSizes() {
@@ -168,6 +180,6 @@ public class DaifugoPlayer extends CGPlayer {
      * 選択しているカードを場に出せるか調べます。
      */
     public boolean checkSelectedCards() {
-        return DaifugoTool.checkPutField(fieldCards, selectedCards);
+        return DaifugoTool.checkPutField(fieldCards, fieldState, selectedCards) != null;
     }
 }

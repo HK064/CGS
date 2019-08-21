@@ -9,3 +9,8 @@ CGSetupPlayer ←→ CGServer
 ※ CGSetupServer / CGSetupPlayer の継承とクラス名の変更を禁止する。
 ※ Card の numberShortString はエースは"A"、10は"1"になっている。
 
+
+
+
+
+
