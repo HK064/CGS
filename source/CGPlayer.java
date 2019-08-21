@@ -1,14 +1,13 @@
 package source;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import source.display.PlayPanel;
-
 public class CGPlayer {
-    protected List<String> playerNames;
+    protected List<String> playerNames = new ArrayList<>();
     private CGSetupPlayer player;
     protected String name;
-    protected PlayPanel panel;
+    protected String playerNameForTurn = null;
 
     public final void setup(CGSetupPlayer player, String name){
         this.player = player;
@@ -17,6 +16,18 @@ public class CGPlayer {
 
     public void startGame(){
 
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public List<String> getPlayerNames(){
+        return playerNames;
+    }
+
+    public String getPlayerNameForTurn(){
+        return playerNameForTurn;
     }
 
     /**
@@ -31,7 +42,7 @@ public class CGPlayer {
      * メッセージを受信したときに呼ばれる。
      * @param data 内容
      */
-    void listener(String data){
+    public void listener(String data){
 
     }
 

@@ -10,8 +10,8 @@ import javax.swing.JTextField;
 
 import source.CGSetupPlayer;
 import source.CGSetupServer;
-import source.file.MyFont;
-import source.file.MyProperty;
+import source.file.CGSFont;
+import source.file.CGSProperty;
 
 /**
  * 初めの画面
@@ -27,12 +27,12 @@ class MenuPanel extends CGSPanel{
     MenuPanel() {
 
         // 名前入力フィールド
-        nameField = new JTextField(MyProperty.getValue(MyProperty.usernameKey));
+        nameField = new JTextField(CGSProperty.getValue(CGSProperty.usernameKey));
         nameField.setCaretPosition(nameField.getText().length());
         add(nameField);
 
         // サーバポート入力フィールド
-        portField = new JTextField(MyProperty.getValue(MyProperty.serverPortKey));
+        portField = new JTextField(CGSProperty.getValue(CGSProperty.serverPortKey));
         add(portField);
 
         // サーバ建てるボタン
@@ -67,7 +67,7 @@ class MenuPanel extends CGSPanel{
         add(buildButton);
 
         // 接続先IPアドレス入力フィールド
-        addressField = new JTextField(MyProperty.getValue(MyProperty.serverAddressKey));
+        addressField = new JTextField(CGSProperty.getValue(CGSProperty.serverAddressKey));
         add(addressField);
 
         
@@ -99,7 +99,7 @@ class MenuPanel extends CGSPanel{
 
         drawString(g, x, y + (int)(0.2 * h), "名前", (int)(0.07 * h));
 
-        nameField.setFont(MyFont.getFont((int)(0.07 * h)));
+        nameField.setFont(CGSFont.getFont((int)(0.07 * h)));
         nameField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
 
     }
@@ -110,10 +110,10 @@ class MenuPanel extends CGSPanel{
 
         drawString(g, x, y + (int)(0.2 * h), "ポート", (int)(0.07 * h));
 
-        portField.setFont(MyFont.getFont((int)(0.07 * h)));
+        portField.setFont(CGSFont.getFont((int)(0.07 * h)));
         portField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
 
-        buildButton.setFont(MyFont.getFont((int)(0.07 * h)));
+        buildButton.setFont(CGSFont.getFont((int)(0.07 * h)));
         buildButton.setBounds(x, y + (int)(0.5 * h), w, (int)(0.1 * h));
 
     }
@@ -124,14 +124,20 @@ class MenuPanel extends CGSPanel{
 
         drawString(g, x, y + (int)(0.2 * h), "IPアドレス", (int)(0.07 * h));
 
-        addressField.setFont(MyFont.getFont((int)(0.07 * h)));
+        addressField.setFont(CGSFont.getFont((int)(0.07 * h)));
         addressField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
 
         if(drawButton(g, x, y + (int)(0.5 * h), w, (int)(0.1 * h), "参加する") && mouseClicked){
 
+            // プレイヤー作成
             CGSetupPlayer player = new CGSetupPlayer(nameField.getText(), addressField.getText());
 
-            mainWindow.changePanel(new SetupPanel(player));
+            // 画面作成
+            SetupPanel panel = new SetupPanel(player);
+            player.setSetupPanel(panel);
+
+            // 画面遷移
+            mainWindow.changePanel(panel);
         }
 
     }
@@ -140,9 +146,9 @@ class MenuPanel extends CGSPanel{
     void end(){
         super.end();
 
-        MyProperty.setProperty(MyProperty.usernameKey, nameField.getText());
-        MyProperty.setProperty(MyProperty.serverPortKey, portField.getText());
-        MyProperty.setProperty(MyProperty.serverAddressKey, addressField.getText());
+        CGSProperty.setProperty(CGSProperty.usernameKey, nameField.getText());
+        CGSProperty.setProperty(CGSProperty.serverPortKey, portField.getText());
+        CGSProperty.setProperty(CGSProperty.serverAddressKey, addressField.getText());
         
     }
 }

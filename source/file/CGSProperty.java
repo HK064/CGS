@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-public class MyProperty {
+public class CGSProperty {
     private static Properties property;
     private static Properties defaultProperty;
     private static Path path = Paths.get("./config/config.config");

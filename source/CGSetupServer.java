@@ -204,7 +204,6 @@ public class CGSetupServer implements Runnable{
                 countdownCount--;
             }
         }, 0, 1000);
-
     }
 
     /**
@@ -222,9 +221,11 @@ public class CGSetupServer implements Runnable{
      * ゲームを開始する。
      */
     private void startGame(){
-        sendAll("037");
         server = new DaifugoServer();
         server.setup(playerNames, this);
+        serverState = STATE_GAME;
+        sendAll("037");
+
         server.startGame();
     }
 

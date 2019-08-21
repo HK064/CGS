@@ -5,7 +5,7 @@ import java.awt.FontFormatException;
 import java.io.File;
 import java.io.IOException;
 
-public class MyFont {
+public class CGSFont {
     private static Font font;
 
     static {
@@ -19,4 +19,9 @@ public class MyFont {
     public static Font getFont(int size) {
         return font.deriveFont((float) (size));
     }
+
+    public static Font getFont(int size, int style){
+        return getFont(size).deriveFont(style);
+    }
+    
 }

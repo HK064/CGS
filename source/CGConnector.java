@@ -18,6 +18,7 @@ class CGConnector implements Runnable{
     private Socket socket = null;
     private BufferedReader reader = null;
     private PrintWriter writer = null;
+    private boolean valid = true;
 
     // ローカル用
     CGConnector(CGSetupServer server, CGSetupPlayer player){
@@ -97,6 +98,9 @@ class CGConnector implements Runnable{
         } else {
             try {
                 str = reader.readLine();
+                if(str == null){
+                    valid = false;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -129,7 +133,7 @@ class CGConnector implements Runnable{
 
     @Override
     public void run(){
-        while(true){
+        while(valid){
             // メッセージ受信
             String str = listen();
             if(type == TYPE_SERVER){

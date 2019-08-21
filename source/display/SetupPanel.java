@@ -45,7 +45,7 @@ public class SetupPanel extends CGSPanel{
         drawReadyButtonPanel(g, (int)(0.4 * getWidth()), (int)(0.9 * getHeight()), (int)(0.2 * getWidth()), (int)(0.1 * getHeight()));
         drawPlayerListPanel(g, (int)(0.6 * getWidth()), 0, (int)(0.4 * getWidth()), getHeight());
         if(player.getServerState() == CGSetupServer.STATE_COUNTDOWN){
-            drawCountdownPanel(g, (int)(0.3 * getWidth()), (int)(0.3 * getHeight()), (int)(0.4 * getWidth()), (int)(0.4 * getHeight()));
+            drawCountdownPanel(g, (int)(0.3 * getWidth()), (int)(0.4 * getHeight()), (int)(0.4 * getWidth()), (int)(0.2 * getHeight()));
         }
     }
 

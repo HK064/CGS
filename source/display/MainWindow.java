@@ -8,7 +8,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
-import source.file.MyProperty;
+import source.file.CGSProperty;
 
 /**
  * メインウィンドウを作り、ループ描画する。
@@ -24,8 +24,8 @@ public class MainWindow extends JFrame implements Runnable{
         setLayout(new BorderLayout());
 
         // Window 位置設定
-        String xStr = MyProperty.getValue(MyProperty.mainWindowXPosKey);
-        String yStr = MyProperty.getValue(MyProperty.mainWindowYPosKey);
+        String xStr = CGSProperty.getValue(CGSProperty.mainWindowXPosKey);
+        String yStr = CGSProperty.getValue(CGSProperty.mainWindowYPosKey);
         if((xStr != null) && (yStr != null)){
             int x = Integer.parseInt(xStr);
             int y = Integer.parseInt(yStr);
@@ -33,8 +33,8 @@ public class MainWindow extends JFrame implements Runnable{
         }
 
         // Window サイズ設定
-        String wStr = MyProperty.getValue(MyProperty.mainWindowWidthKey);
-        String hStr = MyProperty.getValue(MyProperty.mainWindowHeightKey);
+        String wStr = CGSProperty.getValue(CGSProperty.mainWindowWidthKey);
+        String hStr = CGSProperty.getValue(CGSProperty.mainWindowHeightKey);
         if((wStr != null) && (hStr != null)){
             int w = Integer.parseInt(wStr);
             int h = Integer.parseInt(hStr);
@@ -52,13 +52,13 @@ public class MainWindow extends JFrame implements Runnable{
                 panel.end();
 
                 Point p = getLocation();
-                MyProperty.setProperty(MyProperty.mainWindowXPosKey, String.valueOf(p.x));
-                MyProperty.setProperty(MyProperty.mainWindowYPosKey, String.valueOf(p.y));
+                CGSProperty.setProperty(CGSProperty.mainWindowXPosKey, String.valueOf(p.x));
+                CGSProperty.setProperty(CGSProperty.mainWindowYPosKey, String.valueOf(p.y));
                 Dimension d = getSize();
-                MyProperty.setProperty(MyProperty.mainWindowWidthKey, String.valueOf((int)(d.getWidth())));
-                MyProperty.setProperty(MyProperty.mainWindowHeightKey, String.valueOf((int)(d.getHeight())));
+                CGSProperty.setProperty(CGSProperty.mainWindowWidthKey, String.valueOf((int)(d.getWidth())));
+                CGSProperty.setProperty(CGSProperty.mainWindowHeightKey, String.valueOf((int)(d.getHeight())));
 
-                MyProperty.storeProperty();
+                CGSProperty.storeProperty();
             }
         });
 
@@ -81,6 +81,7 @@ public class MainWindow extends JFrame implements Runnable{
         this.panel = panel;
         getContentPane().add(panel);
         repaint();
+        validate();
     }
 
     @Override

@@ -4,10 +4,10 @@ SERVER > "010"（承認）| "011"（拒否）-> 終了
 CLIENT > send NAME
 SERVER > "020"（承認）| "021"（拒否）-> 終了
 
-SERVER > "031" + (" " + playerName)* （プレイヤーリストの送信（新規プレイヤーの通知を含む））
-SERVER > "032" + (" " + playerName + " " + state)* （各プレイヤーの状態の送信）
-SERVER > "033 " + カウントダウン（ゲーム開始までのカウントダウン）（"-1" はカウント中止）
-SERVER > "037 "（ゲーム開始）
+SERVER > ALL : "031" + (" " + playerName)* （プレイヤーリストの送信（新規プレイヤーの通知を含む））
+SERVER > ALL : "032" + (" " + playerName + " " + state)* （各プレイヤーの状態の送信）
+SERVER > ALL : "033 " + カウントダウン（ゲーム開始までのカウントダウン）（"-1" はカウント中止）
+SERVER > ALL : "037 "（ゲーム開始）
 
 CLIENT > "040"（準備完了）
 CLIENT > "041"（準備完了取消）
@@ -19,9 +19,24 @@ CLIENT > "041"（準備完了取消）
 
 Daifugo
 
-SERVER > "110" + (" " + playerName)* （プレイヤーリストの送信（ターン順））
-SERVER > "111 " + カード識別子（カードを配る）
-SERVER > "112"（カード配布完了）
+SERVER > ALL  : "110" + (" " + playerName)* （プレイヤーリストの送信（ターン順））
+SERVER > EACH : "111 " + (カード識別子(ShortString))* （カードを配る）
+//SERVER > ALL  : "112"（カード配布完了）
+//CLIENT > "113"（準備完了）
+SERVER > ALL  : "114"（開始）
 
-SERVER > "120 " + playerName（ターンの人）
+SERVER > ALL : "120 " + playerName（ターンの人・同じ人がもう一度カードを出す場合もこれを送る（場が流れたとき））
+
+CLIENT > "121 " + (カード識別子(ShortString))* （カードを出す）
+CLIENT > "122"（パス）
+SERVER > ONE : "123"（承認）| "124"（拒否）
+
+SERVER > ALL  : "127" （場のリセット）
+SERVER > ALL  : "125" + (カード識別子(ShortString))* （出されたカードの周知）
+SERVER > EACH : "126" + (" " + playerName + " " + カード枚数)*
+
+
+SERVER > ALL : "130 " + playerName + " " + 順位（上がりのプレイヤー）
+
+SERVER > ALL : "140" （終了）
 

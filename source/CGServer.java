@@ -55,7 +55,7 @@ public class CGServer {
      * @param name 送信元の名前
      * @param data 内容
      */
-    void listener(String name, String data){
+    public void listener(String name, String data){
 
     }
 
