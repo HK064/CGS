@@ -16,7 +16,7 @@ public class DaifugoServer extends CGServer {
     private Map<String, List<Card>> playerCards = new HashMap<>();
     private Map<String, Integer> playerRanks = new HashMap<>();
     private List<List<Card>> fieldCards = new ArrayList<>();
-    private List<String> passedPlayers = new ArrayList<>();
+    private String lastPutPlayer = null;
 
     @Override
     public void startGame() {
@@ -89,6 +89,10 @@ public class DaifugoServer extends CGServer {
         do {
             super.nextPlayer();
         } while (playerCards.get(playerNameForTurn).size() <= 0);
+        if (playerNameForTurn.equals(lastPutPlayer)) {
+            // パスで一周した
+            resetField();
+        }
 
         sendAll("120 " + playerNameForTurn);
     }
@@ -136,7 +140,7 @@ public class DaifugoServer extends CGServer {
             }
 
             // パスのリセット
-            passedPlayers.clear();
+            lastPutPlayer = name;
 
             sendAll("125 " + Card.convertToCodes(cards));
             sendPlayerCardSizes();
@@ -159,8 +163,8 @@ public class DaifugoServer extends CGServer {
 
             // 流れるか
             if (DaifugoTool.checkResetField(fieldCards)) {
-                (new Timer()).schedule(new TimerTask(){
-                
+                (new Timer()).schedule(new TimerTask() {
+
                     @Override
                     public void run() {
                         resetField();
@@ -173,32 +177,15 @@ public class DaifugoServer extends CGServer {
             }
 
         } else {
-            passedPlayers.add(name);
-
-            // パスで一周した？
-            boolean b = true;
-            for (String playerName : playerNames) {
-                if (playerCards.get(playerName).size() > 0) {
-                    if (!passedPlayers.contains(playerName)) {
-                        b = false;
-                        break;
-                    }
-                }
-            }
-            if (b) {
-                resetField();
-            }
-
             sendOne(name, "123");
 
             nextPlayer();
         }
     }
 
-    private void resetField(){
+    private void resetField() {
         // 場が流れる
         fieldCards.clear();
-        passedPlayers.clear();
         sendAll("127");
     }
 
@@ -222,7 +209,6 @@ public class DaifugoServer extends CGServer {
             }
         }
         sendAll("140");
-
 
     }
 }
