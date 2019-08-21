@@ -25,7 +25,7 @@ public class DaifugoPlayer extends CGPlayer {
     private String fieldState = "";
 
     @Override
-    public synchronized void listener(String data) {
+    public void listener(String data) {
         String[] str = data.split(" ");
         if (str[0].equals("110")) {
             // プレイヤーリスト受信
@@ -145,7 +145,7 @@ public class DaifugoPlayer extends CGPlayer {
      * 
      * @param card
      */
-    public synchronized void select(Card card) {
+    public void select(Card card) {
         if ((state == STATE_GAME || state == STATE_TURN)  && cards.contains(card)) {
             if (selectedCards.contains(card)) {
                 selectedCards.remove(card);
@@ -158,7 +158,7 @@ public class DaifugoPlayer extends CGPlayer {
     /**
      * カードを出します。
      */
-    public synchronized void put() {
+    public void put() {
         if (state == STATE_TURN && checkSelectedCards()) {
             state = STATE_WAIT_REPLY;
             send("121 " + Card.convertToCodes(selectedCards));
@@ -168,7 +168,7 @@ public class DaifugoPlayer extends CGPlayer {
     /**
      * このターンをパスします。
      */
-    public synchronized void pass() {
+    public void pass() {
         if (state == STATE_TURN) {
             selectedCards.clear();
             state = STATE_WAIT_REPLY;

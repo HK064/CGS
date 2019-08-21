@@ -213,7 +213,14 @@ public class DaifugoServer extends CGServer {
     }
 
     private void updateFieldState(String addState){
+        boolean reverseRevolution = false;
+        if(fieldState.contains(DaifugoTool.FIELD_STATE_REVOLUTION) && addState.contains(DaifugoTool.FIELD_STATE_REVOLUTION)){
+            reverseRevolution = true;
+        }
         fieldState += addState;
+        if(reverseRevolution){
+            fieldState = fieldState.replace(DaifugoTool.FIELD_STATE_REVOLUTION, "");
+        }
         sendAll("128 " + fieldState);
     }
 
