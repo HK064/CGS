@@ -113,7 +113,7 @@ public class DaifugoPanel extends PlayPanel{
             // プレイヤーの前職
             Integer formerRank = player.getPlayerFormerRanks().get(name);
             if(formerRank != null){
-                drawString(g, x + (int)(0.1 * h), y + (int)(0.5 * w), DaifugoTool.getRankName(formerRank, player.getPlayerNames().size()), (int)(0.04 * h));
+                drawString(g, x + (int)(0.5 * w), y + (int)(0.1 * h * i + 0.05 * h), "元" + DaifugoTool.getRankName(formerRank, player.getPlayerNames().size()), (int)(0.04 * h));
             }
 
             // プレイヤーの順位
