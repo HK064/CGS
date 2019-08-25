@@ -9,21 +9,20 @@ public class CGSFont {
     private static Font font;
 
     static {
-        try {
-            font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/SourceHanSans-Regular.otf"));
-            if(font == null){
-                font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/SourceHanSans-Regular.ttc"));
-                if(font == null){
-                    font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/ipaexm.ttf"));
-                }
+        String filePath = CGSProperty.getValue(CGSProperty.FONT_FILE_KEY);
+        if (filePath == null) {
+            font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
+        } else {
+            try {
+                font = Font.createFont(Font.TRUETYPE_FONT, new File(filePath));
+            } catch (FontFormatException | IOException e) {
+                e.printStackTrace();
             }
-        } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
         }
     }
 
     public static Font getFont(int size) {
-        return new Font(Font.SERIF, Font.PLAIN, size);//font.deriveFont((float) (size));
+        return font.deriveFont((float) (size));
     }
 
     public static Font getFont(int size, int style){

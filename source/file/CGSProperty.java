@@ -20,6 +20,7 @@ public class CGSProperty {
     public static final String SERVER_PORT_KEY = "Server_Port";
     public static final String SERVER_ADDRESS_KEY = "Server_Address";
     public static final String SELECTED_GAME_KEY = "Selected_Game";
+    public static final String FONT_FILE_KEY = "Font_File";
 
     static {
         defaultProperty = new Properties();
