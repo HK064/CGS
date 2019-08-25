@@ -10,7 +10,13 @@ public class CGSFont {
 
     static {
         try {
-            font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/ipaexm.ttf"));
+            font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/SourceHanSans-Regular.otf"));
+            if(font == null){
+                font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/SourceHanSans-Regular.ttc"));
+                if(font == null){
+                    font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/ipaexm.ttf"));
+                }
+            }
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
         }
