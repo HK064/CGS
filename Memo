@@ -7,9 +7,11 @@ CGConnector
 CGSetupPlayer ←→ CGServer
 
 ※ CGSetupServer / CGSetupPlayer の継承とクラス名の変更を禁止する。
-※ Card の numberShortString はエースは"A"、10は"1"になっている。
+※ Card の Code はエースは"A"、10は"1"になっている。
 
 
+/ ゲームの追加方法
+  gamedata フォルダの下にフォルダを作り、その中にフォルダと同名の .config ファイルを入れる。中身は daifugo 参照。
 
 
 
