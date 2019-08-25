@@ -34,6 +34,7 @@ public class DaifugoPlayer extends CGPlayer {
         if (str[0].equals("110")) {
             // プレイヤーリスト受信
 
+            playerNames.clear();
             for (int i = 1; i < str.length; i++) {
                 playerNames.add(str[i]);
             }
@@ -49,20 +50,22 @@ public class DaifugoPlayer extends CGPlayer {
         } else if (str[0].equals("117")) {
             // カードを追加せよ（カードを削除せよ）
 
-            if(state == STATE_WAIT_CARD_CHAGE_REPLY){
-                if (name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 3))){
-                    DaifugoTool.sort(cards);
-                    cards.remove(cards.size() - 1);
-                } else if(name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 4))){
-                    DaifugoTool.sort(cards);
-                    cards.remove(cards.size() - 1);
-                    cards.remove(cards.size() - 1);
-                }
-                cards.addAll(Card.convertToList(str[1]));
+            // if(state == STATE_WAIT_CARD_CHAGE_REPLY){
+            if (name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 3))) {
                 DaifugoTool.sort(cards);
-
-                state = STATE_READY;
+                cards.remove(cards.size() - 1);
+            } else if (name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 4))) {
+                DaifugoTool.sort(cards);
+                cards.remove(cards.size() - 1);
+                cards.remove(cards.size() - 1);
             }
+            cards.removeAll(selectedCards);
+            selectedCards.clear();
+            cards.addAll(Card.convertToList(str[1]));
+            DaifugoTool.sort(cards);
+
+            state = STATE_READY;
+            // }
         } else if (str[0].equals("114")) {
             // ゲーム開始
 
@@ -70,7 +73,7 @@ public class DaifugoPlayer extends CGPlayer {
         } else if (str[0].equals("120")) {
             // ターンのプレイヤーが変わりました
 
-            if(!str[1].equals(playerNameForTurn)){
+            if (!str[1].equals(playerNameForTurn)) {
                 playerNameForTurn = str[1];
             }
             if (playerNameForTurn.equals(name)) {
@@ -115,7 +118,7 @@ public class DaifugoPlayer extends CGPlayer {
             // 場の状態が更新されました。
 
             fieldState = "";
-            if(str.length >= 2){
+            if (str.length >= 2) {
                 fieldState = str[1];
             }
         } else if (str[0].equals("130")) {
@@ -199,6 +202,7 @@ public class DaifugoPlayer extends CGPlayer {
             send("121 " + Card.convertToCodes(selectedCards));
         } else if (state == STATE_CARD_CHANGE && checkSelectedCards()) {
             send("115 " + Card.convertToCodes(selectedCards));
+            state = STATE_WAIT_CARD_CHAGE_REPLY;
         }
     }
 
@@ -216,8 +220,8 @@ public class DaifugoPlayer extends CGPlayer {
     /**
      * 次のゲームをします。
      */
-    public void continueGame(){
-        if(state == STATE_END_GAME){
+    public void continueGame() {
+        if (state == STATE_END_GAME) {
             state = STATE_WAIT_NEXT_GAME;
             send("141");
         }
@@ -227,10 +231,10 @@ public class DaifugoPlayer extends CGPlayer {
      * 選択しているカードを場に出せるか調べます。
      */
     public boolean checkSelectedCards() {
-        if(state == STATE_TURN){
+        if (state == STATE_TURN) {
             return DaifugoTool.checkPutField(fieldCards, fieldState, selectedCards) != null;
         }
-        if(state == STATE_CARD_CHANGE) {
+        if (state == STATE_CARD_CHANGE) {
             int num = 0;
             if (name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 1))) {
                 num = 2;
