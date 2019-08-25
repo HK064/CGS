@@ -326,9 +326,9 @@ public class DaifugoServer extends CGServer {
                 endPlayer(playerName);
             }
         }
-        state = STATE_END;
-        playerFormerRanks.clear();
-        sendAll("140");
+        //state = STATE_END;
+        //playerFormerRanks.clear();
+        //sendAll("140");
 
     }
 }
