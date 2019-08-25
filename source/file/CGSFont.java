@@ -23,7 +23,7 @@ public class CGSFont {
     }
 
     public static Font getFont(int size) {
-        return font.deriveFont((float) (size));
+        return new Font(Font.SERIF, Font.PLAIN, size);//font.deriveFont((float) (size));
     }
 
     public static Font getFont(int size, int style){
