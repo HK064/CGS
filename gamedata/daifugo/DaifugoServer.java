@@ -167,7 +167,13 @@ public class DaifugoServer extends CGServer {
 
                 if (playerFormerRanks.size() == playerNames.size()) {
                     sendAll("142");
-                    startGame();
+
+                    (new Timer()).schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            startGame();
+                        }
+                    }, 1000);
                 }
             }
         }
