@@ -1,17 +1,39 @@
 
-/ 呼び出し関係
-CGSetupServer ←→ CGServer
-↑ ↓
+/- 呼び出し関係
+CGServer を継承したクラス
+↑ listener()    ↓ send()
+CGSetupServer
+↑ listener()    ↓ send()
 CGConnector
-↑ ↓
-CGSetupPlayer ←→ CGServer
+↑ ↓ (Internet)
+CGConnector
+↑ send()        ↓ listener()
+CGSetupPlayer
+↑ send()        ↓ listener()
+CGPlayer を継承したクラス
+↑（メソッドの実行やゲッターの呼び出し）
+PlayPanel を継承したクラス
+
+
+/- 呼び出し関係（途中省略）
+CGServer を継承したクラス
+↑  listener(name, data)
+ ↓ sendAll(data), sendOne(name, data)
+--（略）--
+↑  send(data)
+ ↓ listener(data)
+CGPlayer を継承したクラス
+↑（メソッドの実行やゲッターの呼び出し）
+PlayPanel を継承したクラス
+
+
 
 ※ CGSetupServer / CGSetupPlayer の継承とクラス名の変更を禁止する。
 ※ Card の Code はエースは"A"、10は"1"になっている。
 
 
-/ ゲームの追加方法
-  gamedata フォルダの下にフォルダを作り、その中にフォルダと同名の .config ファイルを入れる。中身は daifugo 参照。
+/- ゲームの追加方法
+  gamedata フォルダの下にフォルダを作り、その中にフォルダと同名の .config ファイルを入れる。内容は Name, Server_Class, Player_Class, Panel_Class を指定する。
 
 
 
