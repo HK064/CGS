@@ -10,7 +10,7 @@ public class CGSFont {
 
     static {
         try {
-            font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/SourceHanSans-Regular.otf"));
+            font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/SourceHanSans-Regular.ttc"));
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
         }

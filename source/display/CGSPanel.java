@@ -19,8 +19,11 @@ class CGSPanel extends JPanel{
     protected Point mousePos = new Point(-1, -1);
     protected boolean mouseClicked = false;
     private boolean mouseClicked2 = false;
+    private int[] windowSize = {-1, -1};
+    protected boolean resize = false;
 
     CGSPanel(){
+        setLayout(null);
         addMouseListener(new MouseAdapter(){
             @Override
             public void mouseClicked(MouseEvent e){
@@ -40,6 +43,13 @@ class CGSPanel extends JPanel{
         mousePos = getMousePosition();
         if(mousePos == null){
             mousePos = new Point(-1, -1);
+        }
+
+        resize = false;
+        if(windowSize[0] != getWidth() || windowSize[1] != getHeight()){
+            windowSize[0] = getWidth();
+            windowSize[1] = getHeight();
+            resize = true;
         }
     }
 

@@ -103,8 +103,10 @@ class MenuPanel extends CGSPanel{
 
         drawString(g, x, y + (int)(0.2 * h), "名前", (int)(0.07 * h));
 
-        nameField.setFont(CGSFont.getFont((int)(0.07 * h)));
-        nameField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
+        if(resize){
+            nameField.setFont(CGSFont.getFont((int)(0.07 * h)));
+            nameField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
+        }
 
     }
 
@@ -114,11 +116,13 @@ class MenuPanel extends CGSPanel{
 
         drawString(g, x, y + (int)(0.2 * h), "ポート", (int)(0.07 * h));
 
-        portField.setFont(CGSFont.getFont((int)(0.07 * h)));
-        portField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
+        if(resize){
+            portField.setFont(CGSFont.getFont((int)(0.07 * h)));
+            portField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
 
-        buildButton.setFont(CGSFont.getFont((int)(0.07 * h)));
-        buildButton.setBounds(x, y + (int)(0.5 * h), w, (int)(0.1 * h));
+            buildButton.setFont(CGSFont.getFont((int)(0.07 * h)));
+            buildButton.setBounds(x, y + (int)(0.5 * h), w, (int)(0.1 * h));
+        }
 
     }
 
@@ -128,8 +132,10 @@ class MenuPanel extends CGSPanel{
 
         drawString(g, x, y + (int)(0.2 * h), "IPアドレス", (int)(0.07 * h));
 
-        addressField.setFont(CGSFont.getFont((int)(0.07 * h)));
-        addressField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
+        if(resize){
+            addressField.setFont(CGSFont.getFont((int)(0.07 * h)));
+            addressField.setBounds(x, y + (int)(0.3 * h), w, (int)(0.1 * h));
+        }
 
         if(drawButton(g, x, y + (int)(0.5 * h), w, (int)(0.1 * h), "参加する") && mouseClicked){
 

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import gamedata.daifugo.DaifugoPlayer;
 import source.display.SetupPanel;
 import source.file.Gamedata;
 

@@ -71,10 +71,12 @@ public class SetupPanel extends CGSPanel {
 
     private void drawServerSetting(Graphics g, int x, int y, int w, int h) {
         if (type == TYPE_SERVER) {
-            gameList.setFont(CGSFont.getFont((int) (0.06 * h)));
-            gameList.setBounds(x, y + (int) (0.1 * h), w, (int) (0.09 * h));
-            gameList.setPreferredSize(new Dimension(w, (int) (0.09 * h)));
-            gameList.setEnabled(player.getServerState() == CGSetupServer.STATE_OPEN);
+            if(resize){
+                gameList.setFont(CGSFont.getFont((int) (0.06 * h)));
+                gameList.setBounds(x, y + (int) (0.1 * h), w, (int) (0.09 * h));
+                gameList.setPreferredSize(new Dimension(w, (int) (0.09 * h)));
+                gameList.setEnabled(player.getServerState() == CGSetupServer.STATE_OPEN);
+            }
 
             Gamedata gamedata2 = ((Gamedata) gameList.getSelectedItem());
             if (gamedata != gamedata2) {
