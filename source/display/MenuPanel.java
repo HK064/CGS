@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JTextField;
@@ -27,12 +28,12 @@ class MenuPanel extends CGSPanel{
     MenuPanel() {
 
         // 名前入力フィールド
-        nameField = new JTextField(CGSProperty.getValue(CGSProperty.usernameKey));
+        nameField = new JTextField(CGSProperty.getValue(CGSProperty.USERNAME_KEY));
         nameField.setCaretPosition(nameField.getText().length());
         add(nameField);
 
         // サーバポート入力フィールド
-        portField = new JTextField(CGSProperty.getValue(CGSProperty.serverPortKey));
+        portField = new JTextField(CGSProperty.getValue(CGSProperty.SERVER_PORT_KEY));
         add(portField);
 
         // サーバ建てるボタン
@@ -58,8 +59,11 @@ class MenuPanel extends CGSPanel{
 
                     // 画面遷移
                     mainWindow.changePanel(panel);
-                }catch(Exception exception){
+                }catch(IOException exception){
                     // サーバ起動失敗
+                    exception.printStackTrace();
+                }catch(IllegalArgumentException exception){
+                    // 
                     exception.printStackTrace();
                 }
             }
@@ -67,7 +71,7 @@ class MenuPanel extends CGSPanel{
         add(buildButton);
 
         // 接続先IPアドレス入力フィールド
-        addressField = new JTextField(CGSProperty.getValue(CGSProperty.serverAddressKey));
+        addressField = new JTextField(CGSProperty.getValue(CGSProperty.SERVER_ADDRESS_KEY));
         add(addressField);
 
         
@@ -146,9 +150,9 @@ class MenuPanel extends CGSPanel{
     void end(){
         super.end();
 
-        CGSProperty.setProperty(CGSProperty.usernameKey, nameField.getText());
-        CGSProperty.setProperty(CGSProperty.serverPortKey, portField.getText());
-        CGSProperty.setProperty(CGSProperty.serverAddressKey, addressField.getText());
+        CGSProperty.setProperty(CGSProperty.USERNAME_KEY, nameField.getText());
+        CGSProperty.setProperty(CGSProperty.SERVER_PORT_KEY, portField.getText());
+        CGSProperty.setProperty(CGSProperty.SERVER_ADDRESS_KEY, addressField.getText());
         
     }
 }

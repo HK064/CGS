@@ -24,8 +24,8 @@ public class MainWindow extends JFrame implements Runnable{
         setLayout(new BorderLayout());
 
         // Window 位置設定
-        String xStr = CGSProperty.getValue(CGSProperty.mainWindowXPosKey);
-        String yStr = CGSProperty.getValue(CGSProperty.mainWindowYPosKey);
+        String xStr = CGSProperty.getValue(CGSProperty.MAIN_WINDOW_X_POSITION_KEY);
+        String yStr = CGSProperty.getValue(CGSProperty.MAIN_WINDOW_Y_POSITION_KEY);
         if((xStr != null) && (yStr != null)){
             int x = Integer.parseInt(xStr);
             int y = Integer.parseInt(yStr);
@@ -33,8 +33,8 @@ public class MainWindow extends JFrame implements Runnable{
         }
 
         // Window サイズ設定
-        String wStr = CGSProperty.getValue(CGSProperty.mainWindowWidthKey);
-        String hStr = CGSProperty.getValue(CGSProperty.mainWindowHeightKey);
+        String wStr = CGSProperty.getValue(CGSProperty.MAIN_WINDOW_WIDTH);
+        String hStr = CGSProperty.getValue(CGSProperty.MAIN_WINDOW_HEIGHT);
         if((wStr != null) && (hStr != null)){
             int w = Integer.parseInt(wStr);
             int h = Integer.parseInt(hStr);
@@ -52,11 +52,11 @@ public class MainWindow extends JFrame implements Runnable{
                 panel.end();
 
                 Point p = getLocation();
-                CGSProperty.setProperty(CGSProperty.mainWindowXPosKey, String.valueOf(p.x));
-                CGSProperty.setProperty(CGSProperty.mainWindowYPosKey, String.valueOf(p.y));
+                CGSProperty.setProperty(CGSProperty.MAIN_WINDOW_X_POSITION_KEY, String.valueOf(p.x));
+                CGSProperty.setProperty(CGSProperty.MAIN_WINDOW_Y_POSITION_KEY, String.valueOf(p.y));
                 Dimension d = getSize();
-                CGSProperty.setProperty(CGSProperty.mainWindowWidthKey, String.valueOf((int)(d.getWidth())));
-                CGSProperty.setProperty(CGSProperty.mainWindowHeightKey, String.valueOf((int)(d.getHeight())));
+                CGSProperty.setProperty(CGSProperty.MAIN_WINDOW_WIDTH, String.valueOf((int)(d.getWidth())));
+                CGSProperty.setProperty(CGSProperty.MAIN_WINDOW_HEIGHT, String.valueOf((int)(d.getHeight())));
 
                 CGSProperty.storeProperty();
             }

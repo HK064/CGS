@@ -10,15 +10,16 @@ import java.util.Properties;
 public class CGSProperty {
     private static Properties property;
     private static Properties defaultProperty;
-    private static Path path = Paths.get("./config/config.config");
-    private static Path defaultPath = Paths.get("./config/default.config");
-    public static final String mainWindowXPosKey = "Main_Window_X_Position";
-    public static final String mainWindowYPosKey = "Main_Window_Y_Position";
-    public static final String mainWindowWidthKey = "Main_Window_Width";
-    public static final String mainWindowHeightKey = "Main_Window_Height";
-    public static final String usernameKey = "Username";
-    public static final String serverPortKey = "Server_Port";
-    public static final String serverAddressKey = "Server_Address";
+    private static Path path = Paths.get("config", "config.config");
+    private static Path defaultPath = Paths.get("config", "default.config");
+    public static final String MAIN_WINDOW_X_POSITION_KEY = "Main_Window_X_Position";
+    public static final String MAIN_WINDOW_Y_POSITION_KEY = "Main_Window_Y_Position";
+    public static final String MAIN_WINDOW_WIDTH = "Main_Window_Width";
+    public static final String MAIN_WINDOW_HEIGHT = "Main_Window_Height";
+    public static final String USERNAME_KEY = "Username";
+    public static final String SERVER_PORT_KEY = "Server_Port";
+    public static final String SERVER_ADDRESS_KEY = "Server_Address";
+    public static final String SELECTED_GAME_KEY = "Selected_Game";
 
     static {
         defaultProperty = new Properties();

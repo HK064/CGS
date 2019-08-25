@@ -7,6 +7,7 @@ import java.util.Map;
 
 import gamedata.daifugo.DaifugoPlayer;
 import source.display.SetupPanel;
+import source.file.Gamedata;
 
 public class CGSetupPlayer{
     private String name;
@@ -19,6 +20,7 @@ public class CGSetupPlayer{
     public static final int STATE_READY = 2;
     private int countdownCount;
     private SetupPanel panel;
+    private Gamedata gamedata = null;
 
     /**
      * ローカルプレイヤー
@@ -93,6 +95,10 @@ public class CGSetupPlayer{
         return countdownCount;
     }
 
+    public Gamedata getGamedata(){
+        return gamedata;
+    }
+
     /**
      * プレイヤーのリストを返す。
      * ※ 自分も含みます。
@@ -122,11 +128,17 @@ public class CGSetupPlayer{
         playerStates.put(name, STATE_NOT_READY);
     }
 
+    /*
+    public void setGamedata(Gamedata gamedata){
+        send("050 " + gamedata.getFolderName());
+    }
+    */
+
     /**
      * ゲームを開始する。
      */
     private void startGame(){
-        player = new DaifugoPlayer();
+        player = gamedata.newPlayerInstance();
         player.setup(this, getName());
         panel.startGame(player);
     }
@@ -181,6 +193,8 @@ public class CGSetupPlayer{
             } else if(str[0].equals("037")){
                 serverState = CGSetupServer.STATE_GAME;
                 startGame();
+            } else if(str[0].equals("050")){
+                gamedata = Gamedata.getGamedata(str[1]);
             }
         } else if(serverState == CGSetupServer.STATE_GAME){
             player.listener(data);

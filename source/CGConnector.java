@@ -78,29 +78,28 @@ class CGConnector implements Runnable {
     void send(String str) {
         if (type == TYPE_LOCAL) {
             CGConnector me = this;
+            StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
             new Thread(new Runnable(){
                 @Override
                 public void run() {
                     // スタックトレースの取得
-                    StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
                     if (stackTraceElements[2].getClassName().contains("CGSetupServer")) {
                         player.listener(str);
-                        System.out.print("SERVER > ");
+                        System.out.println("SERVER > " + str);
                     } else if (stackTraceElements[2].getClassName().contains("CGSetupPlayer")) {
                         server.listener(me, str);
-                        System.out.print("CLIENT > ");
+                        System.out.println("CLIENT > " + str);
                     }
                 }
             }).start();
         } else {
             writer.println(str);
             if (type == TYPE_SERVER) {
-                System.out.print("SERVER > ");
+                System.out.println("SERVER > " + str);
             } else {
-                System.out.print("CLIENT > ");
+                System.out.println("CLIENT > " + str);
             }
         }
-        System.out.println(str);
     }
 
     /**

@@ -114,9 +114,9 @@ public class DaifugoServer extends CGServer {
             if (str[0].equals("115")) {
                 // 枚数確認
                 int num = 0;
-                if(name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 1))){
+                if (name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 1))) {
                     num = 2;
-                } else if(name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 2))){
+                } else if (name.equals(DaifugoTool.getRankPlayerName(playerFormerRanks, 2))) {
                     num = 1;
                 }
                 List<Card> cards = Card.convertToList(str[1]);
@@ -161,11 +161,11 @@ public class DaifugoServer extends CGServer {
 
                 takePlayerAction(name, null);
             }
-        } else if(state == STATE_END){
-            if(str[0].equals("141")){
+        } else if (state == STATE_END) {
+            if (str[0].equals("141")) {
                 playerFormerRanks.put(name, 0);
 
-                if(playerFormerRanks.size() == playerNames.size()){
+                if (playerFormerRanks.size() == playerNames.size()) {
                     sendAll("142");
                     startGame();
                 }
@@ -259,7 +259,6 @@ public class DaifugoServer extends CGServer {
                 updateFieldState(str2);
 
                 (new Timer()).schedule(new TimerTask() {
-
                     @Override
                     public void run() {
                         resetField();
