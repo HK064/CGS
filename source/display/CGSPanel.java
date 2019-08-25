@@ -26,7 +26,7 @@ class CGSPanel extends JPanel{
         setLayout(null);
         addMouseListener(new MouseAdapter(){
             @Override
-            public void mouseClicked(MouseEvent e){
+            public void mouseReleased(MouseEvent e){
                 mouseClicked = true;
                 mouseClicked2 = true;
             }
