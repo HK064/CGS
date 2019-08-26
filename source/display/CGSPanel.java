@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
@@ -135,6 +136,16 @@ class CGSPanel extends JPanel{
      */
     protected void drawImage(Graphics g, int x, int y, int w, int h, BufferedImage image){
         ((Graphics2D)g).drawImage(image, x, y, x + w, y + h, 0, 0, image.getWidth(), image.getHeight(), null);
+    }
+
+    protected void drawImage(Graphics g, int x, int y, int w, int h, BufferedImage image, double rad) {
+        Graphics2D g2 = (Graphics2D)g;
+        AffineTransform at = g2.getTransform();
+        at.setToRotation(rad, image.getWidth() / 2, image.getHeight() / 2);
+        g2.setTransform(at);
+        g2.drawImage(image, x, y, x + w, y + h, 0, 0, image.getWidth(), image.getHeight(), null);
+        at.setToIdentity();
+        g2.setTransform(at);
     }
 
 }
