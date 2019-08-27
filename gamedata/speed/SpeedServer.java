@@ -2,6 +2,7 @@ package gamedata.speed;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -37,12 +38,14 @@ public class SpeedServer extends CGServer {
 		sendOne(playerNames.get(1), "111 " + Card.convertToCodes(blackcards));
 
 		//相手のカード4枚の周知
-		List<Card> fourcards = playerCards.get(playerNames.get(0)).subList(0, 4);
-		List<Card> redfourcards = fourcards;
-		fourcards.clear();
-		fourcards = playerCards.get(playerNames.get(1)).subList(0, 4);
-		List<Card> blackfourcards = fourcards;
-		fourcards.clear();
+		List<Card> redfourcards = new LinkedList<>();
+		List<Card> blackfourcards = new LinkedList<>();
+		for(int i=0;i<4;i++) {
+			redfourcards.add(playerCards.get(playerNames.get(0)).get(0));
+			blackfourcards.add(playerCards.get(playerNames.get(1)).get(0));
+			playerCards.get(playerNames.get(0)).remove(0);
+			playerCards.get(playerNames.get(1)).remove(0);
+		}
 		fourplayerCards.put(playerNames.get(0), redfourcards);
 		fourplayerCards.put(playerNames.get(1), blackfourcards);
 		sendOne(playerNames.get(1), "113 " + Card.convertToCodes(redfourcards));
