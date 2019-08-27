@@ -15,7 +15,7 @@ public class SpeedServer extends CGServer {
 	private Map<String, List<Card>> fourplayerCards = new HashMap<>();
 	private Map<Integer, Card> fieldCard = new HashMap<>();
 	static final int RIGHT_FIELD = 0; //右の場の識別子（Player１の出す場所）
-	static final int LEFT_FIELD = 1; //右左の場の識別子（Player２の出す場所）
+	static final int LEFT_FIELD = 1; //右左の場の識別子（Player２の出す場所)
 
 	@Override
 	public void startGame() {

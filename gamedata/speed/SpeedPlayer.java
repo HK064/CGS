@@ -34,7 +34,6 @@ public class SpeedPlayer extends CGPlayer{
     String[] str = date.split(" ");
     if(str[0].equals("110")){
       //プレイヤーリスト受信
-
       for(int i = 1;i<str.length;i++){
         playerNames.add(str[i]);
       }
@@ -43,6 +42,11 @@ public class SpeedPlayer extends CGPlayer{
     	//カードが送られる
 
       cards = Card.convertToList(str[1]);
+      for(int i=0;i<4;i++) {
+    	  fourCards.add(cards.get(0));
+    	  cards.remove(0);
+      }
+
 
     }else if(str[0].equals("113")){
     	//相手の場にある４枚のカードの情報
@@ -99,7 +103,8 @@ public class SpeedPlayer extends CGPlayer{
 
     }
   }
-  /**
+
+/**
    * プレイヤーが現在所持しているカードのリストを取得する。
    *
    * @return
@@ -117,6 +122,9 @@ public class SpeedPlayer extends CGPlayer{
       return leftfieldCards;
   }
 
+  public Card getselectcard() {
+	  return selectcard;
+  }
   public Map<String, Integer> getPlayerCardSizes() {
       return playerCardSizes;
   }
@@ -128,7 +136,12 @@ public class SpeedPlayer extends CGPlayer{
 
   public List<Card> getenemyfourCards() {
 	return enemyfourCards;
-}
+  }
+
+  public List<Card> getFourCards() {
+		return fourCards;
+  }
+
 /**
    * カードを選択もしくは選択解除します。
    *

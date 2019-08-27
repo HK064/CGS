@@ -58,9 +58,9 @@ public class SpeedPanel extends PlayPanel {
 
             int cardXPos = (int)((w - (cardXGap + cardWidth)) / 2);
             int cardYPos = (int)((h - (cardYGap + cardHeight)) / 2);
-
-            drawCard(g, x + cardXPos + cardXGap * 1, y + cardYPos + cardYGap * 1, cardWidth, cardHeight, player.getrightFieldCards().get(0).get(0));
-
+            if(player.getFourCards().size()>0) {
+            drawCard(g, x + cardXPos + cardXGap * 1, y + cardYPos + cardYGap * 1, cardWidth, cardHeight, player.getFourCards().get(0));
+            }
 
 
     }
@@ -74,10 +74,12 @@ public class SpeedPanel extends PlayPanel {
      * @param h
      */
     private void drawMyCards(Graphics g, int x, int y, int w, int h){
-        int state = (player.getState() == SpeedPlayer.STATE_GAME || player.getState() == SpeedPlayer.STATE_TURN) ? 1 : 0;
+        int state = (player.getState() == SpeedPlayer.STATE_GAME) ? 1 : 0;
         List<Card> getselect = new LinkedList<>();
-        getselect = Card.convertToList(player.getSelecteCards().getCode());
-        Card selectingCard = drawCards(g, x, y, w, h, getselect, getselect, state);
+        if(player.getselectcard()!=null) {
+        	getselect = Card.convertToList(player.getselectcard().getCode());
+        }
+        Card selectingCard = drawCards(g, x, y, w, h, player.getFourCards(), getselect, state);
         if(state == 1 && selectingCard != null && mouseClicked){
             player.select(selectingCard);
         }
