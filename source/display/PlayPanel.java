@@ -21,27 +21,7 @@ public class PlayPanel extends CGSPanel {
     }
 
     protected void drawDice(Graphics g, int x, int y, int w, int h, int num) {
-        switch (num) {
-        case 1:
-            drawImage(g, x, y, w, h, DiceImage.getImage145());
-            break;
-        case 2:
-            drawImage(g, x, y, w, h, DiceImage.getImage236(), Math.PI * 2 / 3);
-            break;
-        case 3:
-            drawImage(g, x, y, w, h, DiceImage.getImage236());
-            break;
-        case 4:
-            drawImage(g, x, y, w, h, DiceImage.getImage145(), Math.PI * 4 / 3);
-            break;
-        case 5:
-            drawImage(g, x, y, w, h, DiceImage.getImage145(), Math.PI * 2 / 3);
-            break;
-        case 6:
-            drawImage(g, x, y, w, h, DiceImage.getImage236(), Math.PI * 4 / 3);
-            break;
-        }
-
+        drawImage(g, x, y, w, h, DiceImage.getDiceImage(num));
     }
 
     /**
