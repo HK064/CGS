@@ -47,6 +47,11 @@ public class DaifugoServer extends CGServer {
 
         // カードを配る
         List<Card> cards = Card.generateAllCards();
+        /*if(true){
+            cards.clear();
+            cards.add(new Card(0,1));
+            cards.add(new Card(0,2));
+        }*/
         Collections.shuffle(cards, random);
         int cardsPerPlayer = (int) (cards.size() / playerNames.size());
         int fromIndex = 0;
@@ -131,7 +136,7 @@ public class DaifugoServer extends CGServer {
                     DaifugoTool.sort(playerCards.get(name2));
                     List<Card> cards2 = new LinkedList<>();
                     for (int i = 1; i <= num; i++) {
-                        cards2.add(playerCards.get(name2).remove(playerCards.get(name2).size()));
+                        cards2.add(playerCards.get(name2).remove(playerCards.get(name2).size() - 1));
                     }
 
                     // 相手に贈る
@@ -167,7 +172,13 @@ public class DaifugoServer extends CGServer {
 
                 if (playerFormerRanks.size() == playerNames.size()) {
                     sendAll("142");
-                    startGame();
+
+                    (new Timer()).schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            startGame();
+                        }
+                    }, 1000);
                 }
             }
         }
@@ -250,6 +261,7 @@ public class DaifugoServer extends CGServer {
                 }
                 if (remainingPlayersNumber <= 1) {
                     endGame();
+                    return;
                 }
             }
 

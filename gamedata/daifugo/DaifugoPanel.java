@@ -113,7 +113,7 @@ public class DaifugoPanel extends PlayPanel{
             // プレイヤーの前職
             Integer formerRank = player.getPlayerFormerRanks().get(name);
             if(formerRank != null){
-                drawString(g, x + (int)(0.5 * w), y + (int)(0.1 * h * i + 0.05 * h), "元" + DaifugoTool.getRankName(formerRank, player.getPlayerNames().size()), (int)(0.04 * h));
+                drawString(g, x + (int)(0.7 * w), y + (int)(0.1 * h * i + 0.06 * h), "元" + DaifugoTool.getRankName(formerRank, player.getPlayerNames().size()), (int)(0.025 * h));
             }
 
             // プレイヤーの順位
@@ -131,7 +131,11 @@ public class DaifugoPanel extends PlayPanel{
 
     private void drawFieldStatePanel(Graphics g, int x, int y, int w, int h){
         g.setColor(Color.BLACK);
-        drawString(g, x, y, DaifugoTool.getFieldStateDescription(player.getFieldState()), h);
+        if(player.getState() != DaifugoPlayer.STATE_CARD_CHANGE){
+            drawString(g, x, y, DaifugoTool.getFieldStateDescription(player.getFieldState()), h);
+        } else {
+            drawString(g, x, y, "渡すカードを選びましょう。", (int)(0.5 * h));
+        }
     }
 
     /**

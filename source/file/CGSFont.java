@@ -9,10 +9,15 @@ public class CGSFont {
     private static Font font;
 
     static {
-        try {
-            font = Font.createFont(Font.TRUETYPE_FONT, new File("./font/ipaexm.ttf"));
-        } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
+        String filePath = CGSProperty.getValue(CGSProperty.FONT_FILE_KEY);
+        if (filePath == null) {
+            font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
+        } else {
+            try {
+                font = Font.createFont(Font.TRUETYPE_FONT, new File(filePath));
+            } catch (FontFormatException | IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

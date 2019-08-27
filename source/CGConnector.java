@@ -76,6 +76,7 @@ class CGConnector implements Runnable {
      * @param str メッセージ
      */
     void send(String str) {
+        long milliSec = System.currentTimeMillis();
         if (type == TYPE_LOCAL) {
             CGConnector me = this;
             StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -84,20 +85,27 @@ class CGConnector implements Runnable {
                 public void run() {
                     // スタックトレースの取得
                     if (stackTraceElements[2].getClassName().contains("CGSetupServer")) {
+                        System.out.println("" + milliSec + " SERVER > (STA) " + str);
                         player.listener(str);
-                        System.out.println("SERVER > " + str);
+                        System.out.println("" + milliSec + " SERVER > (END) " + str);
                     } else if (stackTraceElements[2].getClassName().contains("CGSetupPlayer")) {
+                        System.out.println("" + milliSec + " CLIENT > (STA) " + str);
                         server.listener(me, str);
-                        System.out.println("CLIENT > " + str);
+                        System.out.println("" + milliSec + " CLIENT > (END) " + str);
                     }
                 }
             }).start();
         } else {
+            if (type == TYPE_SERVER) {
+                System.out.println("" + milliSec + " SERVER > (STA) " + str);
+            } else {
+                System.out.println("" + milliSec + " CLIENT > (STA) " + str);
+            }
             writer.println(str);
             if (type == TYPE_SERVER) {
-                System.out.println("SERVER > " + str);
+                System.out.println("" + milliSec + " SERVER > (END) " + str);
             } else {
-                System.out.println("CLIENT > " + str);
+                System.out.println("" + milliSec + " CLIENT > (END) " + str);
             }
         }
     }
