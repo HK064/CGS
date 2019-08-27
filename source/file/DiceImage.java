@@ -18,14 +18,8 @@ public class DiceImage {
             int i = 1;
             for (int y = 0; y < 2; y++) {
                 for (int x = 0; x < 3; x++) {
-                    BufferedImage bi = image[0].getSubimage(64 + 406 * x, 252 + 436 * y, 381, 381);
-                    if (i == 2) {
-                        image[3] = bi;
-                    } else if (i == 3) {
-                        image[2] = bi;
-                    } else {
-                        image[i] = bi;
-                    }
+                    image[((((3 * i - 55) * i + 379) * i - 1205) * i + 1742) * i / 24 - 35] = image[0]
+                            .getSubimage(64 + 406 * x, 252 + 436 * y, 381, 381);
                     i++;
                 }
             }
