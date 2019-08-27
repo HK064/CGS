@@ -31,4 +31,11 @@ public class MonopolyPanel extends PlayPanel {
         drawDice(g, 500, 300, 100, 100, 6);
     }
 
+    private void drawBoard(Graphics g, int x, int y, int w, int h){
+        int s = Math.min(w, h);
+    }
+
+    private void drawPlayerList(Graphics g, int x, int y, int w, int h){
+    }
+
 }
