@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * トランプのカードのクラス
- * 
+ *
  * ※ 2枚のジョーカーは別物として扱われます。
  */
 public class Card {
@@ -19,7 +19,7 @@ public class Card {
     protected int number;
 
     /**
-     * 
+     *
      * @param suit   0:スペード, 1:ハート, 2:ダイヤ, 3:クラブ, 4:ジョーカー
      * @param number 1-13, ジョーカーは 1,2（2枚分）
      */
@@ -29,9 +29,9 @@ public class Card {
     }
 
     /**
-     * 
+     *
      * ※ Ace でなく 1, 10 でなく 0 に注意すること。
-     * 
+     *
      * @param code スート:SHDCJ, 番号:1234567890JQK
      */
     public Card(String code) {
@@ -41,7 +41,7 @@ public class Card {
 
     /**
      * スートを返す。
-     * 
+     *
      * @return 整数で返す。
      */
     public int getSuitInt() {
@@ -50,7 +50,7 @@ public class Card {
 
     /**
      * 数字を返す。
-     * 
+     *
      * @return ジョーカーは 1 or 2
      */
     public int getNumber() {
@@ -59,7 +59,7 @@ public class Card {
 
     /**
      * コードを返す。
-     * 
+     *
      * @return
      */
     public String getCode() {
@@ -93,7 +93,7 @@ public class Card {
 
     /**
      * 一組のカードを生成する。
-     * 
+     *
      * @return
      */
     public static List<Card> generateAllCards() {
@@ -110,7 +110,7 @@ public class Card {
 
     /**
      * リストからコードに変換する。
-     * 
+     *
      * @param cards
      * @return
      */
@@ -124,7 +124,7 @@ public class Card {
 
     /**
      * コードからリストに変換する。
-     * 
+     *
      * @param codes
      * @return
      */
@@ -136,4 +136,35 @@ public class Card {
         return cards;
     }
 
+    /**
+     *赤の組を生成する
+     *
+     *@return
+     */
+    public static List<Card> generateRedCards() {
+        List<Card> cards = new LinkedList<>();
+        for (int suit = 0; suit <= 3; suit+=3) {
+            for (int number = 1; number < 14; number++) {
+                cards.add(new Card(suit, number));
+            }
+        }
+        cards.add(new Card(JOKER, 1));
+        return cards;
+    }
+
+    /**
+     *黒の組を生成する
+     *
+     *@return
+     */
+    public static List<Card> generateBlackCards() {
+        List<Card> cards = new LinkedList<>();
+        for (int suit = 1; suit <= 2; suit++) {
+            for (int number = 1; number < 14; number++) {
+                cards.add(new Card(suit, number));
+            }
+        }
+        cards.add(new Card(JOKER, 2));
+        return cards;
+    }
 }
