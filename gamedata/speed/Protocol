@@ -1,0 +1,41 @@
+CLIENT > connect
+SERVER > accept
+SERVER > "010"（承認）| "011"（拒否）-> 終了
+CLIENT > send NAME
+SERVER > "020"（承認）| "021"（拒否）-> 終了
+
+SERVER > ALL : "031" + (" " + playerName)* （プレイヤーリストの送信（新規プレイヤーの通知を含む））
+SERVER > ALL : "032" + (" " + playerName + " " + state)* （各プレイヤーの状態の送信）
+SERVER > ALL : "033 " + カウントダウン（ゲーム開始までのカウントダウン）（"-1" はカウント中止）
+SERVER > ALL : "037 "（ゲーム開始）
+
+CLIENT > "040"（準備完了）
+CLIENT > "041"（準備完了取消）
+
+
+
+
+
+
+Speed
+
+SERVER > ALL  : "110" + (" " + playerName)* （相手プレイヤーの名前送信）
+SERVER > EACH : "111 " + (カード識別子)* （カードを配る）
+
+
+SERVER  > EACH　："113" + (カード識別子)＊　（場にある相手のカードを４枚教える）
+SERVER > ALL : "126" + (" " + playerName + " " + カード枚数)*
+
+SERVER > ALL : "115" (開始)
+
+SERVER > ALL : "120" + ((カード識別子)　+" "+ (場の識別子))* (場にあるカードの周知)
+
+CLIENT > "121" + (カード識別子)　+ (場の識別子)　（だしたカード）
+SERVER > ONE : "123"（承認）| "124"（拒否）
+SERVER > ALL : "120" + ((カード識別子)　+ (場の識別子))* (場にあるカードの周知)
+SERVER > ALL : "125"   (カウントダウン)
+SERVER > ALL "130" + playerName
+
+SERVER > ALL : "140"（終了）
+CLIENT > "141"（続行）
+SERVER > ALL : "142"（続行）
