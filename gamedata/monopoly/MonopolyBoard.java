@@ -2,6 +2,9 @@ package gamedata.monopoly;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MonopolyBoard {
     static final int LAND_MAX = 41; // 0: GO, ... , 40: JAIL
@@ -16,6 +19,10 @@ public class MonopolyBoard {
     private String[] landOwner = new String[LAND_MAX]; // 未所有: null
     private boolean[] landMortgage = new boolean[LAND_MAX];
     private int[] landBuilding = new int[LAND_MAX];
+
+    private List<String> playerNames;
+    private Map<String, Integer> playerMoneys = new HashMap<>();
+    private Map<String, Integer> playerPositions = new HashMap<>();
 
     /**
      * PROPERTY: 土地, COMPANY: 公共会社, INCOME_TAX: $200, LUXURY_TAX: $100
@@ -225,6 +232,30 @@ public class MonopolyBoard {
             }
         }
         return 12 - h;
+    }
+
+    void setPlayers(List<String> playerNames) {
+        this.playerNames = playerNames;
+    }
+
+    List<String> getPlayers(){
+        return playerNames;
+    }
+
+    void setPlayerMoney(String name, int money) {
+        playerMoneys.put(name, money);
+    }
+
+    int getPlayerMoney(String name) {
+        return playerMoneys.get(name);
+    }
+
+    void setPlayerPosition(String name, int position) {
+        playerPositions.put(name, position);
+    }
+
+    int getPlayerPosition(String name) {
+        return playerPositions.get(name);
     }
 
 }
