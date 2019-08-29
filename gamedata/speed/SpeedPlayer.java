@@ -29,6 +29,7 @@ public class SpeedPlayer extends CGPlayer{
   static final int LEFT_FIELD = 1; //右左の場の識別子（Player２の出す場所）
   private int fieldState = 0;
   private int countdownCount =0;
+  private String winplayer;
 
 
 
@@ -109,7 +110,7 @@ public class SpeedPlayer extends CGPlayer{
 
     }else if(str[0].equals("130")){
     	//プレイヤーが上がりました。
-
+    	winplayer = str[1];
     	state = STATE_END_GAME;
 
     }
@@ -162,6 +163,10 @@ public void setFieldState(int fieldState) {
 
 public int getCountdownCount() {
 	return countdownCount;
+}
+
+public String getWinplayer() {
+	return winplayer;
 }
 
 /**

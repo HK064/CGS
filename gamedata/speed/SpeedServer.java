@@ -101,7 +101,7 @@ public class SpeedServer extends CGServer {
 	private void sendPlayerCardSizes() {
 		String str = "126";
 		for (String name : playerNames) {
-			str += " " + name + " " + String.valueOf(playerCards.get(name).size());
+			str += " " + name + " " + String.valueOf(playerCards.get(name).size()+fourplayerCards.get(name).size());
 		}
 		sendAll(str);
 	}
@@ -138,8 +138,10 @@ public class SpeedServer extends CGServer {
 			for (int i = 0; i < fourplayerCards.get(name).size(); i++) {
 				if (fourplayerCards.get(name).get(i).equals(cards.get(0))) {
 					fourplayerCards.get(name).remove(i);
-					fourplayerCards.get(name).add(i, playerCards.get(name).get(0));
-					playerCards.get(name).remove(0);
+					if(playerCards.get(name).size()>0) {
+						fourplayerCards.get(name).add(i, playerCards.get(name).get(0));
+						playerCards.get(name).remove(0);
+					}
 				}
 			}
 
