@@ -1,7 +1,11 @@
 @echo off
-cd /d %~dp0
+setlocal
+
+pushd "%~dp0"
 
 java -classpath ./class/ Main
+
+popd
 
 if "%1" == "" (
     pause
