@@ -33,7 +33,7 @@ SERVER > ALL : "120" + ((カード識別子)　+" "+ (場の識別子))* (場に
 CLIENT > "121" + (カード識別子)　+ (場の識別子)　（だしたカード）
 SERVER > ONE : "123"（承認）| "124"（拒否）
 SERVER > ALL : "120" + ((カード識別子)　+ (場の識別子))* (場にあるカードの周知)
-SERVER > ALL : "125"   (カウントダウン)
+SERVER > ALL : "125 " + count   (カウントダウン)
 SERVER > ALL "130" + playerName
 
 SERVER > ALL : "140"（終了）

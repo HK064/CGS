@@ -3,6 +3,7 @@ package gamedata.speed;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,12 +28,15 @@ public class SpeedPanel extends PlayPanel {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        drawFieldCards(g, 0, 0, (int)(0.8 * getWidth()), (int)(0.4 * getHeight()));
+        drawFieldCards(g, 0, 0, (int)(0.8 * getWidth()), (int)(0.6 * getHeight()));
         drawPlayerListPanel(g, (int)(0.8 * getWidth()), 0, (int)(0.2 * getWidth()), getHeight());
-        drawMyCards(g, 0, (int)(0.5 * getHeight()), (int)(0.8 * getWidth()), (int)(0.4 * getHeight()));
-        drawButtonPanel(g, (int)(0.4 * getWidth()), (int)(0.9 * getHeight()), (int)(0.4 * getWidth()), (int)(0.1 * getHeight()));
+        drawMyCards(g, 0, (int)(0.75* getHeight()), (int)(0.8 * getWidth()), (int)(0.35 * getHeight()));
+        drawEnemyCards(g, 0, (int)(0.01 * getHeight()), (int)(0.8 * getWidth()), (int)(0.35 * getHeight()),player.getenemyfourCards());
+        drawButtonPanel(g, (int)(0.75 * getWidth()), (int)(0.7 * getHeight()), (int)(0.4 * getWidth()), (int)(0.1 * getHeight()));
+        drawFieldPanel(g,0, 0,(int)(0.8 * getWidth()), (int)(0.6 * getHeight()));
+        drawCount(g, 0, 0, (int)(0.8 * getWidth()), (int)(0.6 * getHeight()));
         if(player.getState() == SpeedPlayer.STATE_END_GAME){
-            drawGameEndPanel(g, (int)(0.2 * getWidth()), (int)(0.2 * getHeight()), (int)(0.6 * getWidth()), (int)(0.6 * getHeight()));
+            drawGameEndPanel(g, (int)(0.4 * getWidth()), (int)(0.2 * getHeight()), (int)(0.6 * getWidth()), (int)(0.6 * getHeight()));
         }
     }
 
@@ -46,7 +50,7 @@ public class SpeedPanel extends PlayPanel {
      */
     private void drawFieldCards(Graphics g, int x, int y, int w, int h){
 
-            int cardWidth = Math.min((int)(w / (0.6)), (int)(h / ((0.7) * CardImage.getAspect())));
+            int cardWidth = Math.min((int)(w ), (int)(h / ((2) * CardImage.getAspect())));
             int cardHeight = (int)(CardImage.getAspect() * cardWidth);
             int cardXGap = 0;
 
@@ -56,10 +60,12 @@ public class SpeedPanel extends PlayPanel {
 
             cardYGap = (int)((h - cardHeight));
 
-            int cardXPos = (int)((w - (cardXGap + cardWidth)) / 2);
-            int cardYPos = (int)((h - (cardYGap + cardHeight)) / 2);
-            if(player.getFourCards().size()>0) {
-            drawCard(g, x + cardXPos + cardXGap * 1, y + cardYPos + cardYGap * 1, cardWidth, cardHeight, player.getFourCards().get(0));
+            int cardXPos = (int)((w - (cardXGap + cardWidth)));
+            int cardYPos = (int)((h - (cardYGap + cardHeight)/2));
+            if(player.getrightFieldCards().size()>0) {
+            	drawCard(g, x + cardXPos/2 + cardXGap * 0, y + cardYPos, cardWidth, cardHeight, player.getrightFieldCards().get(0).get(0));
+            	drawCard(g, x + cardXPos/2 + cardXGap * 2, y + cardYPos, cardWidth, cardHeight, player.getleftFieldCards().get(0).get(0));
+
             }
 
 
@@ -74,14 +80,45 @@ public class SpeedPanel extends PlayPanel {
      * @param h
      */
     private void drawMyCards(Graphics g, int x, int y, int w, int h){
-        int state = (player.getState() == SpeedPlayer.STATE_GAME) ? 1 : 0;
+        int state = 1 ;
         List<Card> getselect = new LinkedList<>();
         if(player.getselectcard()!=null) {
         	getselect = Card.convertToList(player.getselectcard().getCode());
         }
         Card selectingCard = drawCards(g, x, y, w, h, player.getFourCards(), getselect, state);
-        if(state == 1 && selectingCard != null && mouseClicked){
+        if(selectingCard != null && mouseClicked){
             player.select(selectingCard);
+        }
+    }
+
+    /**
+     * 敵の手札の描画をする。
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
+    private void drawEnemyCards(Graphics g, int x, int y, int w, int h, List<Card> cards) {
+        Point mousePos = getMousePosition();
+        if (mousePos == null) {
+            mousePos = new Point(-1, -1);
+        }
+
+        // Card 位置決定
+        int cardWidth = Math.min((int) (w / (0.2 * cards.size() + 0.8)), (int) (h / (1.4 * CardImage.getAspect())));
+        int cardHeight = (int) (CardImage.getAspect() * cardWidth);
+        int cardGap = 0;
+        if (cards.size() > 1) {
+            cardGap = Math.min((int) ((w - cardWidth) / (cards.size() - 1)), cardWidth);
+        }
+        int cardPopGap = (int) (0.2 * cardHeight);
+        int cardXPos = (int) ((w - (cardGap * (cards.size() - 1) + cardWidth)) / 2);
+        int cardYPos = (int) ((h - cardHeight - 2 * cardPopGap) / 2);
+
+        for (int i = 0; i < cards.size(); i++) {
+            drawCard(g, x + cardXPos + cardGap * i, y + cardYPos, cardWidth, cardHeight,
+                    cards.get(i));
         }
     }
 
@@ -115,6 +152,48 @@ public class SpeedPanel extends PlayPanel {
             }
         }
     }
+    /**
+     * 選択している場所を表示する。
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
+    private void drawFieldPanel(Graphics g, int x, int y, int w, int h){
+        int fieldState = (player.getFieldState()==1)?2:0;
+        int cardWidth = Math.min((int)(w ), (int)(h / ((2) * CardImage.getAspect())));
+        int cardHeight = (int)(CardImage.getAspect() * cardWidth);
+        int cardXGap = 0;
+
+        Point mousePos = getMousePosition();
+        if (mousePos == null) {
+            mousePos = new Point(-1, -1);
+        }
+
+        cardXGap = Math.min((int)((w - cardWidth)), (int)(0.7 * cardWidth));
+
+        int cardYGap = 0;
+
+        cardYGap = (int)((h - cardHeight));
+
+        int cardXPos = (int)((w - (cardXGap + cardWidth)));
+        int cardYPos = (int)((h - (cardYGap + cardHeight)/2));
+        int xf = x + cardXPos/2;
+        int yf = y + cardYPos;
+        if ((xf<=mousePos.x) && (mousePos.x <= xf+cardWidth)
+                && (yf<= mousePos.y) && (mousePos.y < yf + cardHeight)&&mouseClicked){
+        	player.setFieldState(0);
+        }
+        if((xf + cardXGap * 2<=mousePos.x) && (mousePos.x < xf + cardXGap * 2+cardWidth)
+        && (yf<= mousePos.y) && (mousePos.y < yf + cardHeight)&&mouseClicked ){
+        	player.setFieldState(1);
+        }
+        g.setColor(Color.RED);
+        g.drawRect(x + cardXPos/2 + cardXGap * fieldState, y + cardYPos, cardWidth, cardHeight);
+        g.drawRect(x + cardXPos/2 + cardXGap * fieldState-2, y + cardYPos-2, cardWidth+4, cardHeight+4);
+
+    }
 
     /**
      * カードを出す・パスするボタンを表示する。
@@ -125,22 +204,41 @@ public class SpeedPanel extends PlayPanel {
      * @param h
      */
     private void drawButtonPanel(Graphics g, int x, int y, int w, int h){
-        boolean b = player.getState() == SpeedPlayer.STATE_TURN;
-        int state = 1;
-        if(b && player.checkSelectedCards()){
-            state = 0;
-        }
-        boolean putButton = drawButton(g, x, y, (int)(0.45 * w), h, "出す", state);
-        state = 1;
-        if(b){
-            state = 0;
-        }
-        boolean passButton = drawButton(g, x + (int)(0.5 * w), y, (int)(0.45 * w), h, "パス", state);
+
+        boolean putButton = drawButton(g, x, y, (int)(0.45 * w), h, "出す", 0);
         if(putButton && mouseClicked){
             player.put();
         }
 
     }
+    /**
+     * カウントダウンを描写する
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
+    private void drawCount(Graphics g,int x,int y,int w,int h) {
+    	int count= player.getCountdownCount();
+    	if(count==4) {
+    		drawString(g, x, y, "い", (int)0.1*h);
+    	}else if(count==3) {
+    		drawString(g, x, y, "いっせー", (int)0.1*h);
+    	}else if(count==2) {
+    		drawString(g, x, y, "いっせーのー", (int)0.1*h);
+    	}else if(count==1) {
+    		drawString(g, x, y, "いっせーのーで", (int)0.1*h);
+    	}
+    }
+    /**
+     *
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
 
     private void drawGameEndPanel(Graphics g, int x, int y, int w, int h){
 

@@ -28,8 +28,11 @@ public class SpeedPlayer extends CGPlayer{
   static final int RIGHT_FIELD = 0; //右の場の識別子（Player１の出す場所）
   static final int LEFT_FIELD = 1; //右左の場の識別子（Player２の出す場所）
   private int fieldState = 0;
+  private int countdownCount=0;
 
-  @Override
+
+
+@Override
   public void listener(String date){
     String[] str = date.split(" ");
     if(str[0].equals("110")){
@@ -62,24 +65,27 @@ public class SpeedPlayer extends CGPlayer{
     	//右に出されたカード情報
 
     	if(Integer.parseInt(str[2])==RIGHT_FIELD) {
-    		rightfieldCards.add(Card.convertToList(str[1]));
+    		rightfieldCards.add(0,Card.convertToList(str[1]));
 
     	//左に出されたカード情報
 
     	}else {
-    		leftfieldCards.add(Card.convertToList(str[1]));
+    		leftfieldCards.add(0,Card.convertToList(str[1]));
     	}
 
     }else if (str[0].equals("123")) {
         // 行動が承認されました。
-
         if (state == STATE_WAIT_REPLY) {
             // プレイヤーのカード削除
-            cards.remove(selectcard);
+        	for(int i=0;i<fourCards.size();i++) {
+				if(fourCards.get(i).equals(selectcard)) {
+					fourCards.remove(i);
+					fourCards.add(i,cards.get(0));
+					cards.remove(0);
+				}
+			}
             // 選択しているカードのリセット
             selectcard = null;
-
-            state = STATE_END_TURN;
         }
     } else if (str[0].equals("124")) {
         // 行動が拒否されました。
@@ -90,6 +96,10 @@ public class SpeedPlayer extends CGPlayer{
         }
     }else if(str[0].equals("125")) {
     	state = STATE_COUNT;
+    	countdownCount = Integer.parseInt(str[1]);
+    	if(Integer.parseInt(str[1])==0) {
+    		cards.remove(0);
+    	}
     }else if(str[0].equals("126")) {
     	//プレイヤーの残り枚数
     	for (int i = 1; i < str.length; i += 2) {
@@ -138,9 +148,20 @@ public class SpeedPlayer extends CGPlayer{
 	return enemyfourCards;
   }
 
-  public List<Card> getFourCards() {
+public List<Card> getFourCards() {
 		return fourCards;
   }
+public int getFieldState() {
+	return fieldState;
+}
+
+public void setFieldState(int fieldState) {
+	this.fieldState = fieldState;
+}
+
+public int getCountdownCount() {
+	return countdownCount;
+}
 
 /**
    * カードを選択もしくは選択解除します。
@@ -148,12 +169,9 @@ public class SpeedPlayer extends CGPlayer{
    * @param card
    */
   public synchronized void select(Card card) {
-      if ((state == STATE_GAME || state == STATE_TURN)  && cards.contains(card)) {
-          if (selectcard.equals(card)) {
-              selectcard=null;
-          } else {
+      if (fourCards.contains(card)) {
               selectcard = card;
-          }
+
       }
   }
 
@@ -178,9 +196,9 @@ public class SpeedPlayer extends CGPlayer{
 	  }else {
 		  fieldCards = leftfieldCards;
 	  }
-	  if((fieldCards.get(0).get(0).getNumber()+1)%13==selectcard.getNumber()||
+	  if((fieldCards.get(0).get(0).getNumber()+1)%13==selectcard.getNumber() ||
 			  fieldCards.get(0).get(0).getNumber()==(selectcard.getNumber()+1)%13||
-			  fieldCards.get(0).get(0).getSuitInt()==4) {
+			  fieldCards.get(0).get(0).isJoker()||selectcard.isJoker()) {
 		  return true;
 	  }
       return false;

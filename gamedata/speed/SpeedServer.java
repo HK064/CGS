@@ -17,6 +17,7 @@ public class SpeedServer extends CGServer {
 	private Map<Integer, Card> fieldCard = new HashMap<>();
 	static final int RIGHT_FIELD = 0; //右の場の識別子（Player１の出す場所）
 	static final int LEFT_FIELD = 1; //右左の場の識別子（Player２の出す場所)
+	private int countdownCount;
 
 	@Override
 	public void startGame() {
@@ -40,7 +41,7 @@ public class SpeedServer extends CGServer {
 		//相手のカード4枚の周知
 		List<Card> redfourcards = new LinkedList<>();
 		List<Card> blackfourcards = new LinkedList<>();
-		for(int i=0;i<4;i++) {
+		for (int i = 0; i < 4; i++) {
 			redfourcards.add(playerCards.get(playerNames.get(0)).get(0));
 			blackfourcards.add(playerCards.get(playerNames.get(1)).get(0));
 			playerCards.get(playerNames.get(0)).remove(0);
@@ -56,12 +57,16 @@ public class SpeedServer extends CGServer {
 
 		// ゲーム開始
 		sendAll("115");
+		startCountdown(4);
 		fieldCard.put(RIGHT_FIELD, playerCards.get(playerNames.get(0)).get(0));
 		fieldCard.put(LEFT_FIELD, playerCards.get(playerNames.get(1)).get(0));
-		sendAll("120 " + playerCards.get(playerNames.get(0)).get(0) + " " + RIGHT_FIELD);
-		sendAll("120 " + playerCards.get(playerNames.get(1)).get(0) + " " + LEFT_FIELD);
+		sendAll("120 " + playerCards.get(playerNames.get(0)).get(0).getCode() + " " + RIGHT_FIELD);
+		sendAll("120 " + playerCards.get(playerNames.get(1)).get(0).getCode() + " " + LEFT_FIELD);
 		playerCards.get(playerNames.get(0)).remove(0);
 		playerCards.get(playerNames.get(1)).remove(0);
+		while (!check()) {
+		}
+
 	}
 
 	@Override
@@ -73,6 +78,22 @@ public class SpeedServer extends CGServer {
 			List<Card> cards = Card.convertToList(str[1]);
 			int field_number = Integer.parseInt(str[2]);
 			takePlayerAction(name, cards, field_number);
+			/*
+			fieldCard.put(field_number,cards.get(0) );
+			sendOne(name, "123");
+			sendAll("120 "+ cards.get(0).getCode() + field_number);
+			for(int i=0;i<fourplayerCards.get(name).size();i++) {
+				if(fourplayerCards.get(name).get(i).equals(cards.get(0))) {
+					fourplayerCards.get(name).remove(i);
+					fourplayerCards.get(name).add(i,playerCards.get(name).get(0));
+					playerCards.get(name).remove(0);
+					if(playerNames.get(0).contains(name)) {
+						sendOne(playerNames.get(1), "120 "+Card.convertToCodes(cards)+" "+field_number);
+					}
+				}
+			}
+			sendPlayerCardSizes();
+			*/
 		}
 
 	}
@@ -103,16 +124,14 @@ public class SpeedServer extends CGServer {
 	private void takePlayerAction(String name, List<Card> cards, int field_number) {
 		if (cards != null) {
 			// プレイヤーがカードを持っているか
-			boolean b = true;
-			for (Card card : cards) {
-				if (!playerCards.get(name).contains(card)) {
-					b = false;
-					return;
-				}
+			boolean b = fourplayerCards.get(name).contains(cards.get(0));
+			if (!b) {
+				sendOne(name, "124");
+				return;
 			}
-
-			if (b && ((fieldCard.get(field_number).getNumber() + 1) % 13 == cards.get(0).getNumber()
-					|| fieldCard.get(field_number).getNumber() == (cards.get(0).getNumber() + 1) % 13)) {
+			if ((((fieldCard.get(field_number).getNumber() + 1) % 13 == cards.get(0).getNumber())
+					|| (fieldCard.get(field_number).getNumber() == (cards.get(0).getNumber() + 1) % 13)) ||
+					(fieldCard.get(field_number).isJoker()) || cards.get(0).isJoker()) {
 				// 承認
 				sendOne(name, "123");
 			} else {
@@ -135,6 +154,11 @@ public class SpeedServer extends CGServer {
 
 			sendAll("120 " + Card.convertToCodes(cards) + " " + field_number);
 			sendPlayerCardSizes();
+			if (playerNames.get(0).equals(name)) {
+				sendOne(playerNames.get(1), "113 " + Card.convertToCodes(fourplayerCards.get(name)));
+			} else {
+				sendOne(playerNames.get(0), "113 " + Card.convertToCodes(fourplayerCards.get(playerNames.get(1))));
+			}
 
 			// 上がりか
 			if (playerCards.get(name).size() == 0) {
@@ -153,36 +177,46 @@ public class SpeedServer extends CGServer {
 			}
 
 			// 流れるか
-			boolean check = false;
-			for (int i = 0; i < 2; i++) {
-				for (Card x : fourplayerCards.get(playerNames.get(i))) {
-					for (int j = 0; j < 2; j++) {
-						if ((fieldCard.get(j).getNumber() + 1) % 13 == x.getNumber() ||
-								fieldCard.get(j).getNumber() == (x.getNumber() + 1) % 13) {
-							check = true;
-						} else if (x.getSuitInt() == 4 || fieldCard.get(j).getSuitInt() == 4) {
-							check = true;
-						}
+			check();
+
+		}
+	}
+
+	private boolean check() {
+		boolean check = false;
+		for (int i = 0; i < 2; i++) {
+			for (Card x : fourplayerCards.get(playerNames.get(i))) {
+				for (int j = 0; j < 2; j++) {
+					if ((fieldCard.get(j).getNumber() + 1) % 13 == x.getNumber() ||
+							fieldCard.get(j).getNumber() == (x.getNumber() + 1) % 13) {
+						check = true;
+					} else if (x.isJoker() || fieldCard.get(j).isJoker()) {
+						check = true;
 					}
 				}
 			}
-			if (!check) {
-				sendAll("125");
-				(new Timer()).schedule(new TimerTask() {
-
-					@Override
-					public void run() {
-						fieldCard.put(RIGHT_FIELD, playerCards.get(playerNames.get(0)).get(0));
-						fieldCard.put(LEFT_FIELD, playerCards.get(playerNames.get(1)).get(0));
-						sendAll("120 " + playerCards.get(playerNames.get(0)).get(0) + " " + RIGHT_FIELD);
-						sendAll("120 " + playerCards.get(playerNames.get(1)).get(0) + " " + LEFT_FIELD);
-						playerCards.get(playerNames.get(0)).remove(0);
-						playerCards.get(playerNames.get(1)).remove(0);
-					}
-				}, 3000);
-			}
-
 		}
+		if (!check) {
+			startCountdown(4);
+
+			/*
+			(new Timer()).schedule(new TimerTask() {
+
+				@Override
+				public void run() {
+				*/
+			fieldCard.put(RIGHT_FIELD, playerCards.get(playerNames.get(0)).get(0));
+			fieldCard.put(LEFT_FIELD, playerCards.get(playerNames.get(1)).get(0));
+			sendAll("120 " + playerCards.get(playerNames.get(0)).get(0).getCode() + " " + RIGHT_FIELD);
+			sendAll("120 " + playerCards.get(playerNames.get(1)).get(0).getCode() + " " + LEFT_FIELD);
+			playerCards.get(playerNames.get(0)).remove(0);
+			playerCards.get(playerNames.get(1)).remove(0);
+			/*
+			}
+			}, 3000);
+			*/
+		}
+		return check;
 	}
 
 	private void endPlayer(String name) {
@@ -198,6 +232,25 @@ public class SpeedServer extends CGServer {
 		}
 		sendAll("140");
 
+	}
+
+	//カウントダウン
+	private void startCountdown(int count) {
+		countdownCount = count;
+		// タイマー起動
+		//while (countdownCount >= 0) {
+			Timer countdowner = new Timer();
+			countdowner.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					sendAll("125 " + countdownCount);
+					countdownCount--;
+					if(countdownCount==-1) {
+						countdowner.cancel();
+					}
+				}
+			}, 0, 1000);
+		//}
 	}
 
 }
