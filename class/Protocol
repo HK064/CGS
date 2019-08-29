@@ -1,0 +1,125 @@
+CLIENT > connect
+SERVER > accept
+SERVER > "010"（承認）| "011"（拒否）-> 終了
+CLIENT > send NAME
+SERVER > "020"（承認）| "021"（拒否）-> 終了
+
+SERVER > ALL : "031" + (" " + playerName)* （プレイヤーリストの送信（新規プレイヤーの通知を含む））
+SERVER > ALL : "032" + (" " + playerName + " " + state)* （各プレイヤーの状態の送信）
+SERVER > ALL : "033 " + カウントダウン（ゲーム開始までのカウントダウン）（"-1" はカウント中止）
+SERVER > ALL : "037 "（ゲーム開始）
+
+CLIENT > "040"（準備完了）
+CLIENT > "041"（準備完了取消）
+
+SERVER > ALL  : ↓
+//CLIENT >      : "050 " + ゲームフォルダ名（ゲームの指定）
+
+
+
+
+
+Daifugo
+
+SERVER > ALL  : "110" + (" " + playerName)* （プレイヤーリストの送信（ターン順））
+SERVER > EACH : "111 " + (カード識別子)* （カードを配る）
+//SERVER > ALL  : "112"（カード配布完了）
+
+SERVER > "113"（大富豪・富豪のみ、渡すカードを選べ）
+CLIENT > : "115 " + (カード識別子)* （大富豪・富豪のみ、カードを渡す）
+//SERVER > ONE : "11A"（承認）| "11B"（拒否）
+//SERVER > : "116 " + (カード識別子)* （大貧民・貧民のみ、カードを削除せよ）
+SERVER > : "117 " + (カード識別子)* （平民以外、カードを渡す）
+
+//CLIENT > : "118"（準備完了）
+
+SERVER > ALL  : "114"（開始）
+
+SERVER > ALL : "120 " + playerName（ターンの人・同じ人がもう一度カードを出す場合もこれを送る（場が流れたとき））
+
+CLIENT > "121 " + (カード識別子(ShortString))* （カードを出す）
+CLIENT > "122"（パス）
+SERVER > ONE : "123"（承認）| "124"（拒否）
+
+SERVER > ALL : "125" + (カード識別子)* （出されたカードの周知）
+SERVER > ALL : "126" + (" " + playerName + " " + カード枚数)*
+SERVER > ALL : "127" （場のリセット）
+SERVER > ALL : "128 " + FIELD_STATE（場の状態の送信）
+
+SERVER > ALL : "130 " + playerName + " " + 順位（上がりのプレイヤー）
+
+SERVER > ALL : "140"（終了）
+CLIENT > "141"（続行）
+SERVER > ALL : "142"（続行）
+
+
+Monopoly
+
+11X : はじめ
+12X : ターンの処理
+13X : SERVER の指示で金・土地の設定
+    SERVER >  : "130" + (" " + playerName + " " + 金額)*（プレイヤー所持金の送信）
+    SERVER >  : "131 " + name + " " + 土地番号（土地所有者の送信）
+    SERVER >  : "132 " + 土地番号 + " " + 建物レベル
+14X : 競売
+15X : 取引
+16X : 借金
+17X : 刑務所
+18X : 建設
+
+
+SERVER > ALL  : "110" + (" " + playerName)* （プレイヤーリストの送信（ターン順））
+SERVER > ALL  : "111" + (" " + playerName + " " + プレイヤーの場所)*
+
+(1)
+SERVER > ALL  : "120 " + プレイヤー名（ターンのプレイヤー・サイコロを振れ）
+    ^ 刑務所にいない
+    CLIENT >      : "121"（サイコロを振る）
+    SERVER > ALL  : "122 " + 目 + 目（サイコロの目）
+    (2)
+    SERVER > ALL  : "111 " + playerName + " " + プレイヤーの場所
+        ^ 未所有の土地を買う
+        CLIENT >     : "123"（買う）
+        SERVER > ALL : "130 " + name + " " + 所持金
+        SERVER > ALL : "131 " + name + " " + 土地番号
+
+        ^ 未所有の土地を買わない
+        CLIENT >     : "124"（買わない）
+        SERVER > ALL : "140 " + 土地番号（競売の開始）
+        CLIENT >     : "141 " + 金額
+        SERVER > ALL : "130 " + name + " " + 所持金
+        SERVER > ALL : "131 " + name + " " + 土地番号
+
+        ^ 既所有の土地（自分の土地）
+        何も無し
+
+        ^ 既所有の土地（他人の土地）
+        SERVER > ALL : "130 " + name + " " + 所持金 + " " + name + " " + 所持金
+
+        ^ 移動せよイベント
+        (2) へ行く
+
+        ^ 金のイベント
+        SERVER > ALL : "130 " + name + " " + 所持金
+
+    ^ 建設
+        CLIENT >     : "180 " + 土地番号（家を一軒増やす）
+        SERVER > ALL : "130 " + name + " " + 所持金
+
+
+    ^ 取引
+
+
+    ^ 所持金がマイナス
+
+
+    ^ ゾロ目
+    (1) へ行く
+
+
+
+
+
+
+
+

@@ -1,0 +1,11 @@
+MenuPanel での CGPlayer.checkName()
+CGSetup* でのプレイヤー順序
+CGSetup* でのプレイヤー remove
+SetupPanel でプレイヤーによってプレイヤーリストの順番が異なる。
+static イニシャライザを使わないようにする。
+ゲームサーバ起動時の1秒待つ処理をクライアントの起動完了確認に置き換える。
+エラー処理
+
+
+
+

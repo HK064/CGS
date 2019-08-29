@@ -152,7 +152,7 @@ public class SpeedServer extends CGServer {
 			}
 
 			// 上がりか
-			if (playerCards.get(name).size() == 0) {
+			if (fourplayerCards.get(name).size() == 0) {
 				endPlayer(name);
 
 				// 終了か
