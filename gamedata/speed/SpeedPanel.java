@@ -34,7 +34,8 @@ public class SpeedPanel extends PlayPanel {
         drawEnemyCards(g, 0, (int)(0.01 * getHeight()), (int)(0.8 * getWidth()), (int)(0.35 * getHeight()),player.getenemyfourCards());
         drawButtonPanel(g, (int)(0.75 * getWidth()), (int)(0.7 * getHeight()), (int)(0.4 * getWidth()), (int)(0.1 * getHeight()));
         drawFieldPanel(g,0, 0,(int)(0.8 * getWidth()), (int)(0.6 * getHeight()));
-        drawCount(g, 0, 0, (int)(0.8 * getWidth()), (int)(0.6 * getHeight()));
+        drawCount(g, (int) (0.1 * getWidth()), (int) (0.4 * getHeight()), (int) (0.2 * getWidth()),
+                (int) (0.1 * getHeight()));
         if(player.getState() == SpeedPlayer.STATE_END_GAME){
             drawGameEndPanel(g, (int)(0.4 * getWidth()), (int)(0.2 * getHeight()), (int)(0.6 * getWidth()), (int)(0.6 * getHeight()));
         }
@@ -220,15 +221,16 @@ public class SpeedPanel extends PlayPanel {
      * @param h
      */
     private void drawCount(Graphics g,int x,int y,int w,int h) {
+    	g.setColor(Color.BLACK);
     	int count= player.getCountdownCount();
     	if(count==4) {
-    		drawString(g, x, y, "い", (int)0.1*h);
+    		drawString(g, x, y, "い", (int)1*h);
     	}else if(count==3) {
-    		drawString(g, x, y, "いっせー", (int)0.1*h);
+    		drawString(g, x, y, "いっせー", (int)1*h);
     	}else if(count==2) {
-    		drawString(g, x, y, "いっせーのー", (int)0.1*h);
+    		drawString(g, x, y, "いっせーのー", (int)1*h);
     	}else if(count==1) {
-    		drawString(g, x, y, "いっせーのーで", (int)0.1*h);
+    		drawString(g, x, y, "いっせーのーで", (int)1*h);
     	}
     }
     /**

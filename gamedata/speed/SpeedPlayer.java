@@ -28,7 +28,7 @@ public class SpeedPlayer extends CGPlayer{
   static final int RIGHT_FIELD = 0; //右の場の識別子（Player１の出す場所）
   static final int LEFT_FIELD = 1; //右左の場の識別子（Player２の出す場所）
   private int fieldState = 0;
-  private int countdownCount=0;
+  private int countdownCount =0;
 
 
 
@@ -99,6 +99,7 @@ public class SpeedPlayer extends CGPlayer{
     	countdownCount = Integer.parseInt(str[1]);
     	if(Integer.parseInt(str[1])==0) {
     		cards.remove(0);
+    		state = STATE_GAME;
     	}
     }else if(str[0].equals("126")) {
     	//プレイヤーの残り枚数
@@ -196,8 +197,8 @@ public int getCountdownCount() {
 	  }else {
 		  fieldCards = leftfieldCards;
 	  }
-	  if((fieldCards.get(0).get(0).getNumber()+1)%13==selectcard.getNumber() ||
-			  fieldCards.get(0).get(0).getNumber()==(selectcard.getNumber()+1)%13||
+	  if((fieldCards.get(0).get(0).getNumber()+1)%13==selectcard.getNumber()%13 ||
+			  fieldCards.get(0).get(0).getNumber()%13==(selectcard.getNumber()+1)%13||
 			  fieldCards.get(0).get(0).isJoker()||selectcard.isJoker()) {
 		  return true;
 	  }
