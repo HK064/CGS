@@ -148,3 +148,24 @@ SERVER >     : "153 " + name1 + " " + name2（name1 が name2 の取引に同意
     SERVER > ALL : "130 " + name + " " + 所持金 + " " + name + " " + 所持金
     SERVER >     : "131 " + name + (" " + 土地番号)*
 
+
+ステート
+SERVER:
+    READY
+
+    TURN_START
+    DICE_ROLLED
+
+    AUCTION
+    END_AUCTION
+
+PLAYER:
+    READY
+
+    GAME
+
+    MY_TURN_START
+    MY_DICE_ROLLED
+    MY_POSITION_MOVED
+
+    AUCTION
