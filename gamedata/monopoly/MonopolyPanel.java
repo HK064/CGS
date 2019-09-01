@@ -131,6 +131,12 @@ public class MonopolyPanel extends PlayPanel {
     }
 
     private void drawPlayerList(Graphics g, int x, int y, int w, int h) {
+        g.setColor(Color.BLACK);
+        for(int i = 0; i < player.getPlayerNames().size(); i++){
+            // プレイヤーの名前
+            String name = player.getPlayerNames().get(i);
+            drawString(g, x + (int)(0.1 * h), y + (int)(0.1 * h * i), name, (int)(0.05 * h));
+        }
     }
 
 }
