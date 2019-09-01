@@ -50,7 +50,7 @@ public class MonopolyServer extends CGServer {
       if(state!=ServerState.READY && state!=ServerState.AUCTION && state!=ServerState.END_GAME) {
         if(name==board.getOwner(land)&&board.canBuild(land)) {
           int price = board.getBuildCost(land);
-          if(board.getPlayerMoney(name)-price>0) {
+          if(board.getPlayerMoney(name)-price>=0) {
             board.build(land);
             board.payPlayerMoney(name,price);
             sendAll("130 "+name+" "+board.getPlayerMoney(name));
@@ -82,6 +82,22 @@ public class MonopolyServer extends CGServer {
           board.addPlayerMoney(name,price);
           sendAll("133 "+land+" 1");
           sendAll("130 "+name+" "+board.getPlayerMoney(name));
+        }
+      }
+    }
+    //抵当解除
+    if(str[0].equals("161")){
+      int land = Integer.parseInt(str[1]);
+      if(state!=ServerState.READY && state!=ServerState.AUCTION && state!=ServerState.END_GAME) {
+        if(name==board.getOwner(land) && board.isMortgage(land)) {
+          int price = board.getPrice(land)/2;
+          price+=Math.ceil(0.1*board.getPrice(land));
+          if(board.getPlayerMoney(name)-price>=0) {
+            board.unmortgage(land);
+            board.payPlayerMoney(name,price);
+            sendAll("133 "+land+" 0");
+            sendAll("130 "+name+" "+board.getPlayerMoney(name));
+          }
         }
       }
     }
