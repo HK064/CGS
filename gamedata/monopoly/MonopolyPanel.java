@@ -3,8 +3,6 @@ package gamedata.monopoly;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import gamedata.monopoly.MonopolyBoard.LandType;
@@ -260,8 +258,9 @@ public class MonopolyPanel extends PlayPanel {
     }
 
     private void drawButtons(Graphics g, int x, int y, int w, int h) {
-        if(mouseClicked && drawButton(g, x, y, w, (int) (0.2 * h), "振る")) {
-            
+        int state = player.getState() == PlayerState.MY_TURN_START ? 0 : 1;
+        if(mouseClicked && state == 0 && drawButton(g, x, y, w, (int) (0.2 * h), "振る", state)) {
+
         }
     }
 
