@@ -64,6 +64,11 @@ public class MonopolyPlayer extends CGPlayer {
         }
     }
 
+    void rollDice(){
+      state = PlayerState.MY_DICE_ROLLED;
+      send("121");
+    }
+
     MonopolyBoard getBoard() {
         return board;
     }
