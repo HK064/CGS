@@ -118,12 +118,12 @@ SERVER > ALL  : "120 " + プレイヤー名（ターンのプレイヤー・サ�
 ^ 建設
 CLIENT >     : "180 " + 土地番号（家を一軒増やす）
 SERVER > ALL : "130 " + name + " " + 所持金
-SERVER >     : "132 " + 土地番号 + " " + 建物レベル
+SERVER > ALL : "132 " + 土地番号 + " " + 建物レベル
 
 ^ 解体
 CLIENT >     : "181 " + 土地番号（家を一軒減らす）
 SERVER > ALL : "130 " + name + " " + 所持金
-SERVER >     : "132 " + 土地番号 + " " + 建物レベル
+SERVER > ALL : "132 " + 土地番号 + " " + 建物レベル
 
 ^ 抵当に入れる
 CLIENT >     : "160 " + 土地番号（抵当に入れる）
@@ -146,7 +146,7 @@ CLIENT >     : "152 " + name（name と取引する）
 SERVER >     : "153 " + name1 + " " + name2（name1 が name2 の取引に同意）
     ^ 双方が同意
     SERVER > ALL : "130 " + name + " " + 所持金 + " " + name + " " + 所持金
-    SERVER >     : "131 " + name + (" " + 土地番号)*
+    SERVER > ALL : "131 " + name + (" " + 土地番号)*
 
 
 ステート
