@@ -20,6 +20,7 @@ public class MonopolyBoard {
             {0,0,0,0,0,0},{10,50,150,450,625,750},{0,0,0,0,0,0},{10,50,150,450,625,750},{12,60,180,500,700,900},{0,25,50,100,200,0},{14,70,200,550,750,950},{0,0,0,0,0,0},{14,70,200,550,750,950},{16,80,220,600,800,1000},
             {0,0,0,0,0,0},{18,90,250,700,875,1050},{0,0,0,0,0,0},{18,90,250,700,875,1050},{20,100,300,750,925,1100},{0,25,50,100,200,0},{22,110,330,800,975,1150},{22,110,330,800,975,1150},{0,0,0,0,0,0},{24,120,360,850,1025,1200},
             {0,0,0,0,0,0},{26,130,390,900,1100,1275},{26,130,390,900,1100,1275},{0,0,0,0,0,0},{28,150,450,1000,1200,1400},{0,25,50,100,200,0},{0,0,0,0,0,0},{35,175,500,1100,1300,1500},{0,0,0,0,0,0},{50,200,600,1400,1700,2000},{0,0,0,0,0,0}};
+    private static final int[] railLand = {5,15,25,35};
     private String[] landOwner = new String[LAND_MAX]; // 未所有: null
     private boolean[] landMortgage = new boolean[LAND_MAX];
     private int[] landBuilding = new int[LAND_MAX];
@@ -200,7 +201,22 @@ public class MonopolyBoard {
 
     int getRent(int land) {
         LandType type = getType(land);
-        // TODO
+        if(type==LandType.PROPERTY){
+          if(isMonopoly(land)&&getBuilding(land)==0){
+            return landRent[land][0]*2;
+          }
+          return landRent[land][getBuilding(land)];
+        }
+        if(type==LandType.RAILROAD){
+          String name = getOwner(land);
+          int count = 0;
+          for(int i=0;i<4;i++){
+            if(getOwner(railLand[i]).equals(name)){
+              count++;
+            }
+          }
+          return landRent[land][count];
+        }
         return 0;
     }
 
@@ -231,7 +247,7 @@ public class MonopolyBoard {
         }
         int[] lands = getSameColor(getColor(land));
         for(int i=0;i<lands.length;i++){
-          if (getBuilding(lands[i])<getBuilding(land)){
+          if (getBuilding(lands[i])<getBuilding(land) || isMortgage(lands[i])){
             return false;
           }
         }
@@ -245,12 +261,28 @@ public class MonopolyBoard {
     int getBuilding(int land){
         return landBuilding[land];
     }
-
+    /**
+    *そのマスの建築が破壊可能かを返す。
+    *ホテル解体後に設置する家が足りない場合はfalseを返す。
+    *@param land 解体するマス
+    *@return boolean
+    */
     boolean canUnbuild(int land) {
-        if (landBuilding[land] <= 4)
-            return (landBuilding[land] > 0);
+        if (landBuilding[land] <= 4){
+          int[] lands = getSameColor(getColor(land));
+          for(int i=0;i<lands.length;i++){
+            if (getBuilding(lands[i])>getBuilding(land)){
+              return false;
+            }
+          }
+          return (landBuilding[land] > 0);
+        }
         // ホテル
-        // TODO
+        if(landBuilding[land] == 5){
+          if(getRemainingHouse()>=4){
+            return true;
+          }
+        }
         return false;
     }
 
