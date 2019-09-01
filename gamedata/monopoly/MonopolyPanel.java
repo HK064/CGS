@@ -17,7 +17,7 @@ public class MonopolyPanel extends PlayPanel {
     private Random random = new Random();
     private MonopolyPlayer player;
     private MonopolyBoard board;
-    private List<Integer> selectedLands = new ArrayList<>();
+    private int selectedLand = -1;
     private int mouseOverLand = -1;
 
     @Override
@@ -36,12 +36,26 @@ public class MonopolyPanel extends PlayPanel {
         drawBoard(g, (int) (0.5 * (getWidth() - getHeight())), 0, getHeight(), getHeight());
         drawPlayerList(g, (int) (0.5 * (getWidth() + getHeight())), 0, (int) (0.5 * (getWidth() - getHeight())),
                 getHeight());
+
         if (mouseOverLand != -1) {
             int dw = (int) (0.2 * getWidth());
             int dh = dw;
             int dx = Math.min(mousePos.x, getWidth() - dw);
             int dy = Math.min(mousePos.y, getHeight() - dh);
-            drawLandDetail(g, dx, dy, dw, dh, mouseOverLand);
+
+            drawLandOutline(g, dx, dy, dw, dh, mouseOverLand);
+
+            // 選択
+            if (mouseClicked && player.getName().equals(board.getOwner(mouseOverLand))) {
+                selectedLand = mouseOverLand;
+            }
+        }
+
+        if (selectedLand != -1) {
+            if(!player.getName().equals(board.getOwner(mouseOverLand))){
+                selectedLand = -1;
+            }
+
         }
     }
 
@@ -170,24 +184,33 @@ public class MonopolyPanel extends PlayPanel {
 
     }
 
-    private void drawLandDetail(Graphics g, int x, int y, int w, int h, int land) {
-        g.setColor(Color.BLACK);
-        if (board.getType(land) == LandType.PROPERTY) {
+    private void drawLandOutline(Graphics g, int x, int y, int w, int h, int land) {
+        if (board.getType(land) == LandType.PROPERTY || board.getType(land) == LandType.RAILROAD
+                || board.getType(land) == LandType.COMPANY) {
+            g.setColor(Color.WHITE);
+            g.fillRect(x, y, w, h);
+            g.setColor(Color.BLACK);
             g.drawRect(x, y, w, h);
+            drawString(g, x, y, board.getName(land), (int) (0.15 * h));
+            drawString(g, x, y + (int) (0.15 * h), "建設費 " + board.getPrice(land), (int) (0.1 * h));
+
+        }
+        if (board.getType(land) == LandType.PROPERTY) {
 
             return;
         }
         if (board.getType(land) == LandType.RAILROAD) {
-            g.drawRect(x, y, w, h);
 
             return;
         }
         if (board.getType(land) == LandType.COMPANY) {
-            g.drawRect(x, y, w, h);
 
             return;
         }
 
+    }
+
+    private void drawLandDetail(Graphics g, int x, int y, int w, int h, int land) {
     }
 
     private void drawPlayerList(Graphics g, int x, int y, int w, int h) {
