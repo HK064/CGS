@@ -55,7 +55,7 @@ public class MonopolyPanel extends PlayPanel {
             if(!player.getName().equals(board.getOwner(mouseOverLand))){
                 selectedLand = -1;
             }
-
+            drawLandDetail(g, 0, 0, (int) (0.5 * (getWidth() - getHeight())), (int) (0.5 * getHeight()), selectedLand);
         }
     }
 
@@ -182,6 +182,8 @@ public class MonopolyPanel extends PlayPanel {
         int dh = (int) (0.1 * bs);
         drawDice(g, (int) (bx + 0.5 * (bs - dw)), (int) (by + 0.5 * bs - dh), dw, dh);
 
+        drawButtons(g, (int) (bx + 0.5 * (bs - dw)), (int) (by + 0.5 * bs), dw, 3 * dh);
+
     }
 
     private void drawLandOutline(Graphics g, int x, int y, int w, int h, int land) {
@@ -192,11 +194,11 @@ public class MonopolyPanel extends PlayPanel {
             g.setColor(Color.BLACK);
             g.drawRect(x, y, w, h);
             drawString(g, x, y, board.getName(land), (int) (0.15 * h));
-            drawString(g, x, y + (int) (0.15 * h), "建設費 " + board.getPrice(land), (int) (0.1 * h));
+            drawString(g, x, y + (int) (0.15 * h), "購入費 $" + board.getPrice(land), (int) (0.1 * h));
 
         }
         if (board.getType(land) == LandType.PROPERTY) {
-
+            drawString(g, x, y + (int) (0.25 * h), "建設費 $" + board.getBuildCost(land), (int) (0.1 * h));
             return;
         }
         if (board.getType(land) == LandType.RAILROAD) {
@@ -211,6 +213,9 @@ public class MonopolyPanel extends PlayPanel {
     }
 
     private void drawLandDetail(Graphics g, int x, int y, int w, int h, int land) {
+        g.setColor(Color.BLACK);
+        drawString(g, x, y, board.getName(land), (int) (0.15 * h));
+
     }
 
     private void drawPlayerList(Graphics g, int x, int y, int w, int h) {
@@ -251,6 +256,12 @@ public class MonopolyPanel extends PlayPanel {
         }
         for (int i = 0; i < 2; i++) {
             drawDice(g, dx[i], dy[i], ds, ds, dn[i]);
+        }
+    }
+
+    private void drawButtons(Graphics g, int x, int y, int w, int h) {
+        if(mouseClicked && drawButton(g, x, y, w, (int) (0.2 * h), "振る")) {
+            
         }
     }
 
