@@ -138,6 +138,29 @@ public class MonopolyBoard {
         }
     }
 
+    int[] getSameColor(ColorGroup color){
+      switch (color) {
+        case BROWN:
+          return new int[] {1,3};
+        case LIGHT_BLUE:
+          return new int[] {6,8,9};
+        case LIGHT_PURPLE:
+          return new int[] {11,13,14};
+        case ORANGE:
+          return new int[] {16,18,19};
+        case RED:
+          return new int[] {21,23,24};
+        case YELLOW:
+          return new int[] {26,27,29};
+        case GREEN:
+          return new int[] {31,32,34};
+        case DARK_BLUE:
+          return new int[] {37,39};
+        default:
+          return null;
+      }
+    }
+
     boolean isMonopoly(int land) {
         if (getType(land) == LandType.PROPERTY) {
             return isMonopoly(getColor(land));
@@ -146,8 +169,14 @@ public class MonopolyBoard {
     }
 
     boolean isMonopoly(ColorGroup color) {
-        // TODO
-        return false;
+        int[] lands = getSameColor(color);
+        boolean monopoly = true;
+        for(int i = 1; i<lands.length; i++) {
+          if(getOwner(lands[0])!=getOwner(lands[i])){
+            monopoly=false;
+          }
+        }
+        return monopoly;
     }
 
     String getName(int land) {
@@ -194,8 +223,16 @@ public class MonopolyBoard {
     }
 
     boolean canBuild(int land) {
-        // TODO
-        return false;
+        if(getBuilding(land)==5){
+          return false;
+        }
+        int[] lands = getSameColor(getColor(land));
+        for(int i=0;i<lands.length;i++){
+          if (getBuilding(lands[i])<getBuilding(land)){
+            return false;
+          }
+        }
+        return isMonopoly(land) && ((getBuilding(land)<4&&getRemainingHouse()>0)||getBuilding(land)==4&&getRemainingHotel()>0);
     }
 
     void build(int land) {
