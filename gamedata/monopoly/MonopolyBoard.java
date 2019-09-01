@@ -1,6 +1,7 @@
 package gamedata.monopoly;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +21,10 @@ public class MonopolyBoard {
     private boolean[] landMortgage = new boolean[LAND_MAX];
     private int[] landBuilding = new int[LAND_MAX];
 
-    private List<String> playerNames;
+    private List<String> playerNames = new ArrayList<>();
     private Map<String, Integer> playerMoneys = new HashMap<>();
     private Map<String, Integer> playerPositions = new HashMap<>();
+    private List<String> bankruptPlayers = new ArrayList<>();
 
     /**
      * PROPERTY: 土地, COMPANY: 公共会社, INCOME_TAX: $200, LUXURY_TAX: $100
@@ -158,6 +160,11 @@ public class MonopolyBoard {
         return landPrice[land];
     }
 
+    /**
+     * 
+     * @param land
+     * @return 所有者がいなければ null
+     */
     String getOwner(int land) {
         return landOwner[land];
     }
@@ -238,7 +245,7 @@ public class MonopolyBoard {
         this.playerNames = playerNames;
     }
 
-    List<String> getPlayers(){
+    List<String> getPlayers() {
         return playerNames;
     }
 
@@ -247,7 +254,10 @@ public class MonopolyBoard {
     }
 
     int getPlayerMoney(String name) {
-        return playerMoneys.get(name);
+        if (playerMoneys.containsKey(name)) {
+            return playerMoneys.get(name);
+        }
+        return 0;
     }
 
     void setPlayerPosition(String name, int position) {
@@ -255,7 +265,14 @@ public class MonopolyBoard {
     }
 
     int getPlayerPosition(String name) {
-        return playerPositions.get(name);
+        if (playerPositions.containsKey(name)) {
+            return playerPositions.get(name);
+        }
+        return 0;
+    }
+
+    boolean isPlayerBankrupt(String name) {
+        return bankruptPlayers.contains(name);
     }
 
 }

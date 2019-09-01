@@ -1,16 +1,24 @@
 package gamedata.monopoly;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import gamedata.monopoly.MonopolyBoard.LandType;
+import gamedata.monopoly.MonopolyPlayer.PlayerState;
 import source.CGPlayer;
 import source.display.PlayPanel;
 
 public class MonopolyPanel extends PlayPanel {
     private static final long serialVersionUID = 1L;
+    private Random random = new Random();
     private MonopolyPlayer player;
     private MonopolyBoard board;
+    private List<Integer> selectedLands = new ArrayList<>();
+    private int mouseOverLand = -1;
 
     @Override
     public void setup(CGPlayer player) {
@@ -25,14 +33,16 @@ public class MonopolyPanel extends PlayPanel {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        drawDice(g, 100, 100, 100, 100, 1);
-        drawDice(g, 300, 100, 100, 100, 2);
-        drawDice(g, 500, 100, 100, 100, 3);
-        drawDice(g, 100, 300, 100, 100, 4);
-        drawDice(g, 300, 300, 100, 100, 5);
-        drawDice(g, 500, 300, 100, 100, 6);
-
-        drawBoard(g, 0, 0, (int) (0.6 * getWidth()), getHeight());
+        drawBoard(g, (int) (0.5 * (getWidth() - getHeight())), 0, getHeight(), getHeight());
+        drawPlayerList(g, (int) (0.5 * (getWidth() + getHeight())), 0, (int) (0.5 * (getWidth() - getHeight())),
+                getHeight());
+        if (mouseOverLand != -1) {
+            int dw = (int) (0.2 * getWidth());
+            int dh = dw;
+            int dx = Math.min(mousePos.x, getWidth() - dw);
+            int dy = Math.min(mousePos.y, getHeight() - dh);
+            drawLandDetail(g, dx, dy, dw, dh, mouseOverLand);
+        }
     }
 
     private void drawBoard(Graphics g, int x, int y, int w, int h) {
@@ -44,6 +54,8 @@ public class MonopolyPanel extends PlayPanel {
         int by = y + (int) (0.5 * (h - bs));
         int ft = 1; // frame thickness
         int fs = (int) (0.2 * cf);
+        mouseOverLand = -1;
+
         for (int i = 0; i < MonopolyBoard.LAND_MAX; i++) {
             int cx, cy, cw, ch, tx, ty;
             if (i == 0) {
@@ -112,7 +124,26 @@ public class MonopolyPanel extends PlayPanel {
             }
             g.setColor(Color.BLACK);
             g.drawRect(cx, cy, cw, ch);
+
+            // 土地名
             drawString(g, tx, ty, board.getName(i), fs);
+
+            // 所有者
+            String name = board.getOwner(i);
+            if (name != null) {
+                drawString(g, tx, ty + fs, ": " + name, fs);
+            }
+
+            // 停まっているプレイヤー
+            int j = 1;
+            for (int k = board.getPlayers().size() - 1; k >= 0; k--) {
+                if (board.getPlayerPosition(board.getPlayers().get(k)) == i) {
+                    drawString(g, tx, ty + ch - fs * j, board.getPlayers().get(k), fs);
+                    j++;
+                }
+            }
+
+            // カラーグループ
             if (board.getType(i) == LandType.PROPERTY) {
                 Color c = board.getColor(i).getColor();
                 g.setColor(c);
@@ -127,15 +158,76 @@ public class MonopolyPanel extends PlayPanel {
                 }
             }
 
+            // マウス
+            if (cx <= mousePos.x && mousePos.x < cx + cw && cy <= mousePos.y && mousePos.y < cy + ch) {
+                mouseOverLand = i;
+            }
         }
+
+        int dw = (int) (0.3 * bs);
+        int dh = (int) (0.1 * bs);
+        drawDice(g, (int) (bx + 0.5 * (bs - dw)), (int) (by + 0.5 * bs - dh), dw, dh);
+
+    }
+
+    private void drawLandDetail(Graphics g, int x, int y, int w, int h, int land) {
+        g.setColor(Color.BLACK);
+        if (board.getType(land) == LandType.PROPERTY) {
+            g.drawRect(x, y, w, h);
+
+            return;
+        }
+        if (board.getType(land) == LandType.RAILROAD) {
+            g.drawRect(x, y, w, h);
+
+            return;
+        }
+        if (board.getType(land) == LandType.COMPANY) {
+            g.drawRect(x, y, w, h);
+
+            return;
+        }
+
     }
 
     private void drawPlayerList(Graphics g, int x, int y, int w, int h) {
         g.setColor(Color.BLACK);
-        for(int i = 0; i < player.getPlayerNames().size(); i++){
+        for (int i = 0; i < player.getPlayerNames().size(); i++) {
             // プレイヤーの名前
             String name = player.getPlayerNames().get(i);
-            drawString(g, x + (int)(0.1 * h), y + (int)(0.1 * h * i), name, (int)(0.05 * h));
+            drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i), name, (int) (0.05 * h));
+
+            // ターンのプレイヤー
+            if (name.equals(player.getPlayerNameForTurn())) {
+                drawString(g, x + (int) (0.02 * h), y + (int) (0.1 * h * i + 0.01 * h), "→", (int) (0.07 * h),
+                        Font.BOLD);
+            }
+
+            if (board.isPlayerBankrupt(name)) {
+                drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i + 0.05 * h), "破産", (int) (0.04 * h));
+            } else {
+                // 所持金
+                int money = board.getPlayerMoney(name);
+                drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i + 0.05 * h), "$" + money, (int) (0.04 * h));
+            }
+        }
+    }
+
+    private void drawDice(Graphics g, int x, int y, int w, int h) {
+
+        int ds = h;
+        int[] dx = { x, x + w - ds };
+        int[] dy = { y, y };
+        int[] dn = { random.nextInt(6) + 1, random.nextInt(6) + 1 };
+
+        PlayerState state = player.getState();
+        if (state == PlayerState.GAME || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.BANKRUPTCY) {
+
+        } else if (state == PlayerState.MY_DICE_ROLLING) {
+
+        }
+        for (int i = 0; i < 2; i++) {
+            drawDice(g, dx[i], dy[i], ds, ds, dn[i]);
         }
     }
 

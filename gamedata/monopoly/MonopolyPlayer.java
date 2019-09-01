@@ -8,7 +8,7 @@ public class MonopolyPlayer extends CGPlayer {
     private int[] dice = { 0, 0 };
 
     enum PlayerState {
-        READY, GAME, MY_TURN_START, MY_DICE_ROLLED, MY_POSITION_MOVED, AUCTION, END_AUCTION, BANKRUPTCY, END_GAME;
+        READY, GAME, MY_TURN_START, MY_DICE_ROLLING, MY_POSITION_MOVED, AUCTION, END_AUCTION, BANKRUPTCY, END_GAME;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MonopolyPlayer extends CGPlayer {
             dice[0] = Integer.parseInt(str[1]);
             dice[1] = Integer.parseInt(str[2]);
             if (playerNameForTurn.equals(name)) {
-                state = PlayerState.MY_DICE_ROLLED;
+                state = PlayerState.MY_DICE_ROLLING;
             }
             return;
         }
@@ -67,4 +67,13 @@ public class MonopolyPlayer extends CGPlayer {
     MonopolyBoard getBoard() {
         return board;
     }
+
+    PlayerState getState() {
+        return state;
+    }
+
+    int[] getDice() {
+        return dice;
+    }
+
 }
