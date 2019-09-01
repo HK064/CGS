@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class MonopolyBoard {
     static final int LAND_MAX = 41; // 0: GO, ... , 40: JAIL
+    static final int JAIL = 40;//刑務所の場所
     private static final String[] landName = { "GO", "高知", "共同基金", "香川", "所得税", "JR九州", "鹿児島", "チャンス", "長崎", "福岡",
             "刑務所見学", "山口", "中国電力", "広島", "鳥取", "JR西日本", "兵庫", "チャンス", "大阪", "京都", "駐車場", "愛知", "チャンス", "名古屋", "静岡",
             "JR東海", "神奈川", "TOKYO", "東京都水道局", "さいたま", "刑務所行き", "福島", "宮城", "共同基金", "岩手", "JR東日本", "チャンス", "札幌", "物品税",
@@ -211,7 +212,7 @@ public class MonopolyBoard {
           String name = getOwner(land);
           int count = 0;
           for(int i=0;i<4;i++){
-            if(getOwner(railLand[i]).equals(name)){
+            if(name.equals(getOwner(railLand[i]))){
               count++;
             }
           }

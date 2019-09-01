@@ -1,12 +1,14 @@
 package gamedata.monopoly;
 
 import source.CGServer;
+import java.util.Objects;
 
 public class MonopolyServer extends CGServer {
   private MonopolyBoard board = new MonopolyBoard();
   private ServerState state = ServerState.READY;
   private int[] dice = { 0, 0 };
-
+  private int count = 0;
+  private boolean zorome = false;
   enum ServerState {
     READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME;
   }
@@ -39,11 +41,17 @@ public class MonopolyServer extends CGServer {
     }
     sendAll(str);
 
+    state = ServerState.TURN_START;
+    sendAll("120 "+playerNameForTurn);
   }
 
   @Override
   public void listener(String name, String data) {
     String[] str = data.split(" ");
+    //rollDice
+    if (str[0].equals("121")&&name.equals(playerNameForTurn)){
+      playTurn(name);
+    }
     //建設
     if (str[0].equals("180")) {
       int land = Integer.parseInt(str[1]);
@@ -102,5 +110,130 @@ public class MonopolyServer extends CGServer {
       }
     }
   }
+  void playTurn(String name){
+    state = ServerState.DICE_ROLLED;
+    dice[0] = random.nextInt(6)+1;
+    dice[1] = random.nextInt(6)+1;
+    if(dice[0]==dice[2]){
+      zorome=true;
+      count++;
+    }else{
+      zorome=false;
+      count=0;
+    }
+    sendAll("122 "+dice[0]+" "+dice[1]);
+    //刑務所にいる
+    if(board.getType(board.getPlayerPosition(name))==MonopolyBoard.LandType.JAIL){
 
+    }else{
+      //スピード違反
+      if(dice[0]==dice[1]&&count==3){
+        goJail(name);
+        return;
+      }else{
+        int position = board.getPlayerPosition(name)+dice[0]+dice[1];
+        //一周回ったとき
+        if(position>40){
+          position-=40;
+          board.addPlayerMoney(name,200);
+          sendAll("130 "+name+" "+board.getPlayerMoney(name));
+        }
+        board.setPlayerPosition(name,position);
+        sendAll("111 "+name+" "+board.getPlayerPosition(name));
+        //イベント
+        doEvent(name,position);
+      }
+    }
+  }
+
+  void doEvent(String name,int position){
+    switch(board.getType(position)){
+      case GO_JAIL:
+        goJail(name);
+        return;
+      case COMMUNITY_CARD:
+        getComunityCard(name,position);
+        return;
+      case CHANCE_CARD:
+        getChanceCard(name,position);
+        return;
+      case INCOME_TAX:
+        board.payPlayerMoney(name,200);
+        sendAll("130 "+name+" "+board.getPlayerMoney(name));
+        endTurn();
+        return;
+      case LUXURY_TAX:
+        board.payPlayerMoney(name,100);
+        sendAll("130 "+name+" "+board.getPlayerMoney(name));
+        endTurn();
+        return;
+      case RAILROAD:
+      case COMPANY:
+      case PROPERTY:
+        goLand(name,position);
+        return;
+      default:
+    }
+  }
+
+  void goJail(String name){
+    board.setPlayerPosition(name,MonopolyBoard.JAIL);
+    sendAll("111 "+name+" "+board.getPlayerPosition(name));
+    zorome=false;
+    count=0;
+    state = ServerState.TURN_START;
+    nextPlayer();
+    sendAll("120 "+playerNameForTurn);
+  }
+
+  void getComunityCard(String name,int position){
+    endTurn();
+    return;
+  }
+
+  void getChanceCard(String name,int position){
+    endTurn();
+    return;
+  }
+
+  void goLand(String name,int position){
+    //所有者がいないとき
+    if(board.getOwner(position)==null){
+      return;
+    }else if(board.getOwner(position).equals(name)){
+      endTurn();
+    }else{
+      String owner = board.getOwner(position);
+      //公共会社かそれ以外
+      if(board.getType(position)==MonopolyBoard.LandType.COMPANY){
+        //公共会社が占有されていた場合
+        if(Objects.equals(board.getOwner(28),board.getOwner(12))){
+          board.payPlayerMoney(name,(dice[0]+dice[1])*10);
+          board.addPlayerMoney(owner,(dice[0]+dice[1])*10);
+          sendAll("130 "+name+" "+board.getPlayerMoney(name)+" "+owner+" "+board.getPlayerMoney(owner));
+        }else{
+          board.payPlayerMoney(name,(dice[0]+dice[1])*4);
+          board.addPlayerMoney(owner,(dice[0]+dice[1])*4);
+          sendAll("130 "+name+" "+board.getPlayerMoney(name)+" "+owner+" "+board.getPlayerMoney(owner));
+        }
+      }else{
+        board.payPlayerMoney(name,board.getRent(position));
+        board.addPlayerMoney(owner,board.getRent(position));
+        sendAll("130 "+name+" "+board.getPlayerMoney(name)+" "+owner+" "+board.getPlayerMoney(owner));
+      }
+      endTurn();
+    }
+  }
+
+  void endTurn(){
+    if(zorome==false){
+      count=0;
+      state = ServerState.TURN_START;
+      nextPlayer();
+      sendAll("120 "+playerNameForTurn);
+    }else{
+      state = ServerState.TURN_START;
+      sendAll("120 "+playerNameForTurn);
+    }
+  }
 }

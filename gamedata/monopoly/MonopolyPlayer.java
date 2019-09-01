@@ -54,7 +54,7 @@ public class MonopolyPlayer extends CGPlayer {
         }
 
         // サイコロを振った
-        if (str[0].equals("121")) {
+        if (str[0].equals("122")) {
             dice[0] = Integer.parseInt(str[1]);
             dice[1] = Integer.parseInt(str[2]);
             if (playerNameForTurn.equals(name)) {
@@ -62,6 +62,11 @@ public class MonopolyPlayer extends CGPlayer {
             }
             return;
         }
+    }
+
+    void rollDice(){
+      state = PlayerState.MY_DICE_ROLLED;
+      send("121");
     }
 
     MonopolyBoard getBoard() {
