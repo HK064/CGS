@@ -2,6 +2,7 @@ package gamedata.monopoly;
 
 import source.CGServer;
 import java.util.Objects;
+import java.util.HashMap;
 
 public class MonopolyServer extends CGServer {
   private MonopolyBoard board = new MonopolyBoard();
@@ -9,6 +10,8 @@ public class MonopolyServer extends CGServer {
   private int[] dice = { 0, 0 };
   private int count = 0;
   private boolean zorome = false;
+  private HashMap<String,String> trade = new HashMap<>();//取引を出した人、取引内容
+  private HashMap<String,String> agree = new HashMap<>();//合意した人、合意先
   enum ServerState {
     READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME;
   }
@@ -109,17 +112,56 @@ public class MonopolyServer extends CGServer {
         }
       }
     }
+    //取引内容の設定
+    if(str[0].equals("150")){
+      trade.put(name,data.substring(3));
+      sendAll("151"+data.substring(3));
+      for(String n:playerNames){
+        if(name.equals(agree.get(n))){
+          agree.remove(name);
+          sendAll("153 "+name);
+        }
+      }
+    }
+    //取引の同意
+    if(str[0].equals("152")){
+      agree.put(name,str[1]);
+      sendAll("153 "+name+" "+str[1]);
+      //取引の成立
+      if(name.equals(agree.get(str[1]))){
+        String trade1 = trade.get(name);
+        String trade2 = trade.get(str[1]);
+        String[] str1 = trade1.split(" ");
+        board.addPlayerMoney(str[1],Integer.parseInt(str1[0]));
+        board.payPlayerMoney(name,Integer.parseInt(str1[0]));
+        String str3 = "";
+        for(int i = 1;i<str1.length;i++){
+          board.setOwner(Integer.parseInt(str1[i]),str[1]);
+          str3+=" "+str1[i];
+        }
+        String[] str2 = trade2.split(" ");
+        board.addPlayerMoney(name,Integer.parseInt(str2[0]));
+        board.payPlayerMoney(str[1],Integer.parseInt(str2[0]));
+        String str4 = "";
+        for(int i = 1;i<str2.length;i++){
+          board.setOwner(Integer.parseInt(str2[i]),name);
+          str4+=" "+str2[i];
+        }
+        sendAll("130 "+name+" "+board.getPlayerMoney(name)+" "+str[1]+" "+board.getPlayerMoney(str[1]));
+        sendAll("131 " +str[1]+ str3);
+        sendAll("131 " + name + str4);
+      }
+    }
   }
   void playTurn(String name){
     state = ServerState.DICE_ROLLED;
     dice[0] = random.nextInt(6)+1;
     dice[1] = random.nextInt(6)+1;
-    if(dice[0]==dice[2]){
+    if(dice[0]==dice[1]){
       zorome=true;
       count++;
     }else{
       zorome=false;
-      count=0;
     }
     sendAll("122 "+dice[0]+" "+dice[1]);
     //刑務所にいる
