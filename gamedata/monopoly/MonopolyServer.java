@@ -44,8 +44,19 @@ public class MonopolyServer extends CGServer {
     @Override
     public void listener(String name, String data) {
         String[] str = data.split(" ");
-        if (str[0].equals("")) {
-
+        if (str[0].equals("180")) {
+          int land = Integer.parseInt(str[1]);
+          if(state!=ServerState.READY&&state!=ServerState.AUCTION&&state!=ServerState.END_GAME){
+            if(board.canBuild(land)){
+              int price = board.getBuildCost(land);
+              if(board.getPlayerMoney(name)-price>0){
+                board.build(land);
+                board.payPlayerMoney(name,price);
+                sendAll("130 "+name+" "+board.getPlayerMoney(name));
+                sendAll("132 "+land+" "+board.getBuilding(land));
+              }
+            }
+          }
         }
     }
 

@@ -178,7 +178,7 @@ public class MonopolyBoard {
 
     /**
      * 抵当に入れる。
-     * 
+     *
      * @param land
      */
     void mortgage(int land) {
@@ -200,6 +200,10 @@ public class MonopolyBoard {
 
     void build(int land) {
         landBuilding[land]++;
+    }
+
+    int getBuilding(int land){
+        return landBuilding[land];
     }
 
     boolean canUnbuild(int land) {
@@ -244,6 +248,14 @@ public class MonopolyBoard {
 
     void setPlayerMoney(String name, int money) {
         playerMoneys.put(name, money);
+    }
+
+    void payPlayerMoney(String name, int money) {
+        playerMoneys.put(name, playerMoneys.get(name)-money);
+    }
+
+    void addPlayerMoney(String name, int money) {
+        playerMoneys.put(name, playerMoneys.get(name)+money);
     }
 
     int getPlayerMoney(String name) {
