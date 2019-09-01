@@ -4,6 +4,12 @@ import source.CGServer;
 
 public class MonopolyServer extends CGServer {
     private MonopolyBoard board = new MonopolyBoard();
+    private ServerState state = ServerState.READY;
+    private int[] dice = { 0, 0 };
+
+    enum ServerState {
+        READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME;
+    }
 
     @Override
     public void startGame() {
