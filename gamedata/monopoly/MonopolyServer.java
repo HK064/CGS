@@ -114,12 +114,17 @@ public class MonopolyServer extends CGServer {
     }
     //取引内容の設定
     if(str[0].equals("150")){
-      trade.put(name,data.substring(3));
-      sendAll("151"+data.substring(3));
-      for(String n:playerNames){
-        if(name.equals(agree.get(n))){
-          agree.remove(name);
-          sendAll("153 "+name);
+      if("150 ".equals(data)){
+        trade.remove(name);
+        agree.remove(name);
+      }else{
+        trade.put(name,data.substring(4));
+        sendAll("151"+" "+data.substring(4));
+        for(String n:playerNames){
+          if(name.equals(agree.get(n))){
+            agree.remove(name);
+            sendAll("153 "+name);
+          }
         }
       }
     }
