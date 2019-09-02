@@ -256,7 +256,8 @@ public class MonopolyPanel extends PlayPanel {
         int[] dn = { 0, 0 };
 
         PlayerState state = player.getState();
-        if (state == PlayerState.GAME || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED || state == PlayerState.BANKRUPTCY) {
+        if (state == PlayerState.GAME || state == PlayerState.MY_POSITION_MOVED
+                || state == PlayerState.MY_ACTION_SELECTED || state == PlayerState.BANKRUPTCY) {
             dn[0] = player.getDice()[0];
             dn[1] = player.getDice()[1];
         } else if (state == PlayerState.MY_DICE_ROLLING) {
@@ -272,21 +273,22 @@ public class MonopolyPanel extends PlayPanel {
 
     private void drawButtons(Graphics g, int x, int y, int w, int h) {
         int state = (player.getState() == PlayerState.MY_TURN_START) ? 0 : 1;
-        if(drawButton(g, x, y, w, (int) (0.2 * h), "振る", state) && mouseClicked && state == 0) {
+        if (drawButton(g, x, y, w, (int) (0.2 * h), "振る", state) && mouseClicked && state == 0) {
             player.rollDice();
         }
 
         drawButton(g, x, y + (int) (0.2 * h), w, (int) (0.2 * h), "破産する", 1);
 
         LandType landType = board.getType(board.getPlayerPosition(player.getName()));
-        state = (player.getState() == PlayerState.MY_POSITION_MOVED && (landType == LandType.PROPERTY || landType == LandType.RAILROAD || landType == LandType.COMPANY) && board.getOwner(board.getPlayerPosition(player.getName())) == null) ? 0 : 1;
-        if(drawButton(g, x, y + (int) (0.4 * h), w, (int) (0.2 * h), "買う", state) && mouseClicked && state == 0) {
+        state = (player.getState() == PlayerState.MY_POSITION_MOVED
+                && (landType == LandType.PROPERTY || landType == LandType.RAILROAD || landType == LandType.COMPANY)
+                && board.getOwner(board.getPlayerPosition(player.getName())) == null) ? 0 : 1;
+        if (drawButton(g, x, y + (int) (0.4 * h), w, (int) (0.2 * h), "買う", state) && mouseClicked && state == 0) {
             player.buyLand(true);
         }
-        if(drawButton(g, x, y + (int) (0.6 * h), w, (int) (0.2 * h), "買わない", state) && mouseClicked && state == 0) {
+        if (drawButton(g, x, y + (int) (0.6 * h), w, (int) (0.2 * h), "買わない", state) && mouseClicked && state == 0) {
             player.buyLand(false);
         }
-
 
     }
 
