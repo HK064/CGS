@@ -218,6 +218,8 @@ public class MonopolyServer extends CGServer {
             goLand(name, position);
             return;
         default:
+            endTurn();
+            return;
         }
     }
 
