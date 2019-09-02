@@ -3,6 +3,7 @@ package gamedata.monopoly;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.util.Objects;
 import java.util.Random;
 
 import gamedata.monopoly.MonopolyBoard.LandType;
@@ -36,9 +37,9 @@ public class MonopolyPanel extends PlayPanel {
                 getHeight());
 
         if (mouseOverLand != -1) {
-            int dw = (int) (0.2 * getWidth());
-            int dh = dw;
-            int dx = Math.min(mousePos.x, getWidth() - dw);
+            int dw = (int) (0.1 * getWidth());
+            int dh = (int) (0.4 * getHeight());
+            int dx = Math.min(mousePos.x + (int) (0.01 * getWidth()), getWidth() - dw);
             int dy = Math.min(mousePos.y, getHeight() - dh);
 
             drawLandOutline(g, dx, dy, dw, dh, mouseOverLand);
@@ -53,7 +54,7 @@ public class MonopolyPanel extends PlayPanel {
             if (!player.getName().equals(board.getOwner(selectedLand))) {
                 selectedLand = -1;
             }
-            drawLandDetail(g, 0, 0, (int) (0.5 * (getWidth() - getHeight())), (int) (0.5 * getHeight()), selectedLand);
+            drawLandSetting(g, 0, 0, (int) (0.5 * (getWidth() - getHeight())), (int) (0.5 * getHeight()), selectedLand);
         }
     }
 
@@ -143,26 +144,24 @@ public class MonopolyPanel extends PlayPanel {
                 ty = cy;
                 th = ch;
             }
-            g.setColor(Color.BLACK);
-            g.drawRect(cx, cy, cw, ch);
 
-            // 土地名
-            drawString(g, tx, ty, board.getName(i), fs);
-
-            // 所有者
-            String name = board.getOwner(i);
-            if (name != null) {
-                drawString(g, tx, ty + fs, "所有 " + name, fs);
-            }
-
-            // 停まっているプレイヤー
-            int j = 1;
-            for (int k = board.getPlayers().size() - 1; k >= 0; k--) {
-                if (board.getPlayerPosition(board.getPlayers().get(k)) == i) {
-                    drawString(g, tx, ty + th - fs * j, board.getPlayers().get(k), fs);
-                    j++;
+            // ターンのプレイヤーがいる
+            boolean turnPlayer = false;
+            for (String name : board.getPlayers()) {
+                if (board.getPlayerPosition(name) == i) {
+                    turnPlayer = true;
+                    break;
                 }
             }
+
+            // 土地背景
+            if (turnPlayer) {
+                float f = (float) (0.8 + 0.1 * Math.sin(2.0 * Math.PI * currentTime / 2000));
+                g.setColor(new Color(f, f, f));
+            } else {
+                g.setColor(Color.WHITE);
+            }
+            g.fillRect(cx, cy, cw, ch);
 
             // カラーグループ
             if (board.getType(i) == LandType.PROPERTY) {
@@ -178,6 +177,65 @@ public class MonopolyPanel extends PlayPanel {
                     g.fillRect(cx + ft, cy + ft, fs - ft, ch - ft);
                 }
             }
+            
+            // 土地枠
+            g.setColor(Color.BLACK);
+            g.drawRect(cx, cy, cw, ch);
+
+            // 抵当
+            if (board.isMortgage(i)) {
+                g.setColor(Color.BLACK);
+                g.drawLine(cx, cy, cx + cw, cy + ch);
+                g.drawLine(cx + cw, cy, cx, cy + ch);
+            }
+
+            // 土地名
+            drawString(g, tx, ty, board.getName(i), fs);
+
+            // 所有者
+            String name1 = board.getOwner(i);
+            if (name1 != null) {
+                drawString(g, tx, ty + fs, "所有 " + name1, fs);
+            }
+
+            // 建物
+            String str = "";
+            switch(board.getBuilding(i)){
+            case 1:
+                str = "家１軒";
+                break;
+            case 2:
+                str = "家２軒";
+                break;
+            case 3:
+                str = "家３軒";
+                break;
+            case 4:
+                str = "家４軒";
+                break;
+            case 5:
+                str = "ホテル";
+                break;
+            }
+            drawString(g, tx, ty + 2 * fs, str, fs);
+
+            // 停まっているプレイヤー
+            int j = 1;
+            for (int k = board.getPlayers().size() - 1; k >= 0; k--) {
+                String name2 = board.getPlayers().get(k);
+                if (board.getPlayerPosition(name2) == i) {
+                    if (name2.equals(player.getPlayerNameForTurn())) {
+                        // ターンのプレイヤー
+                        float f = (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * currentTime / 1000));
+                        g.setColor(new Color(f, f, f));
+                    } else {
+                        // ターンでないプレイヤー
+                        g.setColor(Color.BLACK);
+                    }
+                    drawString(g, tx, ty + th - fs * j, name2, fs);
+                    j++;
+                }
+            }
 
             // マウス
             if (cx <= mousePos.x && mousePos.x < cx + cw && cy <= mousePos.y && mousePos.y < cy + ch) {
@@ -185,61 +243,167 @@ public class MonopolyPanel extends PlayPanel {
             }
         }
 
+        int tw = (int) (0.5 * bs);
+        int th = (int) (0.1 * bs);
         int dw = (int) (0.3 * bs);
         int dh = (int) (0.1 * bs);
-        drawDice(g, (int) (bx + 0.5 * (bs - dw)), (int) (by + 0.5 * bs - dh), dw, dh);
-
         int bw = (int) (0.5 * bs);
         int bh = (int) (0.3 * bs);
+
+        drawMessageForPlayer(g, (int) (bx + 0.5 * (bs - tw)), (int) (by + 0.5 * bs - dh - th), tw, th);
+        drawDice(g, (int) (bx + 0.5 * (bs - dw)), (int) (by + 0.5 * bs - dh), dw, dh);
         drawButtons(g, (int) (bx + 0.5 * (bs - bw)), (int) (by + 0.5 * bs), bw, bh);
 
     }
 
     private void drawLandOutline(Graphics g, int x, int y, int w, int h, int land) {
-        if (board.getType(land) == LandType.PROPERTY || board.getType(land) == LandType.RAILROAD
-                || board.getType(land) == LandType.COMPANY) {
+        LandType landType = board.getType(land);
+        String name = board.getOwner(land);
+
+        if (landType == LandType.PROPERTY || landType == LandType.RAILROAD
+                || landType == LandType.COMPANY) {
             g.setColor(Color.WHITE);
             g.fillRect(x, y, w, h);
             g.setColor(Color.BLACK);
             g.drawRect(x, y, w, h);
-            drawString(g, x, y, board.getName(land), (int) (0.15 * h));
-            drawString(g, x, y + (int) (0.15 * h), "購入費 $" + board.getPrice(land), (int) (0.1 * h));
+
+            g.setColor(Color.BLACK);
+            drawString(g, x, y, board.getName(land), (int) (0.1 * h));
+
+            String name2 = (name == null) ? "なし" : name;
+            drawString(g, x, y + (int) (0.15 * h), "所有者 " + name2, (int) (0.05 * h));
+
+            drawString(g, x, y + (int) (0.4 * h), "購入費 $" + board.getPrice(land), (int) (0.05 * h));
 
         }
-        if (board.getType(land) == LandType.PROPERTY) {
-            drawString(g, x, y + (int) (0.25 * h), "建設費 $" + board.getBuildCost(land), (int) (0.1 * h));
-            drawString(g, x, y + (int) (0.35 * h), "レンタル料", (int) (0.1 * h));
-            drawString(g, x, y + (int) (0.45 * h), "　現在 $" + board.getRent(land), (int) (0.1 * h));
-            drawString(g, x, y + (int) (0.55 * h), "　　更地　 $" + board.getRent(land, 0), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.6 * h), "　　家１軒 $" + board.getRent(land, 1), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.65 * h), "　　家２軒 $" + board.getRent(land, 2), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.7 * h), "　　家３軒 $" + board.getRent(land, 3), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.75 * h), "　　家４軒 $" + board.getRent(land, 4), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.8 * h), "　　ホテル $" + board.getRent(land, 5), (int) (0.05 * h));
+        if (landType == LandType.PROPERTY) {
+            drawString(g, x, y + (int) (0.2 * h), "レンタル料 $" + board.getRent(land), (int) (0.05 * h));
+            if(board.isMonopoly(land)){
+                drawString(g, x, y + (int) (0.25 * h), "独占中", (int) (0.05 * h));
+            }
+            String str = "";
+            switch(board.getBuilding(land)){
+            case 0:
+                str = "なし";
+                break;
+            case 1:
+                str = "家１軒";
+                break;
+            case 2:
+                str = "家２軒";
+                break;
+            case 3:
+                str = "家３軒";
+                break;
+            case 4:
+                str = "家４軒";
+                break;
+            case 5:
+                str = "ホテル";
+                break;
+            }
+            drawString(g, x, y + (int) (0.3 * h), "建物 " + str, (int) (0.05 * h));
+                
+            drawString(g, x, y + (int) (0.45 * h), "建設費 $" + board.getBuildCost(land), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　更地　 $" + board.getRent(land, 0), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　家１軒 $" + board.getRent(land, 1), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.65 * h), "　家２軒 $" + board.getRent(land, 2), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.7 * h), "　家３軒 $" + board.getRent(land, 3), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.75 * h), "　家４軒 $" + board.getRent(land, 4), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.8 * h), "　ホテル $" + board.getRent(land, 5), (int) (0.05 * h));
             return;
         }
-        if (board.getType(land) == LandType.RAILROAD) {
-            drawString(g, x, y + (int) (0.25 * h), "レンタル料", (int) (0.1 * h));
-            drawString(g, x, y + (int) (0.35 * h), "　現在 $" + board.getRent(land), (int) (0.1 * h));
-            drawString(g, x, y + (int) (0.45 * h), "　　１ $" + board.getRent(land, 1), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.5 * h), "　　２ $" + board.getRent(land, 2), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.55 * h), "　　３ $" + board.getRent(land, 3), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.6 * h), "　　４ $" + board.getRent(land, 4), (int) (0.05 * h));
+        if (landType == LandType.RAILROAD) {
+            drawString(g, x, y + (int) (0.2 * h), "レンタル料 $" + board.getRent(land), (int) (0.05 * h));
+
+            drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　１ $" + board.getRent(land, 1), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　２ $" + board.getRent(land, 2), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.65 * h), "　３ $" + board.getRent(land, 3), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.7 * h), "　４ $" + board.getRent(land, 4), (int) (0.05 * h));
             return;
         }
-        if (board.getType(land) == LandType.COMPANY) {
-            drawString(g, x, y + (int) (0.25 * h), "レンタル料", (int) (0.1 * h));
-            drawString(g, x, y + (int) (0.35 * h), "　現在 ", (int) (0.1 * h));
-            drawString(g, x, y + (int) (0.45 * h), "　　１ ４×サイコロ", (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.5 * h), "　　２ 10×サイコロ", (int) (0.05 * h));
+        if (landType == LandType.COMPANY) {
+            int i = (name == null) ? 0 : ((Objects.equals(board.getOwner(12), board.getOwner(28))) ? 2 : 1);
+            String[] str = {"なし", "４×サイコロ", "10×サイコロ"};
+            drawString(g, x, y + (int) (0.2 * h), "レンタル料 " + str[i], (int) (0.05 * h));
+
+            drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　　１ " + str[i], (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　　２ " + str[i], (int) (0.05 * h));
             return;
         }
 
     }
 
-    private void drawLandDetail(Graphics g, int x, int y, int w, int h, int land) {
+    private void drawLandSetting(Graphics g, int x, int y, int w, int h, int land) {
+        LandType landType = board.getType(land);
+
         g.setColor(Color.BLACK);
-        drawString(g, x, y, board.getName(land), (int) (0.15 * h));
+        drawString(g, x, y, board.getName(land), (int) (0.1 * h));
+
+        drawString(g, x, y + (int) (0.4 * h), "購入費 $" + board.getPrice(land), (int) (0.05 * h));
+        if (landType == LandType.PROPERTY) {
+            g.setColor(board.getColor(land).getColor());
+            g.fillRect(x + (int) (0.5 * w), y, (int) (0.5 * w), (int) (0.1 * h));
+
+            g.setColor(Color.BLACK);
+
+            drawString(g, x, y + (int) (0.15 * h), "レンタル料 $" + board.getRent(land), (int) (0.05 * h));
+            if(board.isMonopoly(land)){
+                drawString(g, x, y + (int) (0.2 * h), "独占中", (int) (0.05 * h));
+            }
+            String str = "";
+            switch(board.getBuilding(land)){
+            case 0:
+                str = "なし";
+                break;
+            case 1:
+                str = "家１軒";
+                break;
+            case 2:
+                str = "家２軒";
+                break;
+            case 3:
+                str = "家３軒";
+                break;
+            case 4:
+                str = "家４軒";
+                break;
+            case 5:
+                str = "ホテル";
+                break;
+            }
+            drawString(g, x, y + (int) (0.25 * h), "建物 " + str, (int) (0.05 * h));
+                
+            drawString(g, x, y + (int) (0.45 * h), "建設費 $" + board.getBuildCost(land), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　更地　 $" + board.getRent(land, 0), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　家１軒 $" + board.getRent(land, 1), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.65 * h), "　家２軒 $" + board.getRent(land, 2), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.7 * h), "　家３軒 $" + board.getRent(land, 3), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.75 * h), "　家４軒 $" + board.getRent(land, 4), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.8 * h), "　ホテル $" + board.getRent(land, 5), (int) (0.05 * h));
+        }
+
+        if (landType == LandType.RAILROAD) {
+            drawString(g, x, y + (int) (0.2 * h), "レンタル料 $" + board.getRent(land), (int) (0.05 * h));
+            
+            drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　１ $" + board.getRent(land, 1), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　２ $" + board.getRent(land, 2), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.65 * h), "　３ $" + board.getRent(land, 3), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.7 * h), "　４ $" + board.getRent(land, 4), (int) (0.05 * h));
+            return;
+        }
+
+        drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "建設する(B)", 1);
+        drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "解体する(D)", 1);
+        drawButton(g, x + (int) (0.5 * w), y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当(M)", 1);
+        drawButton(g, x + (int) (0.5 * w), y + (int) (0.7 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当解除(U)", 1);
+        drawButton(g, x + (int) (0.5 * w), y + (int) (0.8 * h), (int) (0.5 * w), (int) (0.1 * h), "取引に追加(T)", 1);
+        drawButton(g, x + (int) (0.5 * w), y + (int) (0.9 * h), (int) (0.5 * w), (int) (0.1 * h), "取引ｶﾗ除外(E)", 1);
 
     }
 
@@ -252,10 +416,13 @@ public class MonopolyPanel extends PlayPanel {
 
             // ターンのプレイヤー
             if (name.equals(player.getPlayerNameForTurn())) {
+                float f = (float) (0.5 + 0.5 * Math.sin(2.0 * Math.PI * currentTime / 1000));
+                g.setColor(new Color(f, f, f));
                 drawString(g, x + (int) (0.02 * h), y + (int) (0.1 * h * i + 0.01 * h), "→", (int) (0.07 * h),
                         Font.BOLD);
             }
 
+            g.setColor(Color.BLACK);
             if (board.isPlayerBankrupt(name)) {
                 drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i + 0.05 * h), "破産", (int) (0.04 * h));
             } else {
@@ -264,6 +431,33 @@ public class MonopolyPanel extends PlayPanel {
                 drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i + 0.05 * h), "$" + money, (int) (0.04 * h));
             }
         }
+    }
+
+    private void drawMessageForPlayer(Graphics g, int x, int y, int w, int h) {
+        String str = "";
+        LandType landType = board.getType(board.getPlayerPosition(player.getName()));
+        String landOwner = board.getOwner(board.getPlayerPosition(player.getName()));
+        switch (player.getState()) {
+        case MY_TURN_START:
+            str = "あなたのターンです。";
+            break;
+        case MY_POSITION_MOVED:
+            if (landOwner == null && (landType == LandType.PROPERTY || landType == LandType.RAILROAD
+                    || landType == LandType.COMPANY)) {
+                str = "土地を買いますか？";
+            }
+            break;
+        case MY_JAIL_START:
+            str = "刑務所から出ますか？";
+            break;
+        case MY_JAIL_BEFORE_DICE_ROLL:
+            str = "サイコロを振りましょう。";
+            break;
+        default:
+            break;
+        }
+        g.setColor(Color.BLACK);
+        drawString(g, x, y, str, (int) (0.5 * h));
     }
 
     private void drawDice(Graphics g, int x, int y, int w, int h) {
@@ -290,7 +484,8 @@ public class MonopolyPanel extends PlayPanel {
     }
 
     private void drawButtons(Graphics g, int x, int y, int w, int h) {
-        int state = (player.getState() == PlayerState.MY_TURN_START || player.getState() == PlayerState.MY_JAIL_BEFORE_DICE_ROLL) ? 0 : 1;
+        int state = (player.getState() == PlayerState.MY_TURN_START
+                || player.getState() == PlayerState.MY_JAIL_BEFORE_DICE_ROLL) ? 0 : 1;
         if (drawButton(g, x, y, (int) (0.5 * w), (int) (0.2 * h), "振る", state) && mouseClicked && state == 0) {
             player.rollDice();
         }

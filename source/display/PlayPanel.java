@@ -11,9 +11,18 @@ import source.file.DiceImage;
 
 public class PlayPanel extends CGSPanel {
     private static final long serialVersionUID = 1L;
+    private long initialTime = System.currentTimeMillis();
+    protected long currentTime = initialTime;
 
     public void setup(CGPlayer player) {
 
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        currentTime = System.currentTimeMillis() - initialTime;
     }
 
     protected void drawCard(Graphics g, int x, int y, int w, int h, Card card) {
