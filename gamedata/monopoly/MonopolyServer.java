@@ -68,6 +68,8 @@ public class MonopolyServer extends CGServer {
             state = ServerState.JAIL_START;
             board.payPlayerMoney(name, 50);
             sendAll("130 " + name + " " + board.getPlayerMoney(name));
+            board.setPlayerPosition(name, 10);
+            sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
             state = ServerState.TURN_START;
             sendAll("120 " + name);
         }
@@ -90,11 +92,15 @@ public class MonopolyServer extends CGServer {
                     }
                     ;
                     if (dice[0] == dice[1]) {
+                        board.setPlayerPosition(name, 10);
+                        sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
                         board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
                         sendAll("111 " + name + " " + board.getPlayerPosition(name));
                         doEvent(name, board.getPlayerPosition(name));
                     } else {
-                        if (jailCount == 2) {
+                        if (jailCount == 2){
+                            board.setPlayerPosition(name, 10);
+                            sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
                             board.payPlayerMoney(name, 50);
                             sendAll("130 " + name + " " + board.getPlayerMoney(name));
                             board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
@@ -276,7 +282,7 @@ public class MonopolyServer extends CGServer {
             } else {
                 int position = board.getPlayerPosition(name) + dice[0] + dice[1];
                 // 一周回ったとき
-                if (position > 40) {
+                if (position >= 40) {
                     position -= 40;
                     board.addPlayerMoney(name, 200);
                     sendAll("130 " + name + " " + board.getPlayerMoney(name));
