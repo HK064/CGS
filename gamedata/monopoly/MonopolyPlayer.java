@@ -11,7 +11,7 @@ public class MonopolyPlayer extends CGPlayer {
     private int tradeMoney = 0;
 
     enum PlayerState {
-        READY, GAME, MY_TURN_START, MY_DICE_ROLLED, MY_POSITION_MOVED, AUCTION, END_AUCTION, BANKRUPTCY, END_GAME;
+        READY, GAME, MY_TURN_START, MY_DICE_ROLLING, MY_DICE_ROLLED, MY_POSITION_MOVED, AUCTION, END_AUCTION, BANKRUPTCY, END_GAME;
     }
 
     @Override
@@ -87,4 +87,13 @@ public class MonopolyPlayer extends CGPlayer {
     void agreeTrade(String name){
         send("152 "+name);
     }
+
+    PlayerState getState() {
+        return state;
+    }
+
+    int[] getDice() {
+        return dice;
+    }
+
 }
