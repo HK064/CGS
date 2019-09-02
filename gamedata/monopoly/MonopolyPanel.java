@@ -290,7 +290,7 @@ public class MonopolyPanel extends PlayPanel {
     }
 
     private void drawButtons(Graphics g, int x, int y, int w, int h) {
-        int state = (player.getState() == PlayerState.MY_TURN_START) ? 0 : 1;
+        int state = (player.getState() == PlayerState.MY_TURN_START || player.getState() == PlayerState.MY_JAIL_BEFORE_DICE_ROLL) ? 0 : 1;
         if (drawButton(g, x, y, (int) (0.5 * w), (int) (0.2 * h), "振る", state) && mouseClicked && state == 0) {
             player.rollDice();
         }
