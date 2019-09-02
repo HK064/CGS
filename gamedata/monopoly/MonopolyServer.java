@@ -90,7 +90,7 @@ public class MonopolyServer extends CGServer {
                     if (playerJailTurn.containsKey(name)) {
                         jailCount = playerJailTurn.get(name);
                     }
-                    ;
+                    sendAll("122 "+dice[0]+" "+dice[1]);
                     if (dice[0] == dice[1]) {
                         board.setPlayerPosition(name, 10);
                         sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
