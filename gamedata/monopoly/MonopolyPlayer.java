@@ -136,4 +136,5 @@ public class MonopolyPlayer extends CGPlayer {
     void agreeTrade(String name) {
         send("152 " + name);
     }
+
 }
