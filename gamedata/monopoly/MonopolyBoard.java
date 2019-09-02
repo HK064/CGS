@@ -191,7 +191,7 @@ public class MonopolyBoard {
         int[] lands = getSameColor(color);
         boolean monopoly = true;
         for (int i = 1; i < lands.length; i++) {
-            if (Objects.equals(getOwner(lands[0]),getOwner(lands[i]))) {
+            if (!Objects.equals(getOwner(lands[0]), getOwner(lands[i]))) {
                 monopoly = false;
             }
         }
