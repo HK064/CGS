@@ -50,7 +50,7 @@ public class MonopolyPanel extends PlayPanel {
         }
 
         if (selectedLand != -1) {
-            if(!player.getName().equals(board.getOwner(mouseOverLand))){
+            if (!player.getName().equals(board.getOwner(mouseOverLand))) {
                 selectedLand = -1;
             }
             drawLandDetail(g, 0, 0, (int) (0.5 * (getWidth() - getHeight())), (int) (0.5 * getHeight()), selectedLand);
@@ -69,7 +69,7 @@ public class MonopolyPanel extends PlayPanel {
         mouseOverLand = -1;
 
         for (int i = 0; i < MonopolyBoard.LAND_MAX; i++) {
-            int cx, cy, cw, ch, tx, ty;
+            int cx, cy, cw, ch, tx, ty, th;
             if (i == 0) {
                 cx = bx + bs - cd;
                 cy = by + bs - cd;
@@ -77,6 +77,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cd;
                 tx = cx;
                 ty = cy;
+                th = ch;
             } else if (i < 10) {
                 cx = bx + cd + cf * (9 - i);
                 cy = by + bs - cd;
@@ -84,6 +85,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cd;
                 tx = cx;
                 ty = cy + fs;
+                th = ch - fs;
             } else if (i == 10) {
                 cx = bx;
                 cy = by + bs - cd;
@@ -91,6 +93,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cd;
                 tx = cx;
                 ty = cy + cf;
+                th = ch - cf;
             } else if (i < 20) {
                 cx = bx;
                 cy = by + cd + cf * (19 - i);
@@ -98,6 +101,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cf;
                 tx = cx;
                 ty = cy;
+                th = ch;
             } else if (i == 20) {
                 cx = bx;
                 cy = by;
@@ -105,6 +109,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cd;
                 tx = cx;
                 ty = cy;
+                th = ch;
             } else if (i < 30) {
                 cx = bx + cd + cf * (i - 21);
                 cy = by;
@@ -112,6 +117,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cd;
                 tx = cx;
                 ty = cy;
+                th = ch - fs;
             } else if (i == 30) {
                 cx = bx + bs - cd;
                 cy = by;
@@ -119,6 +125,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cd;
                 tx = cx;
                 ty = cy;
+                th = ch;
             } else if (i < 40) {
                 cx = bx + bs - cd;
                 cy = by + cd + cf * (i - 31);
@@ -126,6 +133,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cf;
                 tx = cx + fs;
                 ty = cy;
+                th = ch;
             } else {
                 cx = bx + cd - cf;
                 cy = by + bs - cd;
@@ -133,6 +141,7 @@ public class MonopolyPanel extends PlayPanel {
                 ch = cf;
                 tx = cx;
                 ty = cy;
+                th = ch;
             }
             g.setColor(Color.BLACK);
             g.drawRect(cx, cy, cw, ch);
@@ -150,7 +159,7 @@ public class MonopolyPanel extends PlayPanel {
             int j = 1;
             for (int k = board.getPlayers().size() - 1; k >= 0; k--) {
                 if (board.getPlayerPosition(board.getPlayers().get(k)) == i) {
-                    drawString(g, tx, ty + ch - fs * j, board.getPlayers().get(k), fs);
+                    drawString(g, tx, ty + th - fs * j, board.getPlayers().get(k), fs);
                     j++;
                 }
             }
@@ -244,24 +253,41 @@ public class MonopolyPanel extends PlayPanel {
         int ds = h;
         int[] dx = { x, x + w - ds };
         int[] dy = { y, y };
-        int[] dn = { random.nextInt(6) + 1, random.nextInt(6) + 1 };
+        int[] dn = { 0, 0 };
 
         PlayerState state = player.getState();
-        if (state == PlayerState.GAME || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.BANKRUPTCY) {
-
+        if (state == PlayerState.GAME || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED || state == PlayerState.BANKRUPTCY) {
+            dn[0] = player.getDice()[0];
+            dn[1] = player.getDice()[1];
         } else if (state == PlayerState.MY_DICE_ROLLING) {
-
+            dn[0] = random.nextInt(6) + 1;
+            dn[1] = random.nextInt(6) + 1;
         }
-        for (int i = 0; i < 2; i++) {
-            drawDice(g, dx[i], dy[i], ds, ds, dn[i]);
+        if (dn[0] != 0 && dn[1] != 0) {
+            for (int i = 0; i < 2; i++) {
+                drawDice(g, dx[i], dy[i], ds, ds, dn[i]);
+            }
         }
     }
 
     private void drawButtons(Graphics g, int x, int y, int w, int h) {
-        int state = player.getState() == PlayerState.MY_TURN_START ? 0 : 1;
-        if(mouseClicked && state == 0 && drawButton(g, x, y, w, (int) (0.2 * h), "振る", state)) {
-
+        int state = (player.getState() == PlayerState.MY_TURN_START) ? 0 : 1;
+        if(drawButton(g, x, y, w, (int) (0.2 * h), "振る", state) && mouseClicked && state == 0) {
+            player.rollDice();
         }
+
+        drawButton(g, x, y + (int) (0.2 * h), w, (int) (0.2 * h), "破産する", 1);
+
+        LandType landType = board.getType(board.getPlayerPosition(player.getName()));
+        state = (player.getState() == PlayerState.MY_POSITION_MOVED && (landType == LandType.PROPERTY || landType == LandType.RAILROAD || landType == LandType.COMPANY) && board.getOwner(board.getPlayerPosition(player.getName())) == null) ? 0 : 1;
+        if(drawButton(g, x, y + (int) (0.4 * h), w, (int) (0.2 * h), "買う", state) && mouseClicked && state == 0) {
+            player.buyLand(true);
+        }
+        if(drawButton(g, x, y + (int) (0.6 * h), w, (int) (0.2 * h), "買わない", state) && mouseClicked && state == 0) {
+            player.buyLand(false);
+        }
+
+
     }
 
 }

@@ -2,238 +2,291 @@ package gamedata.monopoly;
 
 import source.CGServer;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MonopolyServer extends CGServer {
-  private MonopolyBoard board = new MonopolyBoard();
-  private ServerState state = ServerState.READY;
-  private int[] dice = { 0, 0 };
-  private int count = 0;
-  private boolean zorome = false;
-  enum ServerState {
-    READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME;
-  }
+    private MonopolyBoard board = new MonopolyBoard();
+    private ServerState state = ServerState.READY;
+    private int[] dice = { 0, 0 };
+    private int count = 0;
+    private boolean zorome = false;
 
-  @Override
-  public void startGame() {
-
-    // プレイヤーの順番
-    shufflePlayers();
-    String str = "110";
-    for (String name : playerNames) {
-      str += " " + name;
+    enum ServerState {
+        READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME;
     }
-    sendAll(str);
-    board.setPlayers(playerNames);
 
-    // プレイヤーの初期位置
-    str = "111";
-    for (String name : playerNames) {
-      str += " " + name + " 0";
-      board.setPlayerPosition(name, 0);
-    }
-    sendAll(str);
+    @Override
+    public void startGame() {
 
-    // プレイヤーの初期所持金
-    str = "130";
-    for (String name : playerNames) {
-      str += " " + name + " 1500";
-      board.setPlayerMoney(name, 1500);
-    }
-    sendAll(str);
-
-    state = ServerState.TURN_START;
-    sendAll("120 "+playerNameForTurn);
-  }
-
-  @Override
-  public void listener(String name, String data) {
-    String[] str = data.split(" ");
-    //rollDice
-    if (str[0].equals("121")&&name.equals(playerNameForTurn)){
-      playTurn(name);
-    }
-    //建設
-    if (str[0].equals("180")) {
-      int land = Integer.parseInt(str[1]);
-      if(state!=ServerState.READY && state!=ServerState.AUCTION && state!=ServerState.END_GAME) {
-        if(name==board.getOwner(land)&&board.canBuild(land)) {
-          int price = board.getBuildCost(land);
-          if(board.getPlayerMoney(name)-price>=0) {
-            board.build(land);
-            board.payPlayerMoney(name,price);
-            sendAll("130 "+name+" "+board.getPlayerMoney(name));
-            sendAll("132 "+land+" "+board.getBuilding(land));
-          }
+        // プレイヤーの順番
+        shufflePlayers();
+        String str = "110";
+        for (String name : playerNames) {
+            str += " " + name;
         }
-      }
-    }
-    //解体
-    if(str[0].equals("181")) {
-      int land = Integer.parseInt(str[1]);
-      if(state!=ServerState.READY && state!=ServerState.AUCTION && state!=ServerState.END_GAME) {
-        if(name==board.getOwner(land) && board.canUnbuild(land)) {
-          int price = board.getBuildCost(land)/2;
-          board.unbuild(land);
-          board.addPlayerMoney(name,price);
-          sendAll("130 "+name+" "+board.getPlayerMoney(name));
-          sendAll("132 "+land+" "+board.getBuilding(land));
-        }
-      }
-    }
-    //抵当
-    if(str[0].equals("160")) {
-      int land = Integer.parseInt(str[1]);
-      if(state!=ServerState.READY && state!=ServerState.AUCTION && state!=ServerState.END_GAME) {
-        if(name==board.getOwner(land) && !board.isMortgage(land)) {
-          int price = board.getPrice(land)/2;
-          board.mortgage(land);
-          board.addPlayerMoney(name,price);
-          sendAll("133 "+land+" 1");
-          sendAll("130 "+name+" "+board.getPlayerMoney(name));
-        }
-      }
-    }
-    //抵当解除
-    if(str[0].equals("161")){
-      int land = Integer.parseInt(str[1]);
-      if(state!=ServerState.READY && state!=ServerState.AUCTION && state!=ServerState.END_GAME) {
-        if(name==board.getOwner(land) && board.isMortgage(land)) {
-          int price = board.getPrice(land)/2;
-          price+=Math.ceil(0.1*board.getPrice(land));
-          if(board.getPlayerMoney(name)-price>=0) {
-            board.unmortgage(land);
-            board.payPlayerMoney(name,price);
-            sendAll("133 "+land+" 0");
-            sendAll("130 "+name+" "+board.getPlayerMoney(name));
-          }
-        }
-      }
-    }
-  }
-  void playTurn(String name){
-    state = ServerState.DICE_ROLLED;
-    dice[0] = random.nextInt(6)+1;
-    dice[1] = random.nextInt(6)+1;
-    if(dice[0]==dice[2]){
-      zorome=true;
-      count++;
-    }else{
-      zorome=false;
-      count=0;
-    }
-    sendAll("122 "+dice[0]+" "+dice[1]);
-    //刑務所にいる
-    if(board.getType(board.getPlayerPosition(name))==MonopolyBoard.LandType.JAIL){
+        sendAll(str);
+        board.setPlayers(playerNames);
 
-    }else{
-      //スピード違反
-      if(dice[0]==dice[1]&&count==3){
-        goJail(name);
-        return;
-      }else{
-        int position = board.getPlayerPosition(name)+dice[0]+dice[1];
-        //一周回ったとき
-        if(position>40){
-          position-=40;
-          board.addPlayerMoney(name,200);
-          sendAll("130 "+name+" "+board.getPlayerMoney(name));
+        // プレイヤーの初期位置
+        str = "111";
+        for (String name : playerNames) {
+            str += " " + name + " 0";
+            board.setPlayerPosition(name, 0);
         }
-        board.setPlayerPosition(name,position);
-        sendAll("111 "+name+" "+board.getPlayerPosition(name));
-        //イベント
-        doEvent(name,position);
-      }
-    }
-  }
+        sendAll(str);
 
-  void doEvent(String name,int position){
-    switch(board.getType(position)){
-      case GO_JAIL:
-        goJail(name);
-        return;
-      case COMMUNITY_CARD:
-        getComunityCard(name,position);
-        return;
-      case CHANCE_CARD:
-        getChanceCard(name,position);
-        return;
-      case INCOME_TAX:
-        board.payPlayerMoney(name,200);
-        sendAll("130 "+name+" "+board.getPlayerMoney(name));
+        // プレイヤーの初期所持金
+        str = "130";
+        for (String name : playerNames) {
+            str += " " + name + " 1500";
+            board.setPlayerMoney(name, 1500);
+        }
+        sendAll(str);
+
+        state = ServerState.TURN_START;
+        sendAll("120 " + playerNameForTurn);
+    }
+
+    @Override
+    protected void nextPlayer() {
+        do {
+            super.nextPlayer();
+        } while (board.isPlayerBankrupt(playerNameForTurn));
+    }
+
+    @Override
+    public void listener(String name, String data) {
+        String[] str = data.split(" ");
+
+        // rollDice
+        if (str[0].equals("121") && name.equals(playerNameForTurn)) {
+
+            (new Timer()).schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    playTurn(name);
+                }
+            }, 1000);
+            return;
+        }
+
+        // 土地を買う
+        if(str[0].equals("123") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)){
+            board.payPlayerMoney(name, board.getPrice(board.getPlayerPosition(name)));
+            board.setOwner(board.getPlayerPosition(name), name);
+            state = ServerState.ACTION_SELECTED;
+            sendAll("130 " + name + " " + board.getPlayerMoney(name));
+            sendAll("131 " + name + " " + board.getPlayerPosition(name));
+            endTurn();
+            return;
+        }
+
+        // 土地を買わない
+        if(str[0].equals("124") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)){
+            state = ServerState.AUCTION;
+
+            // TODO
+
+            endTurn();
+            return;
+        }
+
+        // 建設
+        if (str[0].equals("180")) {
+            int land = Integer.parseInt(str[1]);
+            if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
+                if (name == board.getOwner(land) && board.canBuild(land)) {
+                    int price = board.getBuildCost(land);
+                    if (board.getPlayerMoney(name) - price >= 0) {
+                        board.build(land);
+                        board.payPlayerMoney(name, price);
+                        sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                        sendAll("132 " + land + " " + board.getBuilding(land));
+                    }
+                }
+            }
+        }
+
+        // 解体
+        if (str[0].equals("181")) {
+            int land = Integer.parseInt(str[1]);
+            if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
+                if (name == board.getOwner(land) && board.canUnbuild(land)) {
+                    int price = board.getBuildCost(land) / 2;
+                    board.unbuild(land);
+                    board.addPlayerMoney(name, price);
+                    sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                    sendAll("132 " + land + " " + board.getBuilding(land));
+                }
+            }
+        }
+
+        // 抵当
+        if (str[0].equals("160")) {
+            int land = Integer.parseInt(str[1]);
+            if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
+                if (name == board.getOwner(land) && !board.isMortgage(land)) {
+                    int price = board.getPrice(land) / 2;
+                    board.mortgage(land);
+                    board.addPlayerMoney(name, price);
+                    sendAll("133 " + land + " 1");
+                    sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                }
+            }
+        }
+
+        // 抵当解除
+        if (str[0].equals("161")) {
+            int land = Integer.parseInt(str[1]);
+            if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
+                if (name == board.getOwner(land) && board.isMortgage(land)) {
+                    int price = board.getPrice(land) / 2;
+                    price += Math.ceil(0.1 * board.getPrice(land));
+                    if (board.getPlayerMoney(name) - price >= 0) {
+                        board.unmortgage(land);
+                        board.payPlayerMoney(name, price);
+                        sendAll("133 " + land + " 0");
+                        sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                    }
+                }
+            }
+        }
+
+    }
+
+    void playTurn(String name) {
+        state = ServerState.DICE_ROLLED;
+        dice[0] = random.nextInt(6) + 1;
+        dice[1] = random.nextInt(6) + 1;
+        if (dice[0] == dice[1]) {
+            zorome = true;
+            count++;
+        } else {
+            zorome = false;
+            count = 0;
+        }
+        sendAll("122 " + dice[0] + " " + dice[1]);
+        // 刑務所にいる
+        if (board.getType(board.getPlayerPosition(name)) == MonopolyBoard.LandType.JAIL) {
+
+        } else {
+            // スピード違反
+            if (dice[0] == dice[1] && count == 3) {
+                goJail(name);
+                return;
+            } else {
+                int position = board.getPlayerPosition(name) + dice[0] + dice[1];
+                // 一周回ったとき
+                if (position > 40) {
+                    position -= 40;
+                    board.addPlayerMoney(name, 200);
+                    sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                }
+                board.setPlayerPosition(name, position);
+                sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                // イベント
+                doEvent(name, position);
+            }
+        }
+    }
+
+    void doEvent(String name, int position) {
+        switch (board.getType(position)) {
+        case GO_JAIL:
+            goJail(name);
+            return;
+        case COMMUNITY_CARD:
+            getComunityCard(name, position);
+            return;
+        case CHANCE_CARD:
+            getChanceCard(name, position);
+            return;
+        case INCOME_TAX:
+            board.payPlayerMoney(name, 200);
+            sendAll("130 " + name + " " + board.getPlayerMoney(name));
+            endTurn();
+            return;
+        case LUXURY_TAX:
+            board.payPlayerMoney(name, 100);
+            sendAll("130 " + name + " " + board.getPlayerMoney(name));
+            endTurn();
+            return;
+        case RAILROAD:
+        case COMPANY:
+        case PROPERTY:
+            goLand(name, position);
+            return;
+        default:
+        }
+    }
+
+    void goJail(String name) {
+        board.setPlayerPosition(name, MonopolyBoard.JAIL);
+        sendAll("111 " + name + " " + board.getPlayerPosition(name));
+        zorome = false;
+        count = 0;
+        state = ServerState.TURN_START;
+        nextPlayer();
+        sendAll("120 " + playerNameForTurn);
+    }
+
+    void getComunityCard(String name, int position) {
         endTurn();
         return;
-      case LUXURY_TAX:
-        board.payPlayerMoney(name,100);
-        sendAll("130 "+name+" "+board.getPlayerMoney(name));
+    }
+
+    void getChanceCard(String name, int position) {
         endTurn();
         return;
-      case RAILROAD:
-      case COMPANY:
-      case PROPERTY:
-        goLand(name,position);
-        return;
-      default:
     }
-  }
 
-  void goJail(String name){
-    board.setPlayerPosition(name,MonopolyBoard.JAIL);
-    sendAll("111 "+name+" "+board.getPlayerPosition(name));
-    zorome=false;
-    count=0;
-    state = ServerState.TURN_START;
-    nextPlayer();
-    sendAll("120 "+playerNameForTurn);
-  }
-
-  void getComunityCard(String name,int position){
-    endTurn();
-    return;
-  }
-
-  void getChanceCard(String name,int position){
-    endTurn();
-    return;
-  }
-
-  void goLand(String name,int position){
-    //所有者がいないとき
-    if(board.getOwner(position)==null){
-      return;
-    }else if(board.getOwner(position).equals(name)){
-      endTurn();
-    }else{
-      String owner = board.getOwner(position);
-      //公共会社かそれ以外
-      if(board.getType(position)==MonopolyBoard.LandType.COMPANY){
-        //公共会社が占有されていた場合
-        if(Objects.equals(board.getOwner(28),board.getOwner(12))){
-          board.payPlayerMoney(name,(dice[0]+dice[1])*10);
-          board.addPlayerMoney(owner,(dice[0]+dice[1])*10);
-          sendAll("130 "+name+" "+board.getPlayerMoney(name)+" "+owner+" "+board.getPlayerMoney(owner));
-        }else{
-          board.payPlayerMoney(name,(dice[0]+dice[1])*4);
-          board.addPlayerMoney(owner,(dice[0]+dice[1])*4);
-          sendAll("130 "+name+" "+board.getPlayerMoney(name)+" "+owner+" "+board.getPlayerMoney(owner));
+    void goLand(String name, int position) {
+        // 所有者がいないとき
+        if (board.getOwner(position) == null) {
+            return;
+        } else if (board.getOwner(position).equals(name)) {
+            endTurn();
+        } else {
+            String owner = board.getOwner(position);
+            // 公共会社かそれ以外
+            if (board.getType(position) == MonopolyBoard.LandType.COMPANY) {
+                // 公共会社が占有されていた場合
+                if (Objects.equals(board.getOwner(28), board.getOwner(12))) {
+                    board.payPlayerMoney(name, (dice[0] + dice[1]) * 10);
+                    board.addPlayerMoney(owner, (dice[0] + dice[1]) * 10);
+                    sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
+                            + board.getPlayerMoney(owner));
+                } else {
+                    board.payPlayerMoney(name, (dice[0] + dice[1]) * 4);
+                    board.addPlayerMoney(owner, (dice[0] + dice[1]) * 4);
+                    sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
+                            + board.getPlayerMoney(owner));
+                }
+            } else {
+                board.payPlayerMoney(name, board.getRent(position));
+                board.addPlayerMoney(owner, board.getRent(position));
+                sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
+                        + board.getPlayerMoney(owner));
+            }
+            endTurn();
         }
-      }else{
-        board.payPlayerMoney(name,board.getRent(position));
-        board.addPlayerMoney(owner,board.getRent(position));
-        sendAll("130 "+name+" "+board.getPlayerMoney(name)+" "+owner+" "+board.getPlayerMoney(owner));
-      }
-      endTurn();
     }
-  }
 
-  void endTurn(){
-    if(zorome==false){
-      count=0;
-      state = ServerState.TURN_START;
-      nextPlayer();
-      sendAll("120 "+playerNameForTurn);
-    }else{
-      state = ServerState.TURN_START;
-      sendAll("120 "+playerNameForTurn);
+    void endTurn() {
+        (new Timer()).schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (zorome == false) {
+                    count = 0;
+                    state = ServerState.TURN_START;
+                    nextPlayer();
+                    sendAll("120 " + playerNameForTurn);
+                } else {
+                    state = ServerState.TURN_START;
+                    sendAll("120 " + playerNameForTurn);
+                }
+            }
+        }, 1000);
     }
-  }
 }
