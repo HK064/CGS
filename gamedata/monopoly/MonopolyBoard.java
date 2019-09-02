@@ -191,7 +191,7 @@ public class MonopolyBoard {
         int[] lands = getSameColor(color);
         boolean monopoly = true;
         for (int i = 1; i < lands.length; i++) {
-            if (Objects.equals(getOwner(lands[0]),getOwner(lands[i]))) {
+            if (!Objects.equals(getOwner(lands[0]),getOwner(lands[i]))) {
                 monopoly = false;
             }
         }
@@ -207,7 +207,7 @@ public class MonopolyBoard {
     }
 
     /**
-     * 
+     *
      * @param land
      * @return 所有者がいなければ null
      */
@@ -296,7 +296,7 @@ public class MonopolyBoard {
 
     /**
      * そのマスの建築が破壊可能かを返す。 ホテル解体後に設置する家が足りない場合はfalseを返す。
-     * 
+     *
      * @param land 解体するマス
      * @return boolean
      */
