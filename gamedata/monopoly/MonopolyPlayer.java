@@ -1,13 +1,14 @@
 package gamedata.monopoly;
 
 import source.CGPlayer;
-import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 public class MonopolyPlayer extends CGPlayer {
     private MonopolyBoard board = new MonopolyBoard();
     private PlayerState state = PlayerState.READY;
     private int[] dice = { 0, 0 };
-    private ArrayList<String> trade = new ArrayList<>();
+    private Set<Integer> trade = new HashSet<>();
     private int tradeMoney = 0;
 
     enum PlayerState {
@@ -150,14 +151,50 @@ public class MonopolyPlayer extends CGPlayer {
 
     void setTrade() {
         String str = "";
-        for (String land : trade) {
+        for (int land : trade) {
             str += " " + land;
         }
         send("150 " + tradeMoney + str);
     }
 
+    void addTrade(int land){
+      trade.add(land);
+    }
+
+    void removeTrade(int land){
+      trade.remove(land);
+    }
+
+    boolean isTrade(int land){
+      return trade.contains(land);
+    }
+
+    void addTradeMoney(int tradeMoney){
+      this.tradeMoney=tradeMoney;
+    }
+
     void agreeTrade(String name) {
         send("152 " + name);
+    }
+
+    void resetTrade(){
+        send("150 ");
+    }
+
+    void build(int land){
+      send("180 "+land);
+    }
+
+    void unbuild(int land){
+      send("181 "+land);
+    }
+
+    void mortgage(int land){
+      send("160 "+land);
+    }
+
+    void unmortgage(int land){
+      send("161 "+land);
     }
 
 }
