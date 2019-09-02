@@ -63,49 +63,50 @@ public class MonopolyServer extends CGServer {
     public void listener(String name, String data) {
         String[] str = data.split(" ");
 
-        //leavePrison
-        if(str[0].equals("170")){
-          state = ServerState.JAIL_START;
-          board.payPlayerMoney(name,50);
-          sendAll("130 "+name+" "+board.getPlayerMoney(name));
-          state = ServerState.TURN_START;
-          sendAll("120 "+name);
+        // leavePrison
+        if (str[0].equals("170")) {
+            state = ServerState.JAIL_START;
+            board.payPlayerMoney(name, 50);
+            sendAll("130 " + name + " " + board.getPlayerMoney(name));
+            state = ServerState.TURN_START;
+            sendAll("120 " + name);
         }
-        if(str[0].equals("171")){
-          state = ServerState.JAIL_START;
-          sendOne(name,"172");
+        if (str[0].equals("171")) {
+            state = ServerState.JAIL_START;
+            sendOne(name, "172");
         }
 
-        //prisonBreak
-        if(str[0].equals("173")){
-          (new Timer()).schedule(new TimerTask() {
-              @Override
-              public void run() {
-                state = ServerState.DICE_ROLLED;
-                dice[0] = random.nextInt(6) + 1;
-                dice[1] = random.nextInt(6) + 1;
-                int jailCount = 0;
-                if(playerJailTurn.containsKey(name)){
-                  jailCount=playerJailTurn.get(name);
-                };
-                if(dice[0]==dice[1]){
-                  board.setPlayerPosition(name,board.getPlayerPosition(name) + dice[0] + dice[1]);
-                  sendAll("111 "+name+" "+board.getPlayerPosition(name));
-                  doEvent(name,board.getPlayerPosition(name));
-                }else{
-                  if(jailCount==2){
-                    board.payPlayerMoney(name,50);
-                    sendAll("130 "+name+" "+board.getPlayerMoney(name));
-                    board.setPlayerPosition(name,board.getPlayerPosition(name) + dice[0] + dice[1]);
-                    sendAll("111 "+name+" "+board.getPlayerPosition(name));
-                    doEvent(name,board.getPlayerPosition(name));
-                  }else{
-                    playerJailTurn.put(name,jailCount+1);
-                    endTurn();
-                  }
+        // prisonBreak
+        if (str[0].equals("173")) {
+            (new Timer()).schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    state = ServerState.DICE_ROLLED;
+                    dice[0] = random.nextInt(6) + 1;
+                    dice[1] = random.nextInt(6) + 1;
+                    int jailCount = 0;
+                    if (playerJailTurn.containsKey(name)) {
+                        jailCount = playerJailTurn.get(name);
+                    }
+                    ;
+                    if (dice[0] == dice[1]) {
+                        board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
+                        sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                        doEvent(name, board.getPlayerPosition(name));
+                    } else {
+                        if (jailCount == 2) {
+                            board.payPlayerMoney(name, 50);
+                            sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                            board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
+                            sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                            doEvent(name, board.getPlayerPosition(name));
+                        } else {
+                            playerJailTurn.put(name, jailCount + 1);
+                            endTurn();
+                        }
+                    }
                 }
-              }
-          }, 1000);
+            }, 1000);
         }
 
         // rollDice
