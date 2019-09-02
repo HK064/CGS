@@ -149,6 +149,10 @@ public class MonopolyPlayer extends CGPlayer {
         return dice;
     }
 
+    Set<Integer> getTradeLands() {
+        return trade;
+    }
+
     void setTrade() {
         String str = "";
         for (int land : trade) {
@@ -157,44 +161,62 @@ public class MonopolyPlayer extends CGPlayer {
         send("150 " + tradeMoney + str);
     }
 
-    void addTrade(int land){
-      trade.add(land);
+    void addTrade(int land) {
+        trade.add(land);
     }
 
-    void removeTrade(int land){
-      trade.remove(land);
+    void removeTrade(int land) {
+        trade.remove(land);
     }
 
-    boolean isTrade(int land){
-      return trade.contains(land);
+    boolean isTrade(int land) {
+        return trade.contains(land);
     }
 
-    void addTradeMoney(int tradeMoney){
-      this.tradeMoney=tradeMoney;
+    void addTradeMoney(int tradeMoney) {
+        this.tradeMoney = tradeMoney;
     }
 
     void agreeTrade(String name) {
         send("152 " + name);
     }
 
-    void resetTrade(){
+    void resetTrade() {
         send("150 ");
     }
 
-    void build(int land){
-      send("180 "+land);
+    boolean canBuild(int land) {
+        return board.canBuild(land) && board.getPlayerMoney(name) > board.getBuildCost(land);
     }
 
-    void unbuild(int land){
-      send("181 "+land);
+    void build(int land) {
+        send("180 " + land);
     }
 
-    void mortgage(int land){
-      send("160 "+land);
+    boolean canUnbuild(int land) {
+        return board.canUnbuild(land);
     }
 
-    void unmortgage(int land){
-      send("161 "+land);
+    void unbuild(int land) {
+        send("181 " + land);
+    }
+
+    boolean canMortgage(int land) {
+        //TODO
+        return false;
+    }
+
+    void mortgage(int land) {
+        send("160 " + land);
+    }
+
+    boolean canUnmortgage(int land) {
+        //TODO
+        return false;
+    }
+
+    void unmortgage(int land) {
+        send("161 " + land);
     }
 
 }

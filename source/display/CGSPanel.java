@@ -6,10 +6,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import source.file.CGSFont;
@@ -20,6 +24,8 @@ class CGSPanel extends JPanel {
     protected Point mousePos = new Point(-1, -1);
     protected boolean mouseClicked = false;
     private boolean mouseClicked2 = false;
+    protected Set<Character> keyPushed = new HashSet<>();
+    private Set<Character> keyPushed2 = new HashSet<>();
     private int[] windowSize = { -1, -1 };
     protected boolean resize = false;
 
@@ -32,6 +38,14 @@ class CGSPanel extends JPanel {
                 mouseClicked2 = true;
             }
         });
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                char key = e.getKeyChar();
+                keyPushed.add(key);
+                keyPushed2.add(key);
+            }
+        });
     }
 
     @Override
@@ -40,6 +54,9 @@ class CGSPanel extends JPanel {
 
         mouseClicked = mouseClicked2;
         mouseClicked2 = false;
+
+        keyPushed.removeAll(keyPushed2);
+        keyPushed2.clear();
 
         mousePos = getMousePosition();
         if (mousePos == null) {

@@ -398,12 +398,38 @@ public class MonopolyPanel extends PlayPanel {
             return;
         }
 
-        drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "建設する(B)", 1);
-        drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "解体する(D)", 1);
-        drawButton(g, x + (int) (0.5 * w), y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当(M)", 1);
-        drawButton(g, x + (int) (0.5 * w), y + (int) (0.7 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当解除(U)", 1);
-        drawButton(g, x + (int) (0.5 * w), y + (int) (0.8 * h), (int) (0.5 * w), (int) (0.1 * h), "取引に追加(T)", 1);
-        drawButton(g, x + (int) (0.5 * w), y + (int) (0.9 * h), (int) (0.5 * w), (int) (0.1 * h), "取引ｶﾗ除外(E)", 1);
+        PlayerState state = player.getState();
+        int s = (state == PlayerState.GAME || state == PlayerState.MY_TURN_START || state == PlayerState.MY_DICE_ROLLING || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED || state == PlayerState.MY_JAIL_START || state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL || state == PlayerState.MY_JAIL_ACTION_SELECTED) ? 1 : 0;
+
+        int t = player.canBuild(selectedLand) ? s : 1;
+        if(((drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "建設する(B)", t) && mouseClicked) || keyPushed.contains('b')) && t == 0) {
+            player.build(selectedLand);
+        }
+
+        t = player.canUnbuild(selectedLand) ? s : 1;
+        if(((drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "解体する(D)", s) && mouseClicked) || keyPushed.contains('d')) && t == 0) {
+            player.unbuild(selectedLand);
+        }
+
+        t = player.canMortgage(selectedLand) ? s : 1;
+        if(((drawButton(g, x + (int) (0.5 * w), y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当(M)", s) && mouseClicked) || keyPushed.contains('m')) && t == 0) {
+            player.mortgage(selectedLand);
+        }
+        
+        t = player.canUnmortgage(selectedLand) ? s : 1;
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.7 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当解除(U)", s) && mouseClicked) || keyPushed.contains('u')) && t == 0) {
+            player.unmortgage(selectedLand);
+        }
+
+        t = !player.getTradeLands().contains(selectedLand) ? s : 1;
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.8 * h), (int) (0.5 * w), (int) (0.1 * h), "取引に追加(T)", s) && mouseClicked) || keyPushed.contains('t')) && t == 0) {
+            player.addTrade(selectedLand);
+        }
+
+        t = player.getTradeLands().contains(selectedLand) ? s : 1;
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.9 * h), (int) (0.5 * w), (int) (0.1 * h), "取引ｶﾗ除外(E)", s)) && mouseClicked) || keyPushed.contains('e') && t == 0) {
+            player.removeTrade(selectedLand);
+        }
 
     }
 
