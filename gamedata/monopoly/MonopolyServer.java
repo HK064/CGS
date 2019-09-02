@@ -96,6 +96,7 @@ public class MonopolyServer extends CGServer {
                         sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
                         board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
                         sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                        playerJailTurn.remove(name);
                         doEvent(name, board.getPlayerPosition(name));
                     } else {
                         if (jailCount == 2){
@@ -105,6 +106,7 @@ public class MonopolyServer extends CGServer {
                             sendAll("130 " + name + " " + board.getPlayerMoney(name));
                             board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
                             sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                            playerJailTurn.remove(name);
                             doEvent(name, board.getPlayerPosition(name));
                         } else {
                             playerJailTurn.put(name, jailCount + 1);
