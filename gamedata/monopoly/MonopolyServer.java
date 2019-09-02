@@ -4,6 +4,7 @@ import source.CGServer;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.HashMap;
 
 public class MonopolyServer extends CGServer {
     private MonopolyBoard board = new MonopolyBoard();
@@ -11,9 +12,30 @@ public class MonopolyServer extends CGServer {
     private int[] dice = { 0, 0 };
     private int count = 0;
     private boolean zorome = false;
+    private HashMap<String, String> trade = new HashMap<>();// 取引を出した人、取引内容
+    private HashMap<String, String> agree = new HashMap<>();// 合意した人、合意先
 
     enum ServerState {
         READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME;
+    }
+
+  @Override
+  public void startGame() {
+
+    // プレイヤーの順番
+    shufflePlayers();
+    String str = "110";
+    for (String name : playerNames) {
+      str += " " + name;
+    }
+    sendAll(str);
+    board.setPlayers(playerNames);
+
+    // プレイヤーの初期位置
+    str = "111";
+    for (String name : playerNames) {
+      str += " " + name + " 0";
+      board.setPlayerPosition(name, 0);
     }
 
     @Override
@@ -72,7 +94,7 @@ public class MonopolyServer extends CGServer {
         }
 
         // 土地を買う
-        if(str[0].equals("123") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)){
+        if (str[0].equals("123") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)) {
             board.payPlayerMoney(name, board.getPrice(board.getPlayerPosition(name)));
             board.setOwner(board.getPlayerPosition(name), name);
             state = ServerState.ACTION_SELECTED;
@@ -83,7 +105,7 @@ public class MonopolyServer extends CGServer {
         }
 
         // 土地を買わない
-        if(str[0].equals("124") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)){
+        if (str[0].equals("124") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)) {
             state = ServerState.AUCTION;
 
             // TODO
@@ -187,6 +209,52 @@ public class MonopolyServer extends CGServer {
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 // イベント
                 doEvent(name, position);
+            }
+        }
+        // 取引内容の設定
+        if (str[0].equals("150")) {
+            if ("150 ".equals(data)) {
+                trade.remove(name);
+                agree.remove(name);
+            } else {
+                trade.put(name, data.substring(4));
+                sendAll("151" + " " + data.substring(4));
+                for (String n : playerNames) {
+                    if (name.equals(agree.get(n))) {
+                        agree.remove(name);
+                        sendAll("153 " + name);
+                    }
+                }
+            }
+        }
+        // 取引の同意
+        if (str[0].equals("152")) {
+            agree.put(name, str[1]);
+            sendAll("153 " + name + " " + str[1]);
+            // 取引の成立
+            if (name.equals(agree.get(str[1]))) {
+                String trade1 = trade.get(name);
+                String trade2 = trade.get(str[1]);
+                String[] str1 = trade1.split(" ");
+                board.addPlayerMoney(str[1], Integer.parseInt(str1[0]));
+                board.payPlayerMoney(name, Integer.parseInt(str1[0]));
+                String str3 = "";
+                for (int i = 1; i < str1.length; i++) {
+                    board.setOwner(Integer.parseInt(str1[i]), str[1]);
+                    str3 += " " + str1[i];
+                }
+                String[] str2 = trade2.split(" ");
+                board.addPlayerMoney(name, Integer.parseInt(str2[0]));
+                board.payPlayerMoney(str[1], Integer.parseInt(str2[0]));
+                String str4 = "";
+                for (int i = 1; i < str2.length; i++) {
+                    board.setOwner(Integer.parseInt(str2[i]), name);
+                    str4 += " " + str2[i];
+                }
+                sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + str[1] + " "
+                        + board.getPlayerMoney(str[1]));
+                sendAll("131 " + str[1] + str3);
+                sendAll("131 " + name + str4);
             }
         }
     }

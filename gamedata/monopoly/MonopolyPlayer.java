@@ -1,11 +1,14 @@
 package gamedata.monopoly;
 
 import source.CGPlayer;
+import java.util.ArrayList;
 
 public class MonopolyPlayer extends CGPlayer {
     private MonopolyBoard board = new MonopolyBoard();
     private PlayerState state = PlayerState.READY;
     private int[] dice = { 0, 0 };
+    private ArrayList<String> trade = new ArrayList<>();
+    private int tradeMoney = 0;
 
     enum PlayerState {
         READY, GAME, MY_TURN_START, MY_DICE_ROLLING, MY_POSITION_MOVED, MY_ACTION_SELECTED, AUCTION, END_AUCTION,
@@ -122,4 +125,15 @@ public class MonopolyPlayer extends CGPlayer {
         return dice;
     }
 
+    void setTrade() {
+        String str = "";
+        for (String land : trade) {
+            str += " " + land;
+        }
+        send("150 " + tradeMoney + str);
+    }
+
+    void agreeTrade(String name) {
+        send("152 " + name);
+    }
 }
