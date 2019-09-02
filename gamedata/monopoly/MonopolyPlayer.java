@@ -82,12 +82,21 @@ public class MonopolyPlayer extends CGPlayer {
             playerNameForTurn = str[1];
             if (playerNameForTurn.equals(name)) {
                 // 自分のターン
-                state = PlayerState.MY_TURN_START;
+                if (state != PlayerState.MY_JAIL_ACTION_SELECTED
+                        && board.getPlayerPosition(name) == MonopolyBoard.JAIL) {
+                    state = PlayerState.MY_JAIL_START;
+                } else {
+                    state = PlayerState.MY_TURN_START;
+                }
             } else {
                 // 他人のターン
                 state = PlayerState.GAME;
             }
             return;
+        }
+        // 刑務所でサイコロ
+        if (str[0].equals("172")) {
+            state = PlayerState.MY_JAIL_BEFORE_DICE_ROLL;
         }
 
         // サイコロを振った
@@ -100,8 +109,22 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     void rollDice() {
+        PlayerState preState = state;
         state = PlayerState.MY_DICE_ROLLING;
-        send("121");
+        if (preState == PlayerState.MY_JAIL_BEFORE_DICE_ROLL) {
+            send("173");
+        } else {
+            send("121");
+        }
+    }
+
+    void leavePrison(boolean b) {
+        state = PlayerState.MY_JAIL_ACTION_SELECTED;
+        if (b) {
+            send("170");
+        } else {
+            send("171");
+        }
     }
 
     void buyLand(boolean b) {
