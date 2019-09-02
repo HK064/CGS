@@ -216,13 +216,19 @@ public class MonopolyServer extends CGServer {
             if ("150 ".equals(data)) {
                 trade.remove(name);
                 agree.remove(name);
+                for (String n : playerNames) {
+                    if (name.equals(agree.get(n))) {
+                        agree.remove(n);
+                        sendAll("153 " + n);
+                    }
+                }
             } else {
                 trade.put(name, data.substring(4));
                 sendAll("151" + " " + data.substring(4));
                 for (String n : playerNames) {
                     if (name.equals(agree.get(n))) {
-                        agree.remove(name);
-                        sendAll("153 " + name);
+                        agree.remove(n);
+                        sendAll("153 " + n);
                     }
                 }
             }
