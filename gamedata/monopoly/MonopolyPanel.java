@@ -152,7 +152,7 @@ public class MonopolyPanel extends PlayPanel {
             // 所有者
             String name = board.getOwner(i);
             if (name != null) {
-                drawString(g, tx, ty + fs, ": " + name, fs);
+                drawString(g, tx, ty + fs, "所有 " + name, fs);
             }
 
             // 停まっているプレイヤー
