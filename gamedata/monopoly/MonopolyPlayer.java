@@ -56,7 +56,7 @@ public class MonopolyPlayer extends CGPlayer {
         // プレイヤーの土地受信
         if (str[0].equals("131")) {
             for (int i = 2; i < str.length; i++) {
-                board.setOwner(Integer.parseInt(str[i]), name);
+                board.setOwner(Integer.parseInt(str[i]), str[1]);
             }
             return;
         }
