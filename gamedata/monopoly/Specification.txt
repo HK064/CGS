@@ -62,7 +62,7 @@ SERVER > ALL  : "120 " + プレイヤー名（ターンのプレイヤー）
         ^ 留まるを選択
         CLIENT >      : "171"
         SERVER > ONE  : "172"（サイコロを振れ）
-        CLIENT >      : "121"（サイコロを振る）
+        CLIENT >      : "173"（サイコロを振る）
         SERVER > ALL  : "122 " + 目 + 目（サイコロの目）
             ^ ゾロ目
             (2) へ行く
@@ -190,6 +190,7 @@ PLAYER:
 
     MY_JAIL_START
     MY_JAIL_ACTION_SELECTED
+    MY_JAIL_BEFORE_DICE_ROLL
 
     AUCTION
     END_AUCTION

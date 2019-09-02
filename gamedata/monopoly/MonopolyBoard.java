@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MonopolyBoard {
     static final int LAND_MAX = 41; // 0: GO, ... , 40: JAIL
@@ -190,7 +191,7 @@ public class MonopolyBoard {
         int[] lands = getSameColor(color);
         boolean monopoly = true;
         for (int i = 1; i < lands.length; i++) {
-            if (getOwner(lands[0]) != getOwner(lands[i])) {
+            if (Objects.equals(getOwner(lands[0]),getOwner(lands[i]))) {
                 monopoly = false;
             }
         }
@@ -219,6 +220,9 @@ public class MonopolyBoard {
     }
 
     int getRent(int land) {
+        if (getOwner(land) == null) {
+            return 0;
+        }
         LandType type = getType(land);
         if (type == LandType.PROPERTY) {
             if (isMonopoly(land) && getBuilding(land) == 0) {
@@ -237,6 +241,10 @@ public class MonopolyBoard {
             return landRent[land][count];
         }
         return 0;
+    }
+
+    int getRent(int land, int level) {
+        return landRent[land][level];
     }
 
     boolean isMortgage(int land) {
