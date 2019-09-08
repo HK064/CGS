@@ -34,15 +34,14 @@ class CGSPanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                mouseClicked = true;
                 mouseClicked2 = true;
+                requestFocus();
             }
         });
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 char key = e.getKeyChar();
-                keyPushed.add(key);
                 keyPushed2.add(key);
             }
         });
@@ -55,8 +54,11 @@ class CGSPanel extends JPanel {
         mouseClicked = mouseClicked2;
         mouseClicked2 = false;
 
-        keyPushed.removeAll(keyPushed2);
+        Set<Character> s = keyPushed;
+        keyPushed = keyPushed2;
+        keyPushed2 = s;
         keyPushed2.clear();
+        System.out.println(keyPushed);
 
         mousePos = getMousePosition();
         if (mousePos == null) {

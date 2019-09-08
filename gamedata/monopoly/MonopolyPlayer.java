@@ -8,7 +8,8 @@ public class MonopolyPlayer extends CGPlayer {
     private MonopolyBoard board = new MonopolyBoard();
     private PlayerState state = PlayerState.READY;
     private int[] dice = { 0, 0 };
-    private Set<Integer> trade = new HashSet<>();
+    private boolean tradeOffer = false;
+    private Set<Integer> tradeLands = new HashSet<>();
     private int tradeMoney = 0;
 
     enum PlayerState {
@@ -107,6 +108,11 @@ public class MonopolyPlayer extends CGPlayer {
             return;
         }
 
+        // 取引設定
+        if (str[0].equals("151")) {
+            // TODO
+        }
+
     }
 
     void rollDice() {
@@ -150,27 +156,40 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     Set<Integer> getTradeLands() {
-        return trade;
+        return tradeLands;
+    }
+
+    boolean isOfferTrade() {
+        return tradeOffer;
     }
 
     void setTrade() {
         String str = "";
-        for (int land : trade) {
+        for (int land : tradeLands) {
             str += " " + land;
         }
         send("150 " + tradeMoney + str);
+        tradeOffer = true;
     }
 
-    void addTrade(int land) {
-        trade.add(land);
+    void addTradeLand(int land) {
+        tradeLands.add(land);
     }
 
-    void removeTrade(int land) {
-        trade.remove(land);
+    void removeTradeLand(int land) {
+        tradeLands.remove(land);
     }
 
-    boolean isTrade(int land) {
-        return trade.contains(land);
+    boolean isLandTrade(int land) {
+        return tradeLands.contains(land);
+    }
+
+    int getTradeMoney() {
+        return tradeMoney;
+    }
+
+    void setTradeMoney(int money) {
+        tradeMoney = money;
     }
 
     void addTradeMoney(int tradeMoney) {
@@ -182,7 +201,8 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     void resetTrade() {
-        send("150 ");
+        send("150");
+        tradeOffer = false;
     }
 
     boolean canBuild(int land) {

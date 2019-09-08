@@ -6,10 +6,13 @@ import java.awt.Graphics;
 import java.util.Objects;
 import java.util.Random;
 
+import javax.swing.JTextField;
+
 import gamedata.monopoly.MonopolyBoard.LandType;
 import gamedata.monopoly.MonopolyPlayer.PlayerState;
 import source.CGPlayer;
 import source.display.PlayPanel;
+import source.file.CGSFont;
 
 public class MonopolyPanel extends PlayPanel {
     private static final long serialVersionUID = 1L;
@@ -23,11 +26,20 @@ public class MonopolyPanel extends PlayPanel {
     private String mouseOverPlayer = null;
     private int playerOutlineX = -1;
     private int playerOutlineY = -1;
+    private boolean mouseOverTrade = false;
+    private JTextField tradeMoneyField;
 
     @Override
     public void setup(CGPlayer player) {
         this.player = (MonopolyPlayer) player;
         board = this.player.getBoard();
+
+        // 取引金額入力フィールド
+        tradeMoneyField = new JTextField("0");
+        tradeMoneyField.setCaretPosition(1);
+        add(tradeMoneyField);
+        
+        requestFocus();
     }
 
     @Override
@@ -40,6 +52,8 @@ public class MonopolyPanel extends PlayPanel {
         drawBoard(g, (int) (0.5 * (getWidth() - getHeight())), 0, getHeight(), getHeight());
         drawPlayerList(g, (int) (0.5 * (getWidth() + getHeight())), 0, (int) (0.5 * (getWidth() - getHeight())),
                 getHeight());
+        drawTradeSetting(g, 0, (int) (0.5 * getHeight()), (int) (0.5 * (getWidth() - getHeight())),
+                (int) (0.5 * getHeight()));
 
         if (mouseOverLand != -1) {
             int dw = (int) (0.1 * getWidth());
@@ -423,11 +437,16 @@ public class MonopolyPanel extends PlayPanel {
             return;
         }
 
+        if (landType == LandType.COMPANY) {
+
+            return;
+        }
+
         PlayerState state = player.getState();
         int s = (state == PlayerState.GAME || state == PlayerState.MY_TURN_START || state == PlayerState.MY_DICE_ROLLING
                 || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED
                 || state == PlayerState.MY_JAIL_START || state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL
-                || state == PlayerState.MY_JAIL_ACTION_SELECTED) ? 1 : 0;
+                || state == PlayerState.MY_JAIL_ACTION_SELECTED) ? 0 : 1;
 
         int t = player.canBuild(selectedLand) ? s : 1;
         if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "建設する(B)", t)
@@ -436,33 +455,33 @@ public class MonopolyPanel extends PlayPanel {
         }
 
         t = player.canUnbuild(selectedLand) ? s : 1;
-        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "解体する(D)", s)
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "解体する(D)", t)
                 && mouseClicked) || keyPushed.contains('d')) && t == 0) {
             player.unbuild(selectedLand);
         }
 
         t = player.canMortgage(selectedLand) ? s : 1;
-        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当(M)", s)
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当(M)", t)
                 && mouseClicked) || keyPushed.contains('m')) && t == 0) {
             player.mortgage(selectedLand);
         }
 
         t = player.canUnmortgage(selectedLand) ? s : 1;
-        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.7 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当解除(U)", s)
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.7 * h), (int) (0.5 * w), (int) (0.1 * h), "抵当解除(U)", t)
                 && mouseClicked) || keyPushed.contains('u')) && t == 0) {
             player.unmortgage(selectedLand);
         }
 
-        t = !player.getTradeLands().contains(selectedLand) ? s : 1;
-        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.8 * h), (int) (0.5 * w), (int) (0.1 * h), "取引に追加(T)", s)
+        t = (!player.isOfferTrade() && !player.isLandTrade(selectedLand)) ? s : 1;
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.8 * h), (int) (0.5 * w), (int) (0.1 * h), "取引に追加(T)", t)
                 && mouseClicked) || keyPushed.contains('t')) && t == 0) {
-            player.addTrade(selectedLand);
+            player.addTradeLand(selectedLand);
         }
 
-        t = player.getTradeLands().contains(selectedLand) ? s : 1;
-        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.9 * h), (int) (0.5 * w), (int) (0.1 * h), "取引ｶﾗ除外(E)", s))
+        t = (!player.isOfferTrade() && player.isLandTrade(selectedLand)) ? s : 1;
+        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.9 * h), (int) (0.5 * w), (int) (0.1 * h), "取引ｶﾗ除外(E)", t))
                 && mouseClicked) || keyPushed.contains('e') && t == 0) {
-            player.removeTrade(selectedLand);
+            player.removeTradeLand(selectedLand);
         }
 
     }
@@ -495,8 +514,8 @@ public class MonopolyPanel extends PlayPanel {
             if (x <= mousePos.x && mousePos.x < x + w && y + (int) (0.1 * h * i) <= mousePos.y
                     && mousePos.y < y + (int) (0.1 * h * (i + 1))) {
                 mouseOverPlayer = name;
-                playerOutlineX = x + w;
-                playerOutlineY = y + (int) (0.1 * h * i);
+                playerOutlineX = x + (int) (0.1 * h);
+                playerOutlineY = y + (int) (0.1 * h * (i + 1));
             }
         }
     }
@@ -519,6 +538,61 @@ public class MonopolyPanel extends PlayPanel {
         }
         drawString(g, x, y + (int) (0.3 * h), "総資産 $" + totalAsset, (int) (0.1 * h));
 
+    }
+
+    private void drawTradeSetting(Graphics g, int x, int y, int w, int h) {
+        mouseOverTrade = false;
+
+        g.setColor(Color.BLACK);
+        drawString(g, x, y, "取引", (int) (0.1 * h));
+
+        String str =  (player.isOfferTrade()) ? "取引提案中" : "取引未提案";
+        drawString(g, x, y + (int) (0.15 * h), str, (int) (0.05 * h));
+
+        // TODO
+        drawString(g, x, y + (int) (0.2 * h), "が取引に同意", (int) (0.05 * h));
+
+        drawString(g, x, y + (int) (0.3 * h), "$" + player.getTradeMoney(), (int) (0.05 * h));
+
+        int i = 0;
+        for(int land2 : player.getTradeLands()) {
+            drawString(g, x, y + (int) (0.35* h + 0.05 * h * i), board.getName(land2), (int) (0.05 * h));
+            i++;
+        }
+
+        PlayerState state = player.getState();
+        int s = (state == PlayerState.GAME || state == PlayerState.MY_TURN_START || state == PlayerState.MY_DICE_ROLLING
+                || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED
+                || state == PlayerState.MY_JAIL_START || state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL
+                || state == PlayerState.MY_JAIL_ACTION_SELECTED) ? 0 : 1;
+        
+        // 金額設定フィールド
+        drawString(g, x + (int) (0.5 * w), y + (int) (0.3 * h), "金額", (int) (0.07 * h));
+        if(resize){
+            tradeMoneyField.setFont(CGSFont.getFont((int)(0.07 * h)));
+            tradeMoneyField.setBounds(x + (int) (0.7 * w), y + (int) (0.3 * h), (int) (0.3 * w), (int)(0.1 * h));
+        }
+        try {
+            player.setTradeMoney(Integer.parseInt(tradeMoneyField.getText()));
+        } catch (NumberFormatException e) {
+        }
+
+        int t = (!player.isOfferTrade() && (player.getTradeMoney() > 0 || player.getTradeLands().size() > 0)) ? s : 1;
+        if ((drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "取引提案", t)
+                && mouseClicked) && t == 0) {
+            player.setTrade();
+        }
+
+        t = (player.isOfferTrade()) ? s : 1;
+        if ((drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "取引提案解除", t)
+                && mouseClicked) && t == 0) {
+            player.resetTrade();
+        }
+
+
+        if (x <= mousePos.x && mousePos.x < x + w && y <= mousePos.y && mousePos.y < y + h) {
+            mouseOverTrade = true;
+        }
     }
 
     private void drawMessageForPlayer(Graphics g, int x, int y, int w, int h) {

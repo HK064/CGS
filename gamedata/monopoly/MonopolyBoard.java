@@ -223,7 +223,7 @@ public class MonopolyBoard {
     }
 
     int getRent(int land) {
-        if (getOwner(land) == null) {
+        if (getOwner(land) == null || isMortgage(land)) {
             return 0;
         }
         LandType type = getType(land);
@@ -296,17 +296,20 @@ public class MonopolyBoard {
     }
 
     boolean canBuild(int land) {
-        if (getBuilding(land) == 5) {
-            return false;
-        }
-        int[] lands = getSameColor(getColor(land));
-        for (int i = 0; i < lands.length; i++) {
-            if (getBuilding(lands[i]) < getBuilding(land) || isMortgage(lands[i])) {
+        if (getType(land) == LandType.PROPERTY) {
+            if (getBuilding(land) == 5) {
                 return false;
             }
+            int[] lands = getSameColor(getColor(land));
+            for (int i = 0; i < lands.length; i++) {
+                if (getBuilding(lands[i]) < getBuilding(land) || isMortgage(lands[i])) {
+                    return false;
+                }
+            }
+            return isMonopoly(land) && ((getBuilding(land) < 4 && getRemainingHouse() > 0)
+                    || getBuilding(land) == 4 && getRemainingHotel() > 0);
         }
-        return isMonopoly(land) && ((getBuilding(land) < 4 && getRemainingHouse() > 0)
-                || getBuilding(land) == 4 && getRemainingHotel() > 0);
+        return false;
     }
 
     void build(int land) {
@@ -328,19 +331,24 @@ public class MonopolyBoard {
      * @return boolean
      */
     boolean canUnbuild(int land) {
-        if (landBuilding[land] <= 4) {
-            int[] lands = getSameColor(getColor(land));
-            for (int i = 0; i < lands.length; i++) {
-                if (getBuilding(lands[i]) > getBuilding(land)) {
-                    return false;
-                }
+        if (getType(land) == LandType.PROPERTY) {
+            if(getBuilding(land) <= 0) {
+                return false;
             }
-            return (landBuilding[land] > 0);
-        }
-        // ホテル
-        if (landBuilding[land] == 5) {
-            if (getRemainingHouse() >= 4) {
-                return true;
+            if (landBuilding[land] <= 4) {
+                int[] lands = getSameColor(getColor(land));
+                for (int i = 0; i < lands.length; i++) {
+                    if (getBuilding(lands[i]) > getBuilding(land)) {
+                        return false;
+                    }
+                }
+                return (landBuilding[land] > 0);
+            }
+            // ホテル
+            if (landBuilding[land] == 5) {
+                if (getRemainingHouse() >= 4) {
+                    return true;
+                }
             }
         }
         return false;

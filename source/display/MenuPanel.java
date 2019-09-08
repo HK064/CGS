@@ -74,7 +74,7 @@ class MenuPanel extends CGSPanel{
         addressField = new JTextField(CGSProperty.getValue(CGSProperty.SERVER_ADDRESS_KEY));
         add(addressField);
 
-        
+        requestFocus();
     }
 
     @Override

@@ -60,7 +60,7 @@ public class MonopolyServer extends CGServer {
     }
 
     @Override
-    public void listener(String name, String data) {
+    public synchronized void listener(String name, String data) {
         String[] str = data.split(" ");
 
         // leavePrison
@@ -213,26 +213,21 @@ public class MonopolyServer extends CGServer {
 
         // 取引内容の設定
         if (str[0].equals("150")) {
-            if ("150 ".equals(data)) {
+            if (str.length == 1) {
                 trade.remove(name);
                 agree.remove(name);
-                for (String n : playerNames) {
-                    if (name.equals(agree.get(n))) {
-                        agree.remove(n);
-                        sendAll("153 " + n);
-                    }
-                }
+                sendAll("151 " + name);
             } else {
                 trade.put(name, data.substring(4));
-                sendAll("151" + " " + data.substring(4));
-                for (String n : playerNames) {
-                    if (name.equals(agree.get(n))) {
-                        agree.remove(n);
-                        sendAll("153 " + n);
-                    }
+                sendAll("151 " + name + " " + data.substring(4));
+            }
+            for (String n : playerNames) {
+                if (name.equals(agree.get(n))) {
+                    agree.remove(n);
+                    sendAll("154 " + n);
                 }
             }
-        }
+    }
 
         // 取引の同意
         if (str[0].equals("152")) {
