@@ -131,6 +131,7 @@ public class MonopolyServer extends CGServer {
 
         // 土地を買う
         if (str[0].equals("123") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)) {
+            if(board.getPlayerMoney(name)-board.getPrice(board.getPlayerPosition(name))<0)return;
             board.payPlayerMoney(name, board.getPrice(board.getPlayerPosition(name)));
             board.setOwner(board.getPlayerPosition(name), name);
             state = ServerState.ACTION_SELECTED;
