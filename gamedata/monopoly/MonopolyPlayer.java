@@ -186,7 +186,7 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     boolean canBuild(int land) {
-        return board.canBuild(land) && board.getPlayerMoney(name) > board.getBuildCost(land);
+        return name.equals(board.getOwner(land)) && board.canBuild(land) && board.getPlayerMoney(name) - board.getBuildCost(land) >= 0;
     }
 
     void build(int land) {
@@ -194,7 +194,7 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     boolean canUnbuild(int land) {
-        return board.canUnbuild(land);
+        return name.equals(board.getOwner(land)) && board.canUnbuild(land);
     }
 
     void unbuild(int land) {
@@ -202,8 +202,7 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     boolean canMortgage(int land) {
-        //TODO
-        return false;
+        return name.equals(board.getOwner(land)) && board.canMortgage(land);
     }
 
     void mortgage(int land) {
@@ -211,8 +210,7 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     boolean canUnmortgage(int land) {
-        //TODO
-        return false;
+        return name.equals(board.getOwner(land)) && board.canUnmortgage(land) && board.getPlayerMoney(name) - (int) Math.ceil(0.55 * board.getPrice(land)) >= 0;
     }
 
     void unmortgage(int land) {

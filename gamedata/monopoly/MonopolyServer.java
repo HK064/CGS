@@ -199,7 +199,7 @@ public class MonopolyServer extends CGServer {
             int land = Integer.parseInt(str[1]);
             if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
                 if (name == board.getOwner(land) && board.isMortgage(land)) {
-                    int price = board.getPrice(land) / 2;
+                    int price = (int) Math.ceil(0.55 * board.getPrice(land));
                     price += Math.ceil(0.1 * board.getPrice(land));
                     if (board.getPlayerMoney(name) - price >= 0) {
                         board.unmortgage(land);

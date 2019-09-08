@@ -189,7 +189,7 @@ public class MonopolyBoard {
 
     boolean isMonopoly(ColorGroup color) {
         int[] lands = getSameColor(color);
-        if(getOwner(lands[0]) == null) {
+        if (getOwner(lands[0]) == null) {
             return false;
         }
         boolean monopoly = true;
@@ -254,6 +254,26 @@ public class MonopolyBoard {
         return landMortgage[land];
     }
 
+    boolean canMortgage(int land) {
+        if (isMortgage(land)) {
+            return false;
+        }
+        switch (getType(land)) {
+        case PROPERTY:
+            for (int land2 : getSameColor(getColor(land))) {
+                if (getBuilding(land2) > 0) {
+                    return false;
+                }
+            }
+            return true;
+        case RAILROAD:
+        case COMPANY:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     /**
      * 抵当に入れる。
      *
@@ -261,6 +281,10 @@ public class MonopolyBoard {
      */
     void mortgage(int land) {
         landMortgage[land] = true;
+    }
+
+    boolean canUnmortgage(int land) {
+        return isMortgage(land);
     }
 
     void unmortgage(int land) {
