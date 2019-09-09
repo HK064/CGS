@@ -2,15 +2,20 @@ package gamedata.monopoly;
 
 import source.CGPlayer;
 import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class MonopolyPlayer extends CGPlayer {
     private MonopolyBoard board = new MonopolyBoard();
     private PlayerState state = PlayerState.READY;
     private int[] dice = { 0, 0 };
     private boolean tradeOffer = false;
-    private Set<Integer> tradeLands = new HashSet<>();
+    private boolean tradeAgreement = false;
     private int tradeMoney = 0;
+    private Set<Integer> tradeLands = new HashSet<>();
+    private Map<String, String> tradeContents = new HashMap<>(); // 取引を出した人、取引内容
+    private Map<String, String> tradeAgreements = new HashMap<>(); // 合意した人、合意先
 
     enum PlayerState {
         READY, GAME, MY_TURN_START, MY_DICE_ROLLING, MY_POSITION_MOVED, MY_JAIL_START, MY_JAIL_ACTION_SELECTED,
@@ -96,9 +101,11 @@ public class MonopolyPlayer extends CGPlayer {
             }
             return;
         }
+
         // 刑務所でサイコロ
         if (str[0].equals("172")) {
             state = PlayerState.MY_JAIL_BEFORE_DICE_ROLL;
+            return;
         }
 
         // サイコロを振った
@@ -110,7 +117,35 @@ public class MonopolyPlayer extends CGPlayer {
 
         // 取引設定
         if (str[0].equals("151")) {
-            // TODO
+            if (str.length == 2) {
+                tradeContents.remove(str[1]);
+                tradeAgreements.remove(str[1]);
+                if (str[1].equals(name)) {
+                    tradeMoney = 0;
+                    tradeLands.clear();
+                    tradeAgreement = false;
+                    tradeOffer = false;
+                }
+            } else {
+                String[] str1 = data.split(" ", 3);
+                tradeContents.put(str[1], str1[2]);
+            }
+            return;
+        }
+
+        // 取引同意
+        if (str[0].equals("153")) {
+            tradeAgreements.put(str[1], str[2]);
+            return;
+        }
+
+        // 取引同意解除
+        if (str[0].equals("154")) {
+            tradeAgreements.remove(str[1]);
+            if (str[1].equals(name)) {
+                tradeAgreement = false;
+            }
+            return;
         }
 
     }
@@ -163,6 +198,10 @@ public class MonopolyPlayer extends CGPlayer {
         return tradeOffer;
     }
 
+    boolean isAgreeTrade() {
+        return tradeAgreement;
+    }
+
     void setTrade() {
         String str = "";
         for (int land : tradeLands) {
@@ -197,16 +236,27 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     void agreeTrade(String name) {
+        tradeAgreement = true;
         send("152 " + name);
     }
 
     void resetTrade() {
         send("150");
         tradeOffer = false;
+        tradeAgreement = false;
+    }
+
+    Map<String, String> getTradeContents() {
+        return tradeContents;
+    }
+
+    Map<String, String> getTradeAgreements() {
+        return tradeAgreements;
     }
 
     boolean canBuild(int land) {
-        return name.equals(board.getOwner(land)) && board.canBuild(land) && board.getPlayerMoney(name) - board.getBuildCost(land) >= 0;
+        return name.equals(board.getOwner(land)) && board.canBuild(land)
+                && board.getPlayerMoney(name) - board.getBuildCost(land) >= 0;
     }
 
     void build(int land) {
@@ -230,7 +280,8 @@ public class MonopolyPlayer extends CGPlayer {
     }
 
     boolean canUnmortgage(int land) {
-        return name.equals(board.getOwner(land)) && board.canUnmortgage(land) && board.getPlayerMoney(name) - (int) Math.ceil(0.55 * board.getPrice(land)) >= 0;
+        return name.equals(board.getOwner(land)) && board.canUnmortgage(land)
+                && board.getPlayerMoney(name) - (int) Math.ceil(0.55 * board.getPrice(land)) >= 0;
     }
 
     void unmortgage(int land) {

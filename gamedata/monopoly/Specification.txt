@@ -156,15 +156,18 @@ SERVER > ALL : "130 " + name + " " + 所持金
 CLIENT >     : "150" + (" " + 金額 + (" " + 土地番号)*)（取引を設定・リセット含む）
 SERVER > ALL : "151" + name + (" " + 金額 + (" " + 土地番号)*)（取引の周知）
     ^ 既に取引に同意していたプレイヤーは
-    SERVER >     : "154 " + name（取引同意解除）
+    SERVER > ALL : "154 " + name（取引同意解除）
 
 ^ プレイヤーと取引（自分と相手が取引設定済み）
 CLIENT >     : "152 " + name（name と取引する）
 SERVER > ALL : "153 " + name1 + " " + name2（name1 が name2 の取引に同意）
     ^ 双方が同意
-    SERVER > ALL : "130 " + name + " " + 所持金 + " " + name + " " + 所持金
-    SERVER > ALL : "131 " + name + (" " + 土地番号)*
-
+    SERVER > ALL : "130 " + name1 + " " + 所持金 + " " + name2 + " " + 所持金
+    SERVER > ALL : "131 " + name1 + (" " + 土地番号)*
+    SERVER > ALL : "131 " + name2 + (" " + 土地番号)*
+    SERVER > ALL : "151 " + name1（取引リセット）
+    SERVER > ALL : "151 " + name2（取引リセット）
+    SERVER > ALL : "154 " + name（取引同意解除）
 
 ステート
 SERVER:

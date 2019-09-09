@@ -69,7 +69,7 @@ public class MonopolyServer extends CGServer {
             board.payPlayerMoney(name, 50);
             sendAll("130 " + name + " " + board.getPlayerMoney(name));
             board.setPlayerPosition(name, 10);
-            sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
+            sendAll("111 " + name + " " + board.getPlayerPosition(name));
             state = ServerState.TURN_START;
             sendAll("120 " + name);
         }
@@ -90,18 +90,18 @@ public class MonopolyServer extends CGServer {
                     if (playerJailTurn.containsKey(name)) {
                         jailCount = playerJailTurn.get(name);
                     }
-                    sendAll("122 "+dice[0]+" "+dice[1]);
+                    sendAll("122 " + dice[0] + " " + dice[1]);
                     if (dice[0] == dice[1]) {
                         board.setPlayerPosition(name, 10);
-                        sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
+                        sendAll("111 " + name + " " + board.getPlayerPosition(name));
                         board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
                         sendAll("111 " + name + " " + board.getPlayerPosition(name));
                         playerJailTurn.remove(name);
                         doEvent(name, board.getPlayerPosition(name));
                     } else {
-                        if (jailCount == 2){
+                        if (jailCount == 2) {
                             board.setPlayerPosition(name, 10);
-                            sendAll("111 "+ name + " "+ board.getPlayerPosition(name));
+                            sendAll("111 " + name + " " + board.getPlayerPosition(name));
                             board.payPlayerMoney(name, 50);
                             sendAll("130 " + name + " " + board.getPlayerMoney(name));
                             board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
@@ -131,7 +131,9 @@ public class MonopolyServer extends CGServer {
 
         // 土地を買う
         if (str[0].equals("123") && state == ServerState.DICE_ROLLED && name.equals(playerNameForTurn)) {
-            if(board.getPlayerMoney(name)-board.getPrice(board.getPlayerPosition(name))<0)return;
+            if (board.getPlayerMoney(name) - board.getPrice(board.getPlayerPosition(name)) < 0) {
+                return;
+            }
             board.payPlayerMoney(name, board.getPrice(board.getPlayerPosition(name)));
             board.setOwner(board.getPlayerPosition(name), name);
             state = ServerState.ACTION_SELECTED;
@@ -220,7 +222,7 @@ public class MonopolyServer extends CGServer {
                 sendAll("151 " + name);
             } else {
                 trade.put(name, data.substring(4));
-                sendAll("151 " + name + " " + data.substring(4));
+                sendAll("151 " + name + data.substring(3));
             }
             for (String n : playerNames) {
                 if (name.equals(agree.get(n))) {
@@ -228,7 +230,7 @@ public class MonopolyServer extends CGServer {
                     sendAll("154 " + n);
                 }
             }
-    }
+        }
 
         // 取引の同意
         if (str[0].equals("152")) {
@@ -258,6 +260,14 @@ public class MonopolyServer extends CGServer {
                         + board.getPlayerMoney(str[1]));
                 sendAll("131 " + str[1] + str3);
                 sendAll("131 " + name + str4);
+                sendAll("151 " + name);
+                sendAll("151 " + str[1]);
+                for (String n : playerNames) {
+                    if (name.equals(agree.get(n)) || str[1].equals(agree.get(n))) {
+                        agree.remove(n);
+                        sendAll("154 " + n);
+                    }
+                }
             }
         }
 
@@ -332,13 +342,18 @@ public class MonopolyServer extends CGServer {
     }
 
     void goJail(String name) {
-        board.setPlayerPosition(name, MonopolyBoard.JAIL);
-        sendAll("111 " + name + " " + board.getPlayerPosition(name));
-        zorome = false;
-        count = 0;
-        state = ServerState.TURN_START;
-        nextPlayer();
-        sendAll("120 " + playerNameForTurn);
+        (new Timer()).schedule(new TimerTask() {
+            @Override
+            public void run() {
+                board.setPlayerPosition(name, MonopolyBoard.JAIL);
+                sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                zorome = false;
+                count = 0;
+                state = ServerState.TURN_START;
+                nextPlayer();
+                sendAll("120 " + playerNameForTurn);
+            }
+        }, 1000);
     }
 
     void getComunityCard(String name, int position) {

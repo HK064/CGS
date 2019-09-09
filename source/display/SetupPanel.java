@@ -38,7 +38,6 @@ public class SetupPanel extends CGSPanel {
         server.setGame(gamedata);
         add(gameList);
 
-        requestFocus();
     }
 
     SetupPanel(CGSetupPlayer player) {

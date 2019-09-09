@@ -27,6 +27,7 @@ public class MonopolyPanel extends PlayPanel {
     private int playerOutlineX = -1;
     private int playerOutlineY = -1;
     private boolean mouseOverTrade = false;
+    private String mouseOverPlayerTrade = null;
     private JTextField tradeMoneyField;
 
     @Override
@@ -35,11 +36,10 @@ public class MonopolyPanel extends PlayPanel {
         board = this.player.getBoard();
 
         // 取引金額入力フィールド
-        tradeMoneyField = new JTextField("0");
-        tradeMoneyField.setCaretPosition(1);
+        tradeMoneyField = new JTextField("");
         add(tradeMoneyField);
-        
-        requestFocus();
+
+        requestFocusInWindow();
     }
 
     @Override
@@ -173,7 +173,7 @@ public class MonopolyPanel extends PlayPanel {
                 th = ch;
             }
 
-            // プレイヤーがいる or プレイヤーが選択されている
+            // 土地強調
             int selectLevel = 0;
             for (String name : board.getPlayers()) {
                 if (board.getPlayerPosition(name) == i) {
@@ -182,6 +182,15 @@ public class MonopolyPanel extends PlayPanel {
             }
             if (mouseOverPlayer != null) {
                 selectLevel = (Objects.equals(mouseOverPlayer, board.getOwner(i))) ? 1 : 0;
+            }
+            if (mouseOverPlayerTrade != null) {
+                String tradeContent = player.getTradeContents().get(mouseOverPlayerTrade);
+                if (tradeContent != null) {
+                    selectLevel = (" " + tradeContent.split(" ", 2)[1] + " ").contains(" " + i + " ") ? 1 : 0;
+                }
+            }
+            if (mouseOverTrade) {
+                selectLevel = (player.getTradeLands().contains(i)) ? 1 : 0;
             }
 
             // 土地背景
@@ -357,20 +366,20 @@ public class MonopolyPanel extends PlayPanel {
             drawString(g, x, y + (int) (0.2 * h), "レンタル料 $" + board.getRent(land), (int) (0.05 * h));
 
             drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.55 * h), "　１ $" + board.getRent(land, 1), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.6 * h), "　２ $" + board.getRent(land, 2), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.65 * h), "　３ $" + board.getRent(land, 3), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.7 * h), "　４ $" + board.getRent(land, 4), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　$" + board.getRent(land, 1), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　$" + board.getRent(land, 2), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.65 * h), "　$" + board.getRent(land, 3), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.7 * h), "　$" + board.getRent(land, 4), (int) (0.05 * h));
             return;
         }
         if (landType == LandType.COMPANY) {
             int i = (name == null) ? 0 : ((Objects.equals(board.getOwner(12), board.getOwner(28))) ? 2 : 1);
-            String[] str = { "なし", "４×サイコロ", "10×サイコロ" };
+            String[] str = { "なし", "4×サイコロ", "10×サイコロ" };
             drawString(g, x, y + (int) (0.2 * h), "レンタル料 " + str[i], (int) (0.05 * h));
 
             drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.55 * h), "　　１ " + str[i], (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.6 * h), "　　２ " + str[i], (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　" + str[1], (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　" + str[2], (int) (0.05 * h));
             return;
         }
 
@@ -378,6 +387,13 @@ public class MonopolyPanel extends PlayPanel {
 
     private void drawLandSetting(Graphics g, int x, int y, int w, int h, int land) {
         LandType landType = board.getType(land);
+
+        PlayerState state = player.getState();
+        int s = (state == PlayerState.GAME || state == PlayerState.MY_TURN_START || state == PlayerState.MY_DICE_ROLLING
+                || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED
+                || state == PlayerState.MY_JAIL_START || state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL
+                || state == PlayerState.MY_JAIL_ACTION_SELECTED) ? 0 : 1;
+        int t;
 
         g.setColor(Color.BLACK);
         drawString(g, x, y, board.getName(land), (int) (0.1 * h));
@@ -424,40 +440,39 @@ public class MonopolyPanel extends PlayPanel {
             drawString(g, x, y + (int) (0.7 * h), "　家３軒 $" + board.getRent(land, 3), (int) (0.05 * h));
             drawString(g, x, y + (int) (0.75 * h), "　家４軒 $" + board.getRent(land, 4), (int) (0.05 * h));
             drawString(g, x, y + (int) (0.8 * h), "　ホテル $" + board.getRent(land, 5), (int) (0.05 * h));
+
+            t = player.canBuild(selectedLand) ? s : 1;
+            if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "建設する(B)",
+                    t) && mouseClicked) || keyPushed.contains('b')) && t == 0) {
+                player.build(selectedLand);
+            }
+
+            t = player.canUnbuild(selectedLand) ? s : 1;
+            if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "解体する(D)",
+                    t) && mouseClicked) || keyPushed.contains('d')) && t == 0) {
+                player.unbuild(selectedLand);
+            }
         }
 
         if (landType == LandType.RAILROAD) {
             drawString(g, x, y + (int) (0.2 * h), "レンタル料 $" + board.getRent(land), (int) (0.05 * h));
 
             drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.55 * h), "　１ $" + board.getRent(land, 1), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.6 * h), "　２ $" + board.getRent(land, 2), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.65 * h), "　３ $" + board.getRent(land, 3), (int) (0.05 * h));
-            drawString(g, x, y + (int) (0.7 * h), "　４ $" + board.getRent(land, 4), (int) (0.05 * h));
-            return;
+            drawString(g, x, y + (int) (0.55 * h), "　$" + board.getRent(land, 1), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　$" + board.getRent(land, 2), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.65 * h), "　$" + board.getRent(land, 3), (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.7 * h), "　$" + board.getRent(land, 4), (int) (0.05 * h));
         }
 
         if (landType == LandType.COMPANY) {
+            int i = (board.getOwner(land) == null) ? 0
+                    : ((Objects.equals(board.getOwner(12), board.getOwner(28))) ? 2 : 1);
+            String[] str = { "なし", "4×サイコロ", "10×サイコロ" };
+            drawString(g, x, y + (int) (0.2 * h), "レンタル料 " + str[i], (int) (0.05 * h));
 
-            return;
-        }
-
-        PlayerState state = player.getState();
-        int s = (state == PlayerState.GAME || state == PlayerState.MY_TURN_START || state == PlayerState.MY_DICE_ROLLING
-                || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED
-                || state == PlayerState.MY_JAIL_START || state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL
-                || state == PlayerState.MY_JAIL_ACTION_SELECTED) ? 0 : 1;
-
-        int t = player.canBuild(selectedLand) ? s : 1;
-        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "建設する(B)", t)
-                && mouseClicked) || keyPushed.contains('b')) && t == 0) {
-            player.build(selectedLand);
-        }
-
-        t = player.canUnbuild(selectedLand) ? s : 1;
-        if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "解体する(D)", t)
-                && mouseClicked) || keyPushed.contains('d')) && t == 0) {
-            player.unbuild(selectedLand);
+            drawString(g, x, y + (int) (0.5 * h), "レンタル料", (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.55 * h), "　" + str[1], (int) (0.05 * h));
+            drawString(g, x, y + (int) (0.6 * h), "　" + str[2], (int) (0.05 * h));
         }
 
         t = player.canMortgage(selectedLand) ? s : 1;
@@ -488,11 +503,26 @@ public class MonopolyPanel extends PlayPanel {
 
     private void drawPlayerList(Graphics g, int x, int y, int w, int h) {
         mouseOverPlayer = null;
-        g.setColor(Color.BLACK);
+        mouseOverPlayerTrade = null;
         for (int i = 0; i < player.getPlayerNames().size(); i++) {
-            // プレイヤーの名前
             String name = player.getPlayerNames().get(i);
-            drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i), name, (int) (0.05 * h));
+
+            int bx = x + (int) (0.5 * w);
+            int by = y + (int) (0.1 * h * i + 0.04 * h);
+            int bw = (int) (0.5 * w);
+            int bh = (int) (0.03 * h);
+
+            // マウス
+            if (x <= mousePos.x && mousePos.x < x + w && y + (int) (0.1 * h * i) <= mousePos.y
+                    && mousePos.y < y + (int) (0.1 * h * (i + 1))
+                    && !(bx <= mousePos.x && mousePos.x < bx + bw && by <= mousePos.y && mousePos.y < by + bh)) {
+                mouseOverPlayer = name;
+                playerOutlineX = x + (int) (0.1 * h);
+                playerOutlineY = y + (int) (0.1 * h * (i + 1));
+
+                g.setColor(Color.LIGHT_GRAY);
+                g.fillRect(x, y + (int) (0.1 * h * i), w, (int) (0.1 * h));
+            }
 
             // ターンのプレイヤー
             if (name.equals(player.getPlayerNameForTurn())) {
@@ -503,6 +533,13 @@ public class MonopolyPanel extends PlayPanel {
             }
 
             g.setColor(Color.BLACK);
+
+            // 境界線
+            g.drawLine(x, y + (int) (0.1 * h * (i + 1)) - 1, x + w, y + (int) (0.1 * h * (i + 1)) - 1);
+
+            // プレイヤーの名前
+            drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i), name, (int) (0.05 * h));
+
             if (board.isPlayerBankrupt(name)) {
                 drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i + 0.05 * h), "破産", (int) (0.04 * h));
             } else {
@@ -511,12 +548,22 @@ public class MonopolyPanel extends PlayPanel {
                 drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i + 0.05 * h), "$" + money, (int) (0.04 * h));
             }
 
-            if (x <= mousePos.x && mousePos.x < x + w && y + (int) (0.1 * h * i) <= mousePos.y
-                    && mousePos.y < y + (int) (0.1 * h * (i + 1))) {
-                mouseOverPlayer = name;
-                playerOutlineX = x + (int) (0.1 * h);
-                playerOutlineY = y + (int) (0.1 * h * (i + 1));
+            String tradeContent = player.getTradeContents().get(name);
+            String str = "";
+            int t = (tradeContent != null) ? 0 : 1;
+            if (tradeContent != null) {
+                String[] str2 = tradeContent.split(" ");
+                str = " $" + str2[0] + " 土地" + (str2.length - 1) + "個";
             }
+            if (drawButton(g, bx, by, bw, bh, "取引提案中" + str, t) && t == 0) {
+                mouseOverPlayerTrade = name;
+            }
+
+            if (player.getTradeAgreements().containsKey(name)) {
+                drawString(g, x + (int) (0.1 * h), y + (int) (0.1 * h * i + 0.07 * h),
+                        player.getTradeAgreements().get(name) + "との取引を希望", (int) (0.02 * h));
+            }
+
         }
     }
 
@@ -546,17 +593,33 @@ public class MonopolyPanel extends PlayPanel {
         g.setColor(Color.BLACK);
         drawString(g, x, y, "取引", (int) (0.1 * h));
 
-        String str =  (player.isOfferTrade()) ? "取引提案中" : "取引未提案";
+        String str = (player.isOfferTrade()) ? "取引提案中" : "取引未提案";
         drawString(g, x, y + (int) (0.15 * h), str, (int) (0.05 * h));
+        String name2 = player.getTradeAgreements().get(player.getName());
+        if (name2 != null) {
+            drawString(g, x, y + (int) (0.2 * h), name2 + "との取引に同意", (int) (0.05 * h));
+        }
 
-        // TODO
-        drawString(g, x, y + (int) (0.2 * h), "が取引に同意", (int) (0.05 * h));
+        str = "";
+        for (String n : player.getPlayerNames()) {
+            if (player.getName() != null && Objects.equals(player.getName(), player.getTradeAgreements().get(n))) {
+                if (str.length() > 0) {
+                    str += ", ";
+                }
+                str += n;
+            }
+        }
+        if (str.length() > 0) {
+            drawString(g, x, y + (int) (0.25 * h), str + "が取引に同意", (int) (0.05 * h));
+        }
 
-        drawString(g, x, y + (int) (0.3 * h), "$" + player.getTradeMoney(), (int) (0.05 * h));
+        drawString(g, x, y + (int) (0.4 * h), "取引内容", (int) (0.05 * h));
+
+        drawString(g, x, y + (int) (0.45 * h), "$" + player.getTradeMoney(), (int) (0.05 * h));
 
         int i = 0;
-        for(int land2 : player.getTradeLands()) {
-            drawString(g, x, y + (int) (0.35* h + 0.05 * h * i), board.getName(land2), (int) (0.05 * h));
+        for (int land2 : player.getTradeLands()) {
+            drawString(g, x, y + (int) (0.5 * h + 0.05 * h * i), board.getName(land2), (int) (0.05 * h));
             i++;
         }
 
@@ -565,34 +628,67 @@ public class MonopolyPanel extends PlayPanel {
                 || state == PlayerState.MY_POSITION_MOVED || state == PlayerState.MY_ACTION_SELECTED
                 || state == PlayerState.MY_JAIL_START || state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL
                 || state == PlayerState.MY_JAIL_ACTION_SELECTED) ? 0 : 1;
-        
+        int t;
+
+        // 取引相手
+        drawString(g, x + (int) (0.3 * w), y + (int) (0.4 * h), "取引相手", (int) (0.05 * h));
+        t = (player.isOfferTrade() && !player.isAgreeTrade()) ? s : 1;
+        i = 0;
+        for (String name : player.getPlayerNames()) {
+            if (!name.equals(player.getName()) && player.getTradeContents().containsKey(name)) {
+                boolean b = drawButton(g, x + (int) (0.3 * w), y + (int) (0.47 * h + 0.07 * h * i), (int) (0.3 * w), (int) (0.07 * h), name, t);
+                if (b) {
+                    mouseOverPlayerTrade = name;
+                }
+                if (b && mouseClicked && t == 0) {
+                    player.agreeTrade(name);
+                }
+                i++;
+            }
+        }
+
+        // 取引表示ボタン
+        if (drawButton(g, x + (int) (0.6 * w), y + (int) (0.3 * h), (int) (0.4 * w), (int) (0.1 * h), "取引表示", s)
+                && s == 0) {
+            mouseOverTrade = true;
+        } else {
+            mouseOverTrade = false;
+        }
+
         // 金額設定フィールド
-        drawString(g, x + (int) (0.5 * w), y + (int) (0.3 * h), "金額", (int) (0.07 * h));
-        if(resize){
-            tradeMoneyField.setFont(CGSFont.getFont((int)(0.07 * h)));
-            tradeMoneyField.setBounds(x + (int) (0.7 * w), y + (int) (0.3 * h), (int) (0.3 * w), (int)(0.1 * h));
+        g.setColor(Color.BLACK);
+        drawString(g, x + (int) (0.6 * w), y + (int) (0.4 * h), "金額", (int) (0.07 * h));
+        if (tradeMoneyField.isEditable() ^ !player.isOfferTrade() && s == 0) {
+            if (!tradeMoneyField.isEditable()) {
+                tradeMoneyField.setText(String.valueOf(player.getTradeMoney()));
+            }
+            tradeMoneyField.setEditable(!player.isOfferTrade());
+        }
+        if (resize) {
+            tradeMoneyField.setFont(CGSFont.getFont((int) (0.07 * h)));
+            tradeMoneyField.setBounds(x + (int) (0.8 * w), y + (int) (0.4 * h), (int) (0.2 * w), (int) (0.1 * h));
         }
         try {
             player.setTradeMoney(Integer.parseInt(tradeMoneyField.getText()));
         } catch (NumberFormatException e) {
         }
 
-        int t = (!player.isOfferTrade() && (player.getTradeMoney() > 0 || player.getTradeLands().size() > 0)) ? s : 1;
-        if ((drawButton(g, x + (int) (0.5 * w), y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.1 * h), "取引提案", t)
-                && mouseClicked) && t == 0) {
+        // 取引提案ボタン
+        t = (!player.isOfferTrade() && (player.getTradeMoney() > 0 || player.getTradeLands().size() > 0)) ? s : 1;
+        if (drawButton(g, x + (int) (0.6 * w), y + (int) (0.5 * h), (int) (0.4 * w), (int) (0.1 * h), "取引提案", t)
+                && mouseClicked && t == 0) {
             player.setTrade();
+            tradeMoneyField.setEditable(false);
         }
 
+        // 取引取消ボタン
         t = (player.isOfferTrade()) ? s : 1;
-        if ((drawButton(g, x + (int) (0.5 * w), y + (int) (0.5 * h), (int) (0.5 * w), (int) (0.1 * h), "取引提案解除", t)
-                && mouseClicked) && t == 0) {
+        if (drawButton(g, x + (int) (0.6 * w), y + (int) (0.6 * h), (int) (0.4 * w), (int) (0.1 * h), "取引取消", t)
+                && mouseClicked && t == 0) {
             player.resetTrade();
+            tradeMoneyField.setEditable(true);
         }
 
-
-        if (x <= mousePos.x && mousePos.x < x + w && y <= mousePos.y && mousePos.y < y + h) {
-            mouseOverTrade = true;
-        }
     }
 
     private void drawMessageForPlayer(Graphics g, int x, int y, int w, int h) {
@@ -646,34 +742,37 @@ public class MonopolyPanel extends PlayPanel {
     }
 
     private void drawButtons(Graphics g, int x, int y, int w, int h) {
-        int state = (player.getState() == PlayerState.MY_TURN_START
-                || player.getState() == PlayerState.MY_JAIL_BEFORE_DICE_ROLL) ? 0 : 1;
-        if (drawButton(g, x, y, (int) (0.5 * w), (int) (0.2 * h), "振る", state) && mouseClicked && state == 0) {
+        PlayerState state = player.getState();
+
+        int s = (state == PlayerState.MY_TURN_START || state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL) ? 0 : 1;
+        if (drawButton(g, x, y, (int) (0.5 * w), (int) (0.2 * h), "振る", s) && mouseClicked && s == 0) {
             player.rollDice();
         }
 
         drawButton(g, x, y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "破産する", 1);
 
         LandType landType = board.getType(board.getPlayerPosition(player.getName()));
-        state = (player.getState() == PlayerState.MY_JAIL_START) ? 0 : 1;
-        if (drawButton(g, x, y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.2 * h), "出所する", state) && mouseClicked
-                && state == 0) {
+        s = (player.getState() == PlayerState.MY_JAIL_START) ? 0 : 1;
+        if (drawButton(g, x, y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.2 * h), "出所する", s) && mouseClicked
+                && s == 0) {
             player.leavePrison(true);
         }
-        if (drawButton(g, x, y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.2 * h), "出所しない", state) && mouseClicked
-                && state == 0) {
+        if (drawButton(g, x, y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.2 * h), "出所しない", s) && mouseClicked
+                && s == 0) {
             player.leavePrison(false);
         }
 
-        state = (player.getState() == PlayerState.MY_POSITION_MOVED
+        s = (state == PlayerState.MY_POSITION_MOVED
                 && (landType == LandType.PROPERTY || landType == LandType.RAILROAD || landType == LandType.COMPANY)
                 && board.getOwner(board.getPlayerPosition(player.getName())) == null) ? 0 : 1;
-        if (drawButton(g, x + (int) (0.5 * w), y, (int) (0.5 * w), (int) (0.2 * h), "買う", state) && mouseClicked
-                && state == 0) {
+        int t = (s == 0 && board.getPlayerMoney(player.getName())
+                - board.getPrice(board.getPlayerPosition(player.getName())) >= 0) ? 0 : 1;
+        if (drawButton(g, x + (int) (0.5 * w), y, (int) (0.5 * w), (int) (0.2 * h), "買う", t) && mouseClicked
+                && t == 0) {
             player.buyLand(true);
         }
-        if (drawButton(g, x + (int) (0.5 * w), y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "買わない", state)
-                && mouseClicked && state == 0) {
+        if (drawButton(g, x + (int) (0.5 * w), y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "買わない", s)
+                && mouseClicked && s == 0) {
             player.buyLand(false);
         }
 
