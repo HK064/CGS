@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class MonopolyPlayer extends CGPlayer {
     private MonopolyBoard board = new MonopolyBoard();
@@ -16,6 +17,7 @@ public class MonopolyPlayer extends CGPlayer {
     private Set<Integer> tradeLands = new HashSet<>();
     private Map<String, String> tradeContents = new HashMap<>(); // 取引を出した人、取引内容
     private Map<String, String> tradeAgreements = new HashMap<>(); // 合意した人、合意先
+    private ArrayList<String> history = new ArrayList<String>();
 
     enum PlayerState {
         READY, GAME, MY_TURN_START, MY_DICE_ROLLING, MY_POSITION_MOVED, MY_JAIL_START, MY_JAIL_ACTION_SELECTED,
@@ -55,7 +57,9 @@ public class MonopolyPlayer extends CGPlayer {
         // プレイヤー所持金受信
         if (str[0].equals("130")) {
             for (int i = 1; i < str.length; i += 2) {
+                int prev = board.getPlayerMoney(str[i]);
                 board.setPlayerMoney(str[i], Integer.parseInt(str[i + 1]));
+                history.add(str[i]+"の所持金が"+prev+"から"+str[i + 1]+"に");
             }
             return;
         }
@@ -149,6 +153,22 @@ public class MonopolyPlayer extends CGPlayer {
             tradeAgreements.remove(str[1]);
             if (str[1].equals(name)) {
                 tradeAgreement = false;
+            }
+            return;
+        }
+
+        //カード受信
+        if (str[0].equals("190")) {
+            if(str[2].equals("chance")){
+                switch(str[3]){
+                    case "0":
+                        history.add(str[1]+"生命保険満期により＄100受け取る");
+                }
+            }else if(str[2].equals("community")){
+                switch(str[3]){
+                    case "0":
+                        history.add(str[1]+"建物ローンの満期で＄150受け取る");
+                }
             }
             return;
         }
@@ -296,6 +316,10 @@ public class MonopolyPlayer extends CGPlayer {
     void goBankrupt() {
         state = PlayerState.BANKRUPTCY;
         send("112");
+    }
+
+    ArrayList<String> getHistory(){
+        return history;
     }
 
 }

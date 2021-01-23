@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Objects;
 import java.util.Random;
+import java.util.ArrayList;
 
 import javax.swing.JTextField;
 
@@ -308,6 +309,7 @@ public class MonopolyPanel extends PlayPanel {
         int bw = (int) (0.5 * bs);
         int bh = (int) (0.3 * bs);
 
+        drawHistory(g, (int) (bx + 0.5 * (bs - tw)), (int) (by + th*1.3), tw, (int)(th*1.5));
         drawMessageForPlayer(g, (int) (bx + 0.5 * (bs - tw)), (int) (by + 0.5 * bs - dh - th), tw, th);
         drawDice(g, (int) (bx + 0.5 * (bs - dw)), (int) (by + 0.5 * bs - dh), dw, dh);
         drawButtons(g, (int) (bx + 0.5 * (bs - bw)), (int) (by + 0.5 * bs), bw, bh);
@@ -790,6 +792,23 @@ public class MonopolyPanel extends PlayPanel {
             player.buyLand(false);
         }
 
+    }
+
+    private void drawHistory(Graphics g, int x, int y, int w, int h){
+        g.setColor(Color.WHITE);
+        g.fillRect(x, y, w, h);
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, w, h);
+        int drawNum = 11;
+        ArrayList<String> text = player.getHistory();
+        int textSize = text.size();
+        if(drawNum>textSize){
+            drawNum=textSize;
+        }
+
+        for(int i=1;i<drawNum+1;i++){
+            drawString(g, x+1, y+h-(int) (0.092 * h *i), text.get(textSize-i), (int) (0.09 * h));
+        }
     }
 
 }

@@ -5,6 +5,10 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.HashMap;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MonopolyServer extends CGServer {
     private MonopolyBoard board = new MonopolyBoard();
@@ -16,6 +20,8 @@ public class MonopolyServer extends CGServer {
     private HashMap<String, String> agree = new HashMap<>();// 合意した人、合意先
     private HashMap<String, Integer> playerJailTurn = new HashMap<>();
     private int auctionLand = -1;
+    private List<Integer> communityCard = new ArrayList<>(Arrays.asList(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,6));
+    private List<Integer> chanceCard = new ArrayList<>(Arrays.asList(0,1,2,3,4,5,6,7,8,9,9,10,11,12,1,13));
 
     enum ServerState {
         READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME, JAIL_START, MONEY_NEGATIVE;
@@ -51,6 +57,10 @@ public class MonopolyServer extends CGServer {
 
         state = ServerState.TURN_START;
         sendAll("120 " + playerNameForTurn);
+
+        //カードのシャッフル
+        Collections.shuffle(communityCard);
+        Collections.shuffle(chanceCard);
     }
 
     @Override
@@ -384,12 +394,30 @@ public class MonopolyServer extends CGServer {
         }, 1000);
     }
 
-    void getComunityCard(String name, int position) {
+    void getChanceCard(String name, int position) {
+        int cardNum = chanceCard.remove(0);
+        sendAll("190 " + name + " " + "chance" + " " + cardNum);
+        switch(cardNum){
+            case 0:
+                board.addPlayerMoney(name, 100);
+                sendAll("130 " + name + " " + board.getPlayerMoney(name));
+            case 1:
+        }
+        chanceCard.add(cardNum);
         endTurn();
         return;
     }
 
-    void getChanceCard(String name, int position) {
+    void getComunityCard(String name, int position) {
+        int cardNum = communityCard.remove(0);
+        sendAll("190 " + name + " " + "community" + " " + cardNum);
+        switch(cardNum){
+            case 0:
+                board.addPlayerMoney(name, 150);
+                sendAll("130 " + name + " " + board.getPlayerMoney(name));
+            case 1:
+        }
+        communityCard.add(cardNum);
         endTurn();
         return;
     }
