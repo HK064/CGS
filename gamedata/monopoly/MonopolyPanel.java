@@ -72,8 +72,9 @@ public class MonopolyPanel extends PlayPanel {
         if (selectedLand != -1) {
             if (!player.getName().equals(board.getOwner(selectedLand))) {
                 selectedLand = -1;
+            } else {
+                drawLandSetting(g, 0, 0, (int) (0.5 * (getWidth() - getHeight())), (int) (0.5 * getHeight()), selectedLand);
             }
-            drawLandSetting(g, 0, 0, (int) (0.5 * (getWidth() - getHeight())), (int) (0.5 * getHeight()), selectedLand);
         }
 
         if (mouseOverPlayer != null) {
