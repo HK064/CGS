@@ -112,6 +112,9 @@ public class MonopolyPlayer extends CGPlayer {
         if (str[0].equals("122")) {
             dice[0] = Integer.parseInt(str[1]);
             dice[1] = Integer.parseInt(str[2]);
+            if (state == PlayerState.MY_JAIL_BEFORE_DICE_ROLL) {
+                state = PlayerState.MY_POSITION_MOVED;
+            }
             return;
         }
 
@@ -121,10 +124,12 @@ public class MonopolyPlayer extends CGPlayer {
                 tradeContents.remove(str[1]);
                 tradeAgreements.remove(str[1]);
                 if (str[1].equals(name)) {
-                    tradeMoney = 0;
-                    tradeLands.clear();
-                    tradeAgreement = false;
-                    tradeOffer = false;
+                    if (tradeOffer) {
+                        tradeMoney = 0;
+                        tradeLands.clear();
+                        tradeAgreement = false;
+                        tradeOffer = false;
+                    }
                 }
             } else {
                 String[] str1 = data.split(" ", 3);
@@ -286,6 +291,11 @@ public class MonopolyPlayer extends CGPlayer {
 
     void unmortgage(int land) {
         send("161 " + land);
+    }
+
+    void goBankrupt() {
+        state = PlayerState.BANKRUPTCY;
+        send("112");
     }
 
 }

@@ -75,7 +75,7 @@ class CGConnector implements Runnable {
      * 
      * @param str メッセージ
      */
-    synchronized void send(String str) {
+    void send(String str) {
         long milliSec = System.currentTimeMillis();
         if (type == TYPE_LOCAL) {
             CGConnector me = this;

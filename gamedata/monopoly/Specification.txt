@@ -154,7 +154,7 @@ SERVER > ALL : "130 " + name + " " + 所持金
 
 ^ 取引設定
 CLIENT >     : "150" + (" " + 金額 + (" " + 土地番号)*)（取引を設定・リセット含む）
-SERVER > ALL : "151" + name + (" " + 金額 + (" " + 土地番号)*)（取引の周知）
+SERVER > ALL : "151 " + name + (" " + 金額 + (" " + 土地番号)*)（取引の周知）
     ^ 既に取引に同意していたプレイヤーは
     SERVER > ALL : "154 " + name（取引同意解除）
 
@@ -181,6 +181,8 @@ SERVER:
 
     AUCTION
     END_AUCTION
+
+    MONEY_NEGATIVE
 
     END_GAME
 

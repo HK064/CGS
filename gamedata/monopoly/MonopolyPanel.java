@@ -186,7 +186,12 @@ public class MonopolyPanel extends PlayPanel {
             if (mouseOverPlayerTrade != null) {
                 String tradeContent = player.getTradeContents().get(mouseOverPlayerTrade);
                 if (tradeContent != null) {
-                    selectLevel = (" " + tradeContent.split(" ", 2)[1] + " ").contains(" " + i + " ") ? 1 : 0;
+                    String[] c = tradeContent.split(" ", 2);
+                    if (c.length == 2) {
+                        selectLevel = (" " + c[1] + " ").contains(" " + i + " ") ? 1 : 0;
+                    } else {
+                        selectLevel = 0;
+                    }
                 }
             }
             if (mouseOverTrade) {
@@ -247,6 +252,9 @@ public class MonopolyPanel extends PlayPanel {
 
             // 建物
             String str = "";
+            if (board.isMonopoly(i)) {
+                str = "独占";
+            }
             switch (board.getBuilding(i)) {
             case 1:
                 str = "家１軒";
@@ -487,7 +495,8 @@ public class MonopolyPanel extends PlayPanel {
             player.unmortgage(selectedLand);
         }
 
-        t = (!player.isOfferTrade() && !player.isLandTrade(selectedLand)) ? s : 1;
+        t = (!player.isOfferTrade() && !player.isLandTrade(selectedLand) && board.getBuilding(selectedLand) == 0) ? s
+                : 1;
         if (((drawButton(g, x + (int) (0.5 * w), y + (int) (0.8 * h), (int) (0.5 * w), (int) (0.1 * h), "取引に追加(T)", t)
                 && mouseClicked) || keyPushed.contains('t')) && t == 0) {
             player.addTradeLand(selectedLand);
@@ -636,7 +645,8 @@ public class MonopolyPanel extends PlayPanel {
         i = 0;
         for (String name : player.getPlayerNames()) {
             if (!name.equals(player.getName()) && player.getTradeContents().containsKey(name)) {
-                boolean b = drawButton(g, x + (int) (0.3 * w), y + (int) (0.47 * h + 0.07 * h * i), (int) (0.3 * w), (int) (0.07 * h), name, t);
+                boolean b = drawButton(g, x + (int) (0.3 * w), y + (int) (0.47 * h + 0.07 * h * i), (int) (0.3 * w),
+                        (int) (0.07 * h), name, t);
                 if (b) {
                     mouseOverPlayerTrade = name;
                 }
@@ -749,7 +759,10 @@ public class MonopolyPanel extends PlayPanel {
             player.rollDice();
         }
 
-        drawButton(g, x, y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "破産する", 1);
+        s = (state == PlayerState.MY_POSITION_MOVED && board.getPlayerMoney(player.getName()) < 0) ? 0 : 1;
+        if (drawButton(g, x, y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "破産する", s) && s == 0) {
+            player.goBankrupt();
+        }
 
         LandType landType = board.getType(board.getPlayerPosition(player.getName()));
         s = (player.getState() == PlayerState.MY_JAIL_START) ? 0 : 1;

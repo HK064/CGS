@@ -15,9 +15,10 @@ public class MonopolyServer extends CGServer {
     private HashMap<String, String> trade = new HashMap<>();// 取引を出した人、取引内容
     private HashMap<String, String> agree = new HashMap<>();// 合意した人、合意先
     private HashMap<String, Integer> playerJailTurn = new HashMap<>();
+    private int auctionLand = -1;
 
     enum ServerState {
-        READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME, JAIL_START;
+        READY, TURN_START, DICE_ROLLED, ACTION_SELECTED, AUCTION, END_AUCTION, END_GAME, JAIL_START, MONEY_NEGATIVE;
     }
 
     @Override
@@ -179,6 +180,8 @@ public class MonopolyServer extends CGServer {
                     board.addPlayerMoney(name, price);
                     sendAll("130 " + name + " " + board.getPlayerMoney(name));
                     sendAll("132 " + land + " " + board.getBuilding(land));
+
+                    checkLeaveMoneyNegative();
                 }
             }
         }
@@ -193,6 +196,8 @@ public class MonopolyServer extends CGServer {
                     board.addPlayerMoney(name, price);
                     sendAll("133 " + land + " 1");
                     sendAll("130 " + name + " " + board.getPlayerMoney(name));
+
+                    checkLeaveMoneyNegative();
                 }
             }
         }
@@ -268,7 +273,30 @@ public class MonopolyServer extends CGServer {
                         sendAll("154 " + n);
                     }
                 }
+
+                checkLeaveMoneyNegative();
             }
+        }
+
+        // 破産
+        if (str[0].equals("112")) {
+            board.setPlayerBankrupt(name);
+            sendAll("113 " + name);
+
+            String name2 = board.getOwner(board.getPlayerPosition(name));
+            if (name2 == null) {
+                // プレイヤー以外による破産
+
+                // TODO
+
+            } else {
+                // プレイヤーによる破産
+
+                // TODO
+
+            }
+
+            endTurn();
         }
 
     }
@@ -394,6 +422,16 @@ public class MonopolyServer extends CGServer {
                 sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
                         + board.getPlayerMoney(owner));
             }
+            if (board.getPlayerMoney(name) < 0) {
+                state = ServerState.MONEY_NEGATIVE;
+            } else {
+                endTurn();
+            }
+        }
+    }
+
+    void checkLeaveMoneyNegative() {
+        if (state == ServerState.MONEY_NEGATIVE && board.getPlayerMoney(playerNameForTurn) >= 0) {
             endTurn();
         }
     }
@@ -414,4 +452,9 @@ public class MonopolyServer extends CGServer {
             }
         }, 1000);
     }
+
+    void startAuction(int land) {
+        state = ServerState.AUCTION;
+    }
+
 }
