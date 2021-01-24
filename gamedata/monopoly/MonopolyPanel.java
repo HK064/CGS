@@ -689,7 +689,7 @@ public class MonopolyPanel extends PlayPanel {
         // 取引提案ボタン
         t = (!player.isOfferTrade() && (player.getTradeMoney() > 0 || player.getTradeLands().size() > 0)) ? s : 1;
         if (drawButton(g, x + (int) (0.6 * w), y + (int) (0.5 * h), (int) (0.4 * w), (int) (0.1 * h), "取引提案", t)
-                && mouseClicked && t == 0) {
+                && mouseClicked && t == 0 && board.getPlayerMoney(player.getName()) >= player.getTradeMoney() ) {
             player.setTrade();
             tradeMoneyField.setEditable(false);
         }

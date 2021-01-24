@@ -244,8 +244,11 @@ public class MonopolyServer extends CGServer {
                 agree.remove(name);
                 sendAll("151 " + name);
             } else {
-                trade.put(name, data.substring(4));
-                sendAll("151 " + name + data.substring(3));
+                String[] str1 = data.substring(4).split(" ");
+                if (board.getPlayerMoney(name) >= Integer.parseInt(str1[0])){
+                    trade.put(name, data.substring(4));
+                    sendAll("151 " + name + data.substring(3));
+                }
             }
             for (String n : playerNames) {
                 if (name.equals(agree.get(n))) {
@@ -264,6 +267,16 @@ public class MonopolyServer extends CGServer {
                 String trade1 = trade.get(name);
                 String trade2 = trade.get(str[1]);
                 String[] str1 = trade1.split(" ");
+                String[] str2 = trade2.split(" ");
+                if ((board.getPlayerMoney(name) <  Integer.parseInt(str1[0])) || (board.getPlayerMoney(str[1]) <  Integer.parseInt(str2[0]))){
+                    for (String n : playerNames) {
+                        if (name.equals(agree.get(n)) || str[1].equals(agree.get(n))) {
+                            agree.remove(n);
+                            sendAll("154 " + n);
+                        }
+                    }
+                    return;
+                }
                 board.addPlayerMoney(str[1], Integer.parseInt(str1[0]));
                 board.payPlayerMoney(name, Integer.parseInt(str1[0]));
                 String str3 = "";
@@ -271,7 +284,6 @@ public class MonopolyServer extends CGServer {
                     board.setOwner(Integer.parseInt(str1[i]), str[1]);
                     str3 += " " + str1[i];
                 }
-                String[] str2 = trade2.split(" ");
                 board.addPlayerMoney(name, Integer.parseInt(str2[0]));
                 board.payPlayerMoney(str[1], Integer.parseInt(str2[0]));
                 String str4 = "";
@@ -299,7 +311,7 @@ public class MonopolyServer extends CGServer {
         // 破産
         if (str[0].equals("112")) {
             int price =  board.PlayerTotalassets(name);
-            if (price < 0) {
+            if (price < 0 && !board.isPlayerBankrupt(name)) {
                 board.setPlayerBankrupt(name);
                 sendAll("113 " + name);
 
