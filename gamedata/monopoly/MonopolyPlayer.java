@@ -163,11 +163,95 @@ public class MonopolyPlayer extends CGPlayer {
                 switch(str[3]){
                     case "0":
                         history.add(str[1]+"生命保険満期により＄100受け取る");
+                        break;
+                    case "1":
+                        history.add(str[1]+"銀行より利息＄50受け取る");
+                        break;
+                    case "2":
+                        history.add(str[1]+"GOのマスに進み，＄200受け取る");
+                        break;
+                    case "3":
+                        history.add(str[1]+"委員会の委員長に選任され，各プレイヤーに＄50支払う");
+                        break;
+                    case "4":
+                        history.add(str[1]+"スピード違反で＄15支払う");
+                        break;
+                    case "5":
+                        history.add(str[1]+"全財産の修理費，家1件当たり＄25，ホテル1件当たり＄100支払う");
+                        break;
+                    case "6":
+                        history.add(str[1]+"函館へ進む");
+                        break;
+                    case "7":
+                        history.add(str[1]+"静岡へ進む");
+                        break;
+                    case "8":
+                        history.add(str[1]+"山口へ進む");
+                        break;
+                    case "9":
+                        history.add(str[1]+"JR九州に進む");
+                        break;
+                    case "10":
+                        history.add(str[1]+"次の鉄道会社まで進む．所有者がいた場合には，通常の2倍のレンタル料を支払う");
+                        break;
+                    case "11":
+                        history.add(str[1]+"次の水道会社か電力会社に進む．所有者がいた場合には，サイコロの目の10倍を支払う");
+                        break;
+                    case "12":
+                        history.add(str[1]+"刑務所へ行く（GOマスを通っても＄200は受け取れない）");
+                        break;
+                    case "13":
+                        history.add(str[1]+"3マス戻る");
+                        break;
                 }
             }else if(str[2].equals("community")){
                 switch(str[3]){
                     case "0":
                         history.add(str[1]+"建物ローンの満期で＄150受け取る");
+                        break;
+                    case "1":
+                        history.add(str[1]+"ビューティーコンテスト準優勝．＄10受け取る");
+                        break;
+                    case "2":
+                        history.add(str[1]+"コンサルタント料金として＄25受け取る");
+                        break;
+                    case "3":
+                        history.add(str[1]+"遺産＄100受け取る");
+                        break;
+                    case "4":
+                        history.add(str[1]+"誕生日祝いとして，全てのプレイヤーから＄10受け取る");
+                        break;
+                    case "5":
+                        history.add(str[1]+"休日基金の満期により＄100受け取る");
+                        break;
+                    case "6":
+                        history.add(str[1]+"株式売却により＄50受け取る");
+                        break;
+                    case "7":
+                        history.add(str[1]+"銀行の手違いで＄200受け取る");
+                        break;
+                    case "8":
+                        history.add(str[1]+"所得税の払戻金＄20受け取る");
+                        break;
+                    case "9":
+                        history.add(str[1]+"GOのマスに進み，＄200受け取る");
+                        break;
+                    case "10":
+                        history.add(str[1]+"入院費＄100支払う");
+                        break;
+                    case "11":
+                        history.add(str[1]+"教育費として＄50支払う");
+                        break;
+                    case "12":
+                        history.add(str[1]+"治療費として＄50支払う");
+                        break;
+                    case "13":
+                        history.add(str[1]+"全財産の修理費，家1件当たり＄25，ホテル1件当たり＄100支払う");
+                        break;
+                    case "14":
+                        history.add(str[1]+"刑務所へ行く（GOマスを通っても＄200は受け取れない");
+                        break;
+
                 }
             }
             return;
