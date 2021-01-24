@@ -516,15 +516,15 @@ public class MonopolyServer extends CGServer {
                 }
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 // 所有者がいないとき
-                if (board.getOwner(position) == null) {
+                if (board.getOwner(board.getPlayerPosition(name)) == null) {
                   // イベント
                   doEvent(name,board.getPlayerPosition(name));
-                } else if (board.getOwner(position).equals(name)) {
+                } else if (board.getOwner(board.getPlayerPosition(name)).equals(name)) {
                     endTurn();
                 } else {
-                    String owner = board.getOwner(position);
-                    board.payPlayerMoney(name, board.getRent(position)*2);
-                    board.addPlayerMoney(owner, board.getRent(position)*2);
+                    String owner = board.getOwner(board.getPlayerPosition(name));
+                    board.payPlayerMoney(name, board.getRent(board.getPlayerPosition(name))*2);
+                    board.addPlayerMoney(owner, board.getRent(board.getPlayerPosition(name))*2);
                     sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
                             + board.getPlayerMoney(owner));
                     endTurn();
@@ -541,8 +541,8 @@ public class MonopolyServer extends CGServer {
                   board.setPlayerPosition(name, 12);
                 }
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
-                if (board.getOwner(position) != null && !board.getOwner(position).equals(name)) {
-                  String owner = board.getOwner(position);
+                if (board.getOwner(board.getPlayerPosition(name)) != null && !board.getOwner(board.getPlayerPosition(name)).equals(name)) {
+                  String owner = board.getOwner(board.getPlayerPosition(name));
                   board.payPlayerMoney(name, (dice[0] + dice[1]) * 10);
                   board.addPlayerMoney(owner, (dice[0] + dice[1]) * 10);
                   sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
