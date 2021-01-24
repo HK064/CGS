@@ -224,6 +224,7 @@ public class MonopolyBoard {
         }
         else{
             landOwner[land] = owner;
+            System.out.println("setOwner "+landName[land]+" "+landOwner[land]);
         }
     }
 
