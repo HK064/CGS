@@ -463,7 +463,7 @@ public class MonopolyServer extends CGServer {
             case 5:
                 for (int i = 0;i < 41;i++) {
                   if (board.getType(i)==MonopolyBoard.LandType.PROPERTY) {
-                    if (board.getOwner(i).equals(name)) {
+                    if (board.getOwner(i) != null && board.getOwner(i).equals(name)) {
                       board.payPlayerMoney(name,25*board.getBuilding(i));
                     }
                   }
