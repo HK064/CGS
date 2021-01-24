@@ -591,8 +591,8 @@ public class MonopolyPanel extends PlayPanel {
         int totalAsset = board.getPlayerMoney(mouseOverPlayer);
         for (int land = 0; land < MonopolyBoard.LAND_MAX; land++) {
             if (mouseOverPlayer.equals(board.getOwner(land))) {
-                int c = (board.isMortgage(land)) ? (int) Math.ceil(0.5 * board.getPrice(land)) : board.getPrice(land);
-                totalAsset += c + board.getBuildCost(land) * board.getBuilding(land);
+                int c = (board.isMortgage(land)) ? 0 : (int)(board.getPrice(land) * 0.5);
+                totalAsset += c + (int)(board.getBuildCost(land) * board.getBuilding(land) * 0.5);
             }
         }
         drawString(g, x, y + (int) (0.3 * h), "総資産 $" + totalAsset, (int) (0.1 * h));
@@ -762,8 +762,8 @@ public class MonopolyPanel extends PlayPanel {
             player.rollDice();
         }
 
-        s = (state == PlayerState.MY_POSITION_MOVED && board.getPlayerMoney(player.getName()) < 0) ? 0 : 1;
-        if (drawButton(g, x, y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "破産する", s) && s == 0) {
+        s = (board.getPlayerMoney(player.getName()) < 0) ? 0 : 1;
+        if (drawButton(g, x, y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "破産する", s) && mouseClicked && s == 0) {
             player.goBankrupt();
         }
 

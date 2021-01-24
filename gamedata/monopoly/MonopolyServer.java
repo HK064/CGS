@@ -130,7 +130,12 @@ public class MonopolyServer extends CGServer {
 
         // rollDice
         if (str[0].equals("121") && name.equals(playerNameForTurn)) {
-
+            for (String pl : playerNames) {
+                if (board.getPlayerMoney(pl) < 0  && !board.isPlayerBankrupt(name)) {
+                    state = ServerState.MONEY_NEGATIVE;
+                    return;
+                }
+            }
             (new Timer()).schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -299,32 +304,33 @@ public class MonopolyServer extends CGServer {
                 if (name2 == null) {
                     // プレイヤー以外による破産(すべて初期化)
                     for (int land=0;land<board.LAND_MAX;land++){
-                        String owner = board.getOwner(land);
-                        if (owner.equals(name)){
-                            board.setBuilding(land,0);
-                            board.unmortgage(land);
-                            board.setOwner(land,"null");
-                            sendAll("132 " + land + " " + board.getBuilding(land));
-                            sendAll("133 " + land + " " + 0);
-                            sendAll("131 " + "null" + " " + land);
+                        if (board.getOwner(land) != null) {
+                            if (name.equals(board.getOwner(land))){
+                                board.setBuilding(land,0);
+                                board.unmortgage(land);
+                                board.setOwner(land,"null");
+                                sendAll("132 " + land + " " + board.getBuilding(land));
+                                sendAll("133 " + land + " " + 0);
+                                sendAll("131 " + "null" + " " + land);
+                            }
                         }
                     }
                 } else {
                     // プレイヤーによる破産
                     for (int land=0;land<board.LAND_MAX;land++){
-                        String owner = board.getOwner(land);
-                        if (owner.equals(name)){
-                            board.setBuilding(land,0);
-                            board.mortgage(land);
-                            board.setOwner(land,name2);
-                            sendAll("132 " + land + " " + board.getBuilding(land));
-                            sendAll("133 " + land + " " + 1);
-                            sendAll("131 " + name2 + " " + land);
+                        if (board.getOwner(land) != null) {
+                            if (name.equals(board.getOwner(land))){
+                                board.setBuilding(land,0);
+                                board.mortgage(land);
+                                board.setOwner(land,name2);
+                                sendAll("132 " + land + " " + board.getBuilding(land));
+                                sendAll("133 " + land + " " + 1);
+                                sendAll("131 " + name2 + " " + land);
+                            }
                         }
-                        board.addPlayerMoney(name2,price);
-                        sendAll("130 " + name2 + " " + board.getPlayerMoney(name2));
                     }
-                    // TODO
+                    board.addPlayerMoney(name2,price);
+                    sendAll("130 " + name2 + " " + board.getPlayerMoney(name2));
                 }
                 endTurn();
             }
@@ -684,7 +690,7 @@ public class MonopolyServer extends CGServer {
                 sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
                         + board.getPlayerMoney(owner));
             }
-            if (board.getPlayerMoney(name) < 0) {
+            if (board.getPlayerMoney(name) < 0  && !board.isPlayerBankrupt(name)) {
                 state = ServerState.MONEY_NEGATIVE;
             } else {
                 endTurn();
@@ -699,6 +705,12 @@ public class MonopolyServer extends CGServer {
     }
 
     void endTurn() {
+        for (String name : playerNames) {
+            if (board.getPlayerMoney(name) < 0 && !board.isPlayerBankrupt(name)) {
+                state = ServerState.MONEY_NEGATIVE;
+                return;
+            }
+        }
         (new Timer()).schedule(new TimerTask() {
             @Override
             public void run() {

@@ -431,20 +431,16 @@ public class MonopolyBoard {
 
     //プレイヤーの総資産を返す
     int PlayerTotalassets(String name){
-        List<Integer> landOwners = new ArrayList<Integer>();
-        int price = getPlayerMoney(name);
+        int totalAsset = getPlayerMoney(name);
         for (int land=0;land<LAND_MAX;land++){
-            String owner = getOwner(land);
-            if (owner.equals(name)){
-                landOwners.add(land);
-                int level = getBuilding(land);
-                price += (getBuildCost(land) / 2)*level;
-                if (!isMortgage(land)){
-                    price += (getBuildCost(land) / 2)*level;
+            if (getOwner(land) != null) {
+                if (name.equals(getOwner(land))){
+                    int c = (isMortgage(land)) ? 0 :  (int)(getPrice(land) * 0.5);
+                    totalAsset += c +  (int)(getBuildCost(land) * getBuilding(land) * 0.5);
                 }
             }
         }
-        return price;
+        return totalAsset;
     }
 
 }
