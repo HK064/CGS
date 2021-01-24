@@ -482,6 +482,7 @@ public class MonopolyServer extends CGServer {
                   board.addPlayerMoney(name, 200);
                 }
                 board.setPlayerPosition(name, 24);
+                sendAll("130 " + name + " " + board.getPlayerMoney(name));
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 // イベント
                 doEvent(name,board.getPlayerPosition(name));
@@ -491,6 +492,7 @@ public class MonopolyServer extends CGServer {
                   board.addPlayerMoney(name, 200);
                 }
                 board.setPlayerPosition(name, 11);
+                sendAll("130 " + name + " " + board.getPlayerMoney(name));
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 // イベント
                 doEvent(name,board.getPlayerPosition(name));
@@ -500,6 +502,7 @@ public class MonopolyServer extends CGServer {
                   board.addPlayerMoney(name, 200);
                 }
                 board.setPlayerPosition(name, 5);
+                sendAll("130 " + name + " " + board.getPlayerMoney(name));
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 // イベント
                 doEvent(name,board.getPlayerPosition(name));
@@ -647,7 +650,7 @@ public class MonopolyServer extends CGServer {
             case 13:
                 for (int i = 0;i < 41;i++) {
                   if (board.getType(i)==MonopolyBoard.LandType.PROPERTY) {
-                    if (board.getOwner(i).equals(name)) {
+                    if (board.getOwner(i) != null && board.getOwner(i).equals(name)) {
                       board.payPlayerMoney(name,25*board.getBuilding(i));
                     }
                   }
@@ -658,6 +661,7 @@ public class MonopolyServer extends CGServer {
             case 14:
                 board.setPlayerPosition(name, 40);
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                zorome = false;
                 endTurn();
                 break;
         }
