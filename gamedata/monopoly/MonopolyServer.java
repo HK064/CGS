@@ -421,16 +421,19 @@ public class MonopolyServer extends CGServer {
             case 0:
                 board.addPlayerMoney(name, 150);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 1:
                 board.addPlayerMoney(name, 50);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 2:
                 board.setPlayerPosition(name, 0);
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 board.addPlayerMoney(name, 200);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 3:
                 for (String name2 : playerNames) {
@@ -441,10 +444,12 @@ public class MonopolyServer extends CGServer {
                 }
                 board.payPlayerMoney(name,50*(playerNames.size()-1));
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 4:
                 board.payPlayerMoney(name,15);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 5:
                 for (int i = 0;i < 41;i++) {
@@ -455,6 +460,7 @@ public class MonopolyServer extends CGServer {
                   }
                 }
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 6:
                 board.setPlayerPosition(name, 39);
@@ -512,6 +518,7 @@ public class MonopolyServer extends CGServer {
                     board.addPlayerMoney(owner, board.getRent(position)*2);
                     sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
                             + board.getPlayerMoney(owner));
+                    endTurn();
                 }
                 break;
             case 11:
@@ -533,10 +540,12 @@ public class MonopolyServer extends CGServer {
                               + board.getPlayerMoney(owner));
 
                 }
+                endTurn();
                 break;
             case 12:
                 board.setPlayerPosition(name, 40);
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
+                endTurn();
                 break;
             case 13:
                 board.setPlayerPosition(name, position - 3);
@@ -556,18 +565,22 @@ public class MonopolyServer extends CGServer {
             case 0:
                 board.addPlayerMoney(name, 100);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 1:
                 board.addPlayerMoney(name, 10);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 2:
                 board.addPlayerMoney(name, 25);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 3:
                 board.addPlayerMoney(name, 100);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 4:
                 for (String name2 : playerNames) {
@@ -578,41 +591,49 @@ public class MonopolyServer extends CGServer {
                 }
                 board.addPlayerMoney(name,10*(playerNames.size()-1));
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
-
             case 5:
                 board.addPlayerMoney(name, 100);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 6:
                 board.addPlayerMoney(name, 50);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 7:
                 board.addPlayerMoney(name, 200);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 8:
                 board.addPlayerMoney(name, 20);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 9:
                 board.setPlayerPosition(name, 0);
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 board.addPlayerMoney(name, 200);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 10:
                 board.payPlayerMoney(name, 100);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 11:
                 board.payPlayerMoney(name, 50);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 12:
                 board.payPlayerMoney(name, 50);
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 13:
                 for (int i = 0;i < 41;i++) {
@@ -623,11 +644,13 @@ public class MonopolyServer extends CGServer {
                   }
                 }
                 sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                endTurn();
                 break;
             case 14:
                 board.setPlayerPosition(name, 40);
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
                 break;
+                endTurn();
         }
         communityCard.add(cardNum);
         return;
