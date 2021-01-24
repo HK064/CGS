@@ -762,7 +762,7 @@ public class MonopolyPanel extends PlayPanel {
             player.rollDice();
         }
 
-        s = (board.getPlayerMoney(player.getName()) < 0) ? 0 : 1;
+        s = (board.PlayerTotalassets(player.getName()) < 0) ? 0 : 1;
         if (drawButton(g, x, y + (int) (0.2 * h), (int) (0.5 * w), (int) (0.2 * h), "破産する", s) && mouseClicked && s == 0) {
             player.goBankrupt();
         }
@@ -770,7 +770,7 @@ public class MonopolyPanel extends PlayPanel {
         LandType landType = board.getType(board.getPlayerPosition(player.getName()));
         s = (player.getState() == PlayerState.MY_JAIL_START) ? 0 : 1;
         if (drawButton(g, x, y + (int) (0.4 * h), (int) (0.5 * w), (int) (0.2 * h), "出所する", s) && mouseClicked
-                && s == 0) {
+                && s == 0 && board.getPlayerMoney(player.getName()) >= 50) {
             player.leavePrison(true);
         }
         if (drawButton(g, x, y + (int) (0.6 * h), (int) (0.5 * w), (int) (0.2 * h), "出所しない", s) && mouseClicked

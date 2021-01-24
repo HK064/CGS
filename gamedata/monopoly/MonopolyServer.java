@@ -115,6 +115,9 @@ public class MonopolyServer extends CGServer {
                             sendAll("111 " + name + " " + board.getPlayerPosition(name));
                             board.payPlayerMoney(name, 50);
                             sendAll("130 " + name + " " + board.getPlayerMoney(name));
+                            //TODO
+
+
                             board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
                             sendAll("111 " + name + " " + board.getPlayerPosition(name));
                             playerJailTurn.remove(name);
@@ -130,12 +133,6 @@ public class MonopolyServer extends CGServer {
 
         // rollDice
         if (str[0].equals("121") && name.equals(playerNameForTurn)) {
-            for (String pl : playerNames) {
-                if (board.getPlayerMoney(pl) < 0  && !board.isPlayerBankrupt(name)) {
-                    state = ServerState.MONEY_NEGATIVE;
-                    return;
-                }
-            }
             (new Timer()).schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -199,6 +196,9 @@ public class MonopolyServer extends CGServer {
                     checkLeaveMoneyNegative();
                 }
             }
+            if (state == ServerState.MONEY_NEGATIVE && board.getPlayerMoney(name) >= 0){
+                endTurn();
+            }
         }
 
         // 抵当
@@ -214,6 +214,9 @@ public class MonopolyServer extends CGServer {
 
                     checkLeaveMoneyNegative();
                 }
+            }
+            if (state == ServerState.MONEY_NEGATIVE && board.getPlayerMoney(name) >= 0){
+                endTurn();
             }
         }
 
@@ -690,11 +693,7 @@ public class MonopolyServer extends CGServer {
                 sendAll("130 " + name + " " + board.getPlayerMoney(name) + " " + owner + " "
                         + board.getPlayerMoney(owner));
             }
-            if (board.getPlayerMoney(name) < 0  && !board.isPlayerBankrupt(name)) {
-                state = ServerState.MONEY_NEGATIVE;
-            } else {
-                endTurn();
-            }
+            endTurn();
         }
     }
 
