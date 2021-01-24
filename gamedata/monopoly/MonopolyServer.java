@@ -168,7 +168,7 @@ public class MonopolyServer extends CGServer {
         if (str[0].equals("180")) {
             int land = Integer.parseInt(str[1]);
             if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
-                if (name == board.getOwner(land) && board.canBuild(land)) {
+                if (name.equals(board.getOwner(land)) && board.canBuild(land)) {
                     int price = board.getBuildCost(land);
                     if (board.getPlayerMoney(name) - price >= 0) {
                         board.build(land);
@@ -184,7 +184,7 @@ public class MonopolyServer extends CGServer {
         if (str[0].equals("181")) {
             int land = Integer.parseInt(str[1]);
             if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
-                if (name == board.getOwner(land) && board.canUnbuild(land)) {
+                if (name.equals(board.getOwner(land)) && board.canUnbuild(land)) {
                     int price = board.getBuildCost(land) / 2;
                     board.unbuild(land);
                     board.addPlayerMoney(name, price);
@@ -200,7 +200,7 @@ public class MonopolyServer extends CGServer {
         if (str[0].equals("160")) {
             int land = Integer.parseInt(str[1]);
             if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
-                if (name == board.getOwner(land) && !board.isMortgage(land)) {
+                if (name.equals(board.getOwner(land)) && !board.isMortgage(land)) {
                     int price = board.getPrice(land) / 2;
                     board.mortgage(land);
                     board.addPlayerMoney(name, price);
@@ -216,7 +216,7 @@ public class MonopolyServer extends CGServer {
         if (str[0].equals("161")) {
             int land = Integer.parseInt(str[1]);
             if (state != ServerState.READY && state != ServerState.AUCTION && state != ServerState.END_GAME) {
-                if (name == board.getOwner(land) && board.isMortgage(land)) {
+                if (name.equals(board.getOwner(land)) && board.isMortgage(land)) {
                     int price = (int) Math.ceil(0.55 * board.getPrice(land));
                     price += Math.ceil(0.1 * board.getPrice(land));
                     if (board.getPlayerMoney(name) - price >= 0) {

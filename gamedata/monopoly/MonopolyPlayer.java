@@ -163,7 +163,7 @@ public class MonopolyPlayer extends CGPlayer {
                 str[1] = "[chanceカード]"+str[1];
                 switch(str[3]){
                     case "0":
-                        history.add(str[1]+"生命保険満期により＄100受け取る");
+                        history.add(str[1]+"建物ローンの満期で＄150受け取る");
                         break;
                     case "1":
                         history.add(str[1]+"銀行より利息＄50受け取る");
@@ -209,7 +209,7 @@ public class MonopolyPlayer extends CGPlayer {
                 str[1] = "[共同基金カード]"+str[1];
                 switch(str[3]){
                     case "0":
-                        history.add(str[1]+"建物ローンの満期で＄150受け取る");
+                        history.add(str[1]+"生命保険満期により＄100受け取る");
                         break;
                     case "1":
                         history.add(str[1]+"ビューティーコンテスト準優勝．＄10受け取る");
