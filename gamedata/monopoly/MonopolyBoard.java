@@ -219,7 +219,12 @@ public class MonopolyBoard {
     }
 
     void setOwner(int land, String owner) {
-        landOwner[land] = owner;
+        if(owner.equals("null")){
+            landOwner[land] = null;
+        }
+        else{
+            landOwner[land] = owner;
+        }
     }
 
     int getRent(int land) {
@@ -422,6 +427,24 @@ public class MonopolyBoard {
 
     void setPlayerBankrupt(String name) {
         bankruptPlayers.add(name);
+    }
+
+    //プレイヤーの総資産を返す
+    int PlayerTotalassets(String name){
+        List<Integer> landOwners = new ArrayList<Integer>();
+        int price = getPlayerMoney(name);
+        for (int land=0;land<LAND_MAX;land++){
+            String owner = getOwner(land);
+            if (owner.equals(name)){
+                landOwners.add(land);
+                int level = getBuilding(land);
+                price += (getBuildCost(land) / 2)*level;
+                if (!isMortgage(land)){
+                    price += (getBuildCost(land) / 2)*level;
+                }
+            }
+        }
+        return price;
     }
 
 }
