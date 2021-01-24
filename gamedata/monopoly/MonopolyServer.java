@@ -649,8 +649,8 @@ public class MonopolyServer extends CGServer {
             case 14:
                 board.setPlayerPosition(name, 40);
                 sendAll("111 " + name + " " + board.getPlayerPosition(name));
-                break;
                 endTurn();
+                break;
         }
         communityCard.add(cardNum);
         return;
