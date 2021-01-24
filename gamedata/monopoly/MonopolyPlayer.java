@@ -160,9 +160,10 @@ public class MonopolyPlayer extends CGPlayer {
         //カード受信
         if (str[0].equals("190")) {
             if(str[2].equals("chance")){
+                str[1] = "[chanceカード]"+str[1];
                 switch(str[3]){
                     case "0":
-                        history.add(str[1]+"生命保険満期により＄100受け取る");
+                        history.add(str[1]+"建物ローンの満期で＄150受け取る");
                         break;
                     case "1":
                         history.add(str[1]+"銀行より利息＄50受け取る");
@@ -177,7 +178,7 @@ public class MonopolyPlayer extends CGPlayer {
                         history.add(str[1]+"スピード違反で＄15支払う");
                         break;
                     case "5":
-                        history.add(str[1]+"全財産の修理費，家1件当たり＄25，ホテル1件当たり＄100支払う");
+                        history.add(str[1]+"全財産の修理費，家1件当たり＄25，ホテル1件当たり＄125支払う");
                         break;
                     case "6":
                         history.add(str[1]+"函館へ進む");
@@ -205,9 +206,10 @@ public class MonopolyPlayer extends CGPlayer {
                         break;
                 }
             }else if(str[2].equals("community")){
+                str[1] = "[共同基金カード]"+str[1];
                 switch(str[3]){
                     case "0":
-                        history.add(str[1]+"建物ローンの満期で＄150受け取る");
+                        history.add(str[1]+"生命保険満期により＄100受け取る");
                         break;
                     case "1":
                         history.add(str[1]+"ビューティーコンテスト準優勝．＄10受け取る");
@@ -246,7 +248,7 @@ public class MonopolyPlayer extends CGPlayer {
                         history.add(str[1]+"治療費として＄50支払う");
                         break;
                     case "13":
-                        history.add(str[1]+"全財産の修理費，家1件当たり＄25，ホテル1件当たり＄100支払う");
+                        history.add(str[1]+"全財産の修理費，家1件当たり＄25，ホテル1件当たり＄125支払う");
                         break;
                     case "14":
                         history.add(str[1]+"刑務所へ行く（GOマスを通っても＄200は受け取れない");
