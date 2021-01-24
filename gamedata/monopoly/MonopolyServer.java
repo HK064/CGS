@@ -546,7 +546,6 @@ public class MonopolyServer extends CGServer {
                 break;
         }
         chanceCard.add(cardNum);
-        endTurn();
         return;
     }
 
@@ -631,7 +630,6 @@ public class MonopolyServer extends CGServer {
                 break;
         }
         communityCard.add(cardNum);
-        endTurn();
         return;
     }
 
