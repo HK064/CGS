@@ -280,25 +280,45 @@ public class MonopolyServer extends CGServer {
 
         // 破産
         if (str[0].equals("112")) {
-            board.setPlayerBankrupt(name);
-            sendAll("113 " + name);
+            int price =  board.PlayerTotalassets(name);
+            if (price < 0) {
+                board.setPlayerBankrupt(name);
+                sendAll("113 " + name);
 
-            String name2 = board.getOwner(board.getPlayerPosition(name));
-            if (name2 == null) {
-                // プレイヤー以外による破産
-
-                // TODO
-
-            } else {
-                // プレイヤーによる破産
-
-                // TODO
-
+                String name2 = board.getOwner(board.getPlayerPosition(name));
+                if (name2 == null) {
+                    // プレイヤー以外による破産(すべて初期化)
+                    for (int land=0;land<board.LAND_MAX;land++){
+                        String owner = board.getOwner(land);
+                        if (owner.equals(name)){
+                            board.setBuilding(land,0);
+                            board.unmortgage(land);
+                            board.setOwner(land,"null");
+                            sendAll("132 " + land + " " + board.getBuilding(land));
+                            sendAll("133 " + land + " " + 0);
+                            sendAll("131 " + "null" + " " + land);
+                        }
+                    }
+                } else {
+                    // プレイヤーによる破産
+                    for (int land=0;land<board.LAND_MAX;land++){
+                        String owner = board.getOwner(land);
+                        if (owner.equals(name)){
+                            board.setBuilding(land,0);
+                            board.mortgage(land);
+                            board.setOwner(land,name2);
+                            sendAll("132 " + land + " " + board.getBuilding(land));
+                            sendAll("133 " + land + " " + 1);
+                            sendAll("131 " + name2 + " " + land);
+                        }
+                        board.addPlayerMoney(name2,price);
+                        sendAll("130 " + name2 + " " + board.getPlayerMoney(name2));
+                    }
+                    // TODO
+                }
+                endTurn();
             }
-
-            endTurn();
         }
-
     }
 
     void playTurn(String name) {
