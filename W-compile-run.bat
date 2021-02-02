@@ -12,5 +12,3 @@ if %errorlevel% == 0 (
 popd
 
 pause
-
-rem コンパイルして、成功したら実行する。
