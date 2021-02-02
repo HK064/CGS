@@ -29,7 +29,6 @@ class MenuPanel extends CGSPanel{
 
         // 名前入力フィールド
         nameField = new JTextField(CGSProperty.getValue(CGSProperty.USERNAME_KEY));
-        nameField.setCaretPosition(nameField.getText().length());
         add(nameField);
 
         // サーバポート入力フィールド
@@ -74,7 +73,6 @@ class MenuPanel extends CGSPanel{
         addressField = new JTextField(CGSProperty.getValue(CGSProperty.SERVER_ADDRESS_KEY));
         add(addressField);
 
-        
     }
 
     @Override

@@ -82,6 +82,7 @@ public class MainWindow extends JFrame implements Runnable{
         getContentPane().add(panel);
         repaint();
         validate();
+        panel.requestFocusInWindow();
     }
 
     @Override

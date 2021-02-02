@@ -6,10 +6,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import source.file.CGSFont;
@@ -20,6 +24,8 @@ class CGSPanel extends JPanel {
     protected Point mousePos = new Point(-1, -1);
     protected boolean mouseClicked = false;
     private boolean mouseClicked2 = false;
+    protected Set<Character> keyPushed = new HashSet<>();
+    private Set<Character> keyPushed2 = new HashSet<>();
     private int[] windowSize = { -1, -1 };
     protected boolean resize = false;
 
@@ -28,8 +34,15 @@ class CGSPanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                mouseClicked = true;
                 mouseClicked2 = true;
+                requestFocusInWindow();
+            }
+        });
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                char key = e.getKeyChar();
+                keyPushed2.add(key);
             }
         });
     }
@@ -37,15 +50,24 @@ class CGSPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        
+        // マウスクリック
         mouseClicked = mouseClicked2;
         mouseClicked2 = false;
 
+        // キーボード
+        Set<Character> s = keyPushed;
+        keyPushed = keyPushed2;
+        keyPushed2 = s;
+        keyPushed2.clear();
+
+        // マウス座標
         mousePos = getMousePosition();
         if (mousePos == null) {
             mousePos = new Point(-1, -1);
         }
 
+        // ウィンドウサイズ
         resize = false;
         if (windowSize[0] != getWidth() || windowSize[1] != getHeight()) {
             windowSize[0] = getWidth();
@@ -99,7 +121,7 @@ class CGSPanel extends JPanel {
      * @param h
      * @param str
      * @param state 0:普通, 1:押せない状態
-     * @return マウスがボタン上にあるか。
+     * @return マウスがボタン上にあるか（state に関係なく）。
      */
     protected boolean drawButton(Graphics g, int x, int y, int w, int h, String str, int state) {
         int f = Math.max(1, (int) (0.05 * Math.min(w, h)));

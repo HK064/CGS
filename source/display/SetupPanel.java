@@ -37,6 +37,7 @@ public class SetupPanel extends CGSPanel {
         gameList.setSelectedItem(gamedata);
         server.setGame(gamedata);
         add(gameList);
+
     }
 
     SetupPanel(CGSetupPlayer player) {
