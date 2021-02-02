@@ -116,8 +116,6 @@ public class MonopolyServer extends CGServer {
                             board.payPlayerMoney(name, 50);
                             sendAll("130 " + name + " " + board.getPlayerMoney(name));
                             //TODO
-
-
                             board.setPlayerPosition(name, board.getPlayerPosition(name) + dice[0] + dice[1]);
                             sendAll("111 " + name + " " + board.getPlayerPosition(name));
                             playerJailTurn.remove(name);
@@ -196,9 +194,6 @@ public class MonopolyServer extends CGServer {
                     checkLeaveMoneyNegative();
                 }
             }
-            if (state == ServerState.MONEY_NEGATIVE && board.getPlayerMoney(name) >= 0){
-                endTurn();
-            }
         }
 
         // 抵当
@@ -214,9 +209,6 @@ public class MonopolyServer extends CGServer {
 
                     checkLeaveMoneyNegative();
                 }
-            }
-            if (state == ServerState.MONEY_NEGATIVE && board.getPlayerMoney(name) >= 0){
-                endTurn();
             }
         }
 
